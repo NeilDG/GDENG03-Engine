@@ -12,6 +12,8 @@ public:
 	virtual void onUpdate() override;
 	virtual void onDestroy() override;
 
+	void createGraphicsWindow();
+
 private:
 	AppWindow();
 	~AppWindow();

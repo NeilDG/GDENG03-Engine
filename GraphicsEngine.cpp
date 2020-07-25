@@ -53,7 +53,7 @@ void GraphicsEngine::initializeSwapChain(HWND windowHandle, IDXGISwapChain* swap
 
     if (FAILED(hr)) {
         std::string message = std::system_category().message(hr);
-        std::cout << "An error occured when creating a swap chain. \n";
+        std::cout << "An error occured when creating a swap chain. " <<width << " " << height << "\n";
         std::cout << message << "\n";
     }
 

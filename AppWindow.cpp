@@ -15,22 +15,14 @@ void AppWindow::initialize()
 void AppWindow::onCreate()
 {
 	Window::onCreate();
-	GraphicsEngine::initialize();
-	this->swapChain = GraphicsEngine::getInstance()->createSwapChain();
-	RECT windowRect = this->getClientWindowRect();
-	int width = windowRect.right - windowRect.left;
-	int height = windowRect.bottom - windowRect.top;
-
-	this->swapChain->init(this->getWindowHandle(), width, height);
 	std::cout << "On create \n";
 }
 
 void AppWindow::onUpdate()
 {
-	Window::onUpdate();
 	GraphicsEngine::getInstance()->GetImmediateContext()->clearRenderTargetColor(this->swapChain, 1, 0, 0, 1);
 	this->swapChain->present(false);
-	//std::cout << "On update \n";
+	std::cout << "On update \n";
 }
 
 void AppWindow::onDestroy()
@@ -38,6 +30,19 @@ void AppWindow::onDestroy()
 	Window::onDestroy();
 	GraphicsEngine::destroy();
 	std::cout << "On destroy \n";
+}
+
+void AppWindow::createGraphicsWindow()
+{
+	GraphicsEngine::initialize();
+	this->swapChain = GraphicsEngine::getInstance()->createSwapChain();
+	RECT windowRect = this->getClientWindowRect();
+	int width = windowRect.right - windowRect.left;
+	int height = windowRect.bottom - windowRect.top;
+	std::cout << "Window rect width: " << width << "\n";
+	std::cout << "Window rect height: " << height << "\n";
+
+	this->swapChain->init(this->getWindowHandle(), width, height);
 }
 
 AppWindow::AppWindow():Window()
