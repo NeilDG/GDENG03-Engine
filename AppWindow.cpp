@@ -28,6 +28,8 @@ void AppWindow::onCreate()
 void AppWindow::onUpdate()
 {
 	Window::onUpdate();
+	GraphicsEngine::getInstance()->GetImmediateContext()->clearRenderTargetColor(this->swapChain, 1, 0, 0, 1);
+	this->swapChain->present(false);
 	//std::cout << "On update \n";
 }
 

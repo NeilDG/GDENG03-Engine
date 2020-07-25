@@ -1,5 +1,7 @@
 #include "GraphicsEngine.h"
 #include "SwapChain.h"
+#include <dxgi.h>
+#include <system_error>
 
 GraphicsEngine* GraphicsEngine::sharedInstance = NULL;
 
@@ -23,7 +25,12 @@ void GraphicsEngine::destroy()
 
 SwapChain* GraphicsEngine::createSwapChain()
 {
-    return new SwapChain();
+    return new SwapChain(this->directXDevice);
+}
+
+DeviceContext* GraphicsEngine::GetImmediateContext()
+{
+    return this->customContext;
 }
 
 void GraphicsEngine::initializeSwapChain(HWND windowHandle, IDXGISwapChain* swapChain, UINT width, UINT height)
@@ -40,16 +47,25 @@ void GraphicsEngine::initializeSwapChain(HWND windowHandle, IDXGISwapChain* swap
     desc.OutputWindow = windowHandle;
     desc.SampleDesc.Count = 1;
     desc.SampleDesc.Quality = 0;
-    desc.Windowed = true; 
+    desc.Windowed = TRUE;
 
     HRESULT hr = this->dxFactory->CreateSwapChain(this->directXDevice, &desc, &swapChain);
 
     if (FAILED(hr)) {
+        std::string message = std::system_category().message(hr);
         std::cout << "An error occured when creating a swap chain. \n";
+        std::cout << message << "\n";
+    }
+
+    if (swapChain == NULL) {
+        std::cout << "Swap chain is null!!!! \n";
+    }
+    else {
+        std::cout << "Swap chain is initialized. \n";
     }
 }
 
-bool GraphicsEngine::init()
+void GraphicsEngine::init()
 {
     D3D_DRIVER_TYPE driverTypes[] = {
         D3D_DRIVER_TYPE_HARDWARE, //uses GPU
@@ -69,33 +85,39 @@ bool GraphicsEngine::init()
         res = D3D11CreateDevice(NULL, driverTypes[i], NULL, NULL, featureLevels, numFeatureLevels, D3D11_SDK_VERSION, &this->directXDevice, &this->featureLevel, &this->deviceContext);
 
         if (SUCCEEDED(res)) {
+            std::cout << "Selected driver type: " << driverTypes[i] << "\n";
             break;
-            i++;
         }
     }
 
     if (SUCCEEDED(res)) {
         this->directXDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&this->dxgiDevice);
         this->dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&this->dxAdapter);
-        this->dxAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&this->dxFactory);
-        std::cout << "Initialized graphics engine \n";
-        return true;
+        res = this->dxAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&this->dxFactory);
+        this->customContext = new DeviceContext(this->deviceContext);
+        if (SUCCEEDED(res)) {
+            std::cout << "DX factory for graphics engine created. " << this->dxFactory << "\n";
+            std::string message = std::system_category().message(res);
+            std::cout << message << "\n";
+        }
+        else {
+            std::cout << "An error occured when creating DX factory \n";
+        }
+        
+        
     }
-    else {
-        return false;
-    } 
 }
 
-bool GraphicsEngine::release()
+void GraphicsEngine::release()
 {
     this->dxgiDevice->Release();
     this->dxAdapter->Release();
     this->dxFactory->Release();
 
     this->deviceContext->Release();
+    this->customContext->release();
     this->directXDevice->Release();
     std::cout << "Destroyed graphics engine \n";
-    return true;
 }
 
 GraphicsEngine::GraphicsEngine()
