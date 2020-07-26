@@ -2,9 +2,10 @@
 #include <d3d11.h>
 #include <iostream>
 #include "DeviceContext.h"
+#include "VertexBuffer.h"
+#include <d3dcompiler.h>
 
 class SwapChain;
-
 class GraphicsEngine
 {
 public: 
@@ -13,8 +14,16 @@ public:
 	static void destroy();
 
 	SwapChain* createSwapChain();
-	DeviceContext* GetImmediateContext();
+	DeviceContext* getImmediateContext();
 	IDXGIFactory* getDirectXFactory();
+	ID3D11Device* getDirectXDevice();
+	VertexBuffer* createVertexBuffer();
+
+	void createShaders();
+	void setShaders();
+
+	void getShaderBufferAndSize(void** bytecode, UINT* size);
+
 
 private: 
 	GraphicsEngine();
@@ -33,5 +42,10 @@ private:
 	IDXGIAdapter* dxAdapter;
 	IDXGIFactory* dxFactory;
 	DeviceContext* customContext;
+
+	ID3DBlob* m_vsblob = nullptr;
+	ID3DBlob* m_psblob = nullptr;
+	ID3D11VertexShader* m_vs = nullptr;
+	ID3D11PixelShader* m_ps = nullptr;
 };
 

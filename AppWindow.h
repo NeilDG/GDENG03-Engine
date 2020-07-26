@@ -22,5 +22,6 @@ private:
 	static AppWindow* sharedInstance;
 
 	SwapChain* swapChain;
+	VertexBuffer* vertexBuffer;
 };
 
