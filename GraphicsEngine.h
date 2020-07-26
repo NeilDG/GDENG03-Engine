@@ -6,6 +6,9 @@
 #include <d3dcompiler.h>
 
 class SwapChain;
+class VertexShader;
+class PixelShader;
+
 class GraphicsEngine
 {
 public: 
@@ -18,11 +21,14 @@ public:
 	IDXGIFactory* getDirectXFactory();
 	ID3D11Device* getDirectXDevice();
 	VertexBuffer* createVertexBuffer();
+	VertexShader* createVertexShader(void* shaderByteCode, size_t byteCodeSize);
+	PixelShader* createPixelShader(void* shaderByteCode, size_t byteCodeSize);
+	void compileVertexShader(const wchar_t* fileName, const char* entryPointName, void** shaderByteCode, size_t* byteCodeSize);
+	void compilePixelShader(const wchar_t* fileName, const char* entryPointName, void** shaderByteCode, size_t* byteCodeSize);
+	void releaseCompiledShader();
 
-	void createShaders();
-	void setShaders();
-
-	void getShaderBufferAndSize(void** bytecode, UINT* size);
+	//void createShaders();
+	//void setShaders();
 
 
 private: 
@@ -43,9 +49,10 @@ private:
 	IDXGIFactory* dxFactory;
 	DeviceContext* customContext;
 
-	ID3DBlob* m_vsblob = nullptr;
-	ID3DBlob* m_psblob = nullptr;
-	ID3D11VertexShader* m_vs = nullptr;
-	ID3D11PixelShader* m_ps = nullptr;
+	ID3DBlob* customBlob = NULL;
+	/*ID3DBlob* m_vsblob = NULL;
+	ID3DBlob* m_psblob = NULL;
+	ID3D11VertexShader* m_vs = NULL;
+	ID3D11PixelShader* m_ps = NULL;*/
 };
 

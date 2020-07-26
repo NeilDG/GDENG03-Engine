@@ -1,6 +1,8 @@
 #include "DeviceContext.h"
 #include "SwapChain.h"
 #include "VertexBuffer.h"
+#include "VertexShader.h"
+#include "PixelShader.h"
 
 DeviceContext::DeviceContext(ID3D11DeviceContext* deviceContext): myContext(deviceContext)
 {
@@ -34,6 +36,12 @@ void DeviceContext::drawTriangle(UINT vertexCount, UINT startIndex)
 	this->myContext->Draw(vertexCount, startIndex);
 }
 
+void DeviceContext::drawTriangleStrip(UINT vertexCount, UINT startIndex)
+{
+	this->myContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	this->myContext->Draw(vertexCount, startIndex);
+}
+
 void DeviceContext::setViewportSize(UINT width, UINT height)
 {
 	D3D11_VIEWPORT vp = {}; //IMPORTANT: all structs in Direct3D must have this to initialize any default values.
@@ -43,6 +51,16 @@ void DeviceContext::setViewportSize(UINT width, UINT height)
 	vp.MaxDepth = 1.0f;
 
 	this->myContext->RSSetViewports(1, &vp);
+}
+
+void DeviceContext::setVertexShader(VertexShader* vertexShader)
+{
+	this->myContext->VSSetShader(vertexShader->getShader(), NULL, 0);
+}
+
+void DeviceContext::setPixelShader(PixelShader* pixelShader)
+{
+	this->myContext->PSSetShader(pixelShader->getShader(), NULL, 0);
 }
 
 void DeviceContext::release()

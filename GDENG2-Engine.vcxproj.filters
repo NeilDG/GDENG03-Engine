@@ -28,6 +28,15 @@
     <Filter Include="GameEngine\Shaders">
       <UniqueIdentifier>{f347d058-63be-42f4-bbdb-8b39dc45924e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameEngine\FrameUpdate">
+      <UniqueIdentifier>{b7cf0047-7a28-45d2-94b5-e1198579de9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\GraphicsEngine\VertexShader">
+      <UniqueIdentifier>{277ad3ef-3974-404d-85b4-7bbd1bc9e7ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\GraphicsEngine\PixelShader">
+      <UniqueIdentifier>{31b25e3a-e4af-4fcc-b870-e5d810caad43}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -54,6 +63,15 @@
     <ClCompile Include="VertexBuffer.cpp">
       <Filter>GameEngine\GraphicsEngine\VertexBuffer</Filter>
     </ClCompile>
+    <ClCompile Include="EngineTime.cpp">
+      <Filter>GameEngine\FrameUpdate</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexShader.cpp">
+      <Filter>GameEngine\GraphicsEngine\VertexShader</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelShader.cpp">
+      <Filter>GameEngine\GraphicsEngine\PixelShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -76,6 +94,15 @@
     </ClInclude>
     <ClInclude Include="VertexBuffer.h">
       <Filter>GameEngine\GraphicsEngine\VertexBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineTime.h">
+      <Filter>GameEngine\FrameUpdate</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexShader.h">
+      <Filter>GameEngine\GraphicsEngine\VertexShader</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelShader.h">
+      <Filter>GameEngine\GraphicsEngine\PixelShader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

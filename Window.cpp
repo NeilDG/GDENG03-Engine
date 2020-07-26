@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "EngineTime.h"
 
 static Window* windowInstance = NULL;
 
@@ -56,11 +57,14 @@ bool Window::createWindow()
     ::ShowWindow(this->windowHandle, SW_SHOW);
     ::UpdateWindow(this->windowHandle);
 
+    EngineTime::initialize(); //initialize engine time
+
     return true;
 }
 
 bool Window::broadcast()
 {
+    EngineTime::LogFrameStart();
     this->onUpdate();
     MSG msg;
     while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0) {
@@ -69,6 +73,7 @@ bool Window::broadcast()
     }
 
     Sleep(1); //to avoid super continuous frame update.
+    EngineTime::LogFrameEnd();
     return true;
 }
 

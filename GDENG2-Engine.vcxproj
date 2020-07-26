@@ -142,20 +142,26 @@
   <ItemGroup>
     <ClCompile Include="AppWindow.cpp" />
     <ClCompile Include="DeviceContext.cpp" />
+    <ClCompile Include="EngineTime.cpp" />
     <ClCompile Include="GraphicsEngine.cpp" />
     <ClCompile Include="LogUtils.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PixelShader.cpp" />
     <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
+    <ClCompile Include="VertexShader.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h" />
     <ClInclude Include="DeviceContext.h" />
+    <ClInclude Include="EngineTime.h" />
     <ClInclude Include="GraphicsEngine.h" />
     <ClInclude Include="LogUtils.h" />
+    <ClInclude Include="PixelShader.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="VertexBuffer.h" />
+    <ClInclude Include="VertexShader.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,8 @@
 
 class SwapChain;
 class VertexBuffer;
+class VertexShader;
+class PixelShader;
 
 class DeviceContext
 {
@@ -13,8 +15,10 @@ public:
 	void clearRenderTargetColor(SwapChain* swapChain, float red, float green, float blue, float alpha);
 	void setVertexBuffer(VertexBuffer* vertexBuffer);
 	void drawTriangle(UINT vertexCount, UINT startIndex);
+	void drawTriangleStrip(UINT vertexCount, UINT startIndex);
 	void setViewportSize(UINT width, UINT height);
-
+	void setVertexShader(VertexShader* vertexShader);
+	void setPixelShader(PixelShader* pixelShader);
 	void release();
 private:
 	ID3D11DeviceContext* myContext;
