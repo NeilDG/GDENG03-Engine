@@ -14,6 +14,7 @@ public:
 
 	SwapChain* createSwapChain();
 	DeviceContext* GetImmediateContext();
+	IDXGIFactory* getDirectXFactory();
 
 private: 
 	GraphicsEngine();
@@ -32,9 +33,5 @@ private:
 	IDXGIAdapter* dxAdapter;
 	IDXGIFactory* dxFactory;
 	DeviceContext* customContext;
-
-	void initializeSwapChain(HWND windowHandle, IDXGISwapChain* swapChain, UINT width, UINT height);
-
-	friend class SwapChain;
 };
 

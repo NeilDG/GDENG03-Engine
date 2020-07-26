@@ -4,7 +4,7 @@
 class SwapChain
 {
 public: 
-	bool init(HWND windowHandle, UINT width, UINT height);
+	void init(HWND windowHandle, UINT width, UINT height);
 	void present(bool vsync);
 	bool release();
 

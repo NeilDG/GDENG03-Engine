@@ -61,14 +61,14 @@ bool Window::createWindow()
 
 bool Window::broadcast()
 {
+    this->onUpdate();
     MSG msg;
     while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
 
-    this->onUpdate();
-    Sleep(0); //to avoid super continuous frame update.
+    Sleep(1); //to avoid super continuous frame update.
     return true;
 }
 

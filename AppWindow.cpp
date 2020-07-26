@@ -20,9 +20,9 @@ void AppWindow::onCreate()
 
 void AppWindow::onUpdate()
 {
-	GraphicsEngine::getInstance()->GetImmediateContext()->clearRenderTargetColor(this->swapChain, 1, 0, 0, 1);
+	GraphicsEngine::getInstance()->GetImmediateContext()->clearRenderTargetColor(this->swapChain, 1, 0, 1, 1);
 	this->swapChain->present(false);
-	std::cout << "On update \n";
+	//std::cout << "On update \n";
 }
 
 void AppWindow::onDestroy()

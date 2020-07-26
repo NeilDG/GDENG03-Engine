@@ -19,6 +19,9 @@
     <Filter Include="GameEngine\GraphicsEngine\DeviceContext">
       <UniqueIdentifier>{75d5ee10-706d-40ce-88fd-da0cfecbe900}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameEngine\Utils">
+      <UniqueIdentifier>{d2dc81cc-56b7-42c4-99ec-c1149575ec90}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -39,6 +42,7 @@
     <ClCompile Include="DeviceContext.cpp">
       <Filter>GameEngine\GraphicsEngine\DeviceContext</Filter>
     </ClCompile>
+    <ClCompile Include="LogUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -56,5 +60,6 @@
     <ClInclude Include="DeviceContext.h">
       <Filter>GameEngine\GraphicsEngine\DeviceContext</Filter>
     </ClInclude>
+    <ClInclude Include="LogUtils.h" />
   </ItemGroup>
 </Project>

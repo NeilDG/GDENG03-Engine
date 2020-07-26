@@ -33,36 +33,9 @@ DeviceContext* GraphicsEngine::GetImmediateContext()
     return this->customContext;
 }
 
-void GraphicsEngine::initializeSwapChain(HWND windowHandle, IDXGISwapChain* swapChain, UINT width, UINT height)
+IDXGIFactory* GraphicsEngine::getDirectXFactory()
 {
-    DXGI_SWAP_CHAIN_DESC desc;
-    ZeroMemory(&desc, sizeof(desc)); //fills occupied memory with zeroes
-    desc.BufferCount = 1;
-    desc.BufferDesc.Width = width;
-    desc.BufferDesc.Height = height;
-    desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    desc.BufferDesc.RefreshRate.Numerator = 60;
-    desc.BufferDesc.RefreshRate.Denominator = 1;
-    desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    desc.OutputWindow = windowHandle;
-    desc.SampleDesc.Count = 1;
-    desc.SampleDesc.Quality = 0;
-    desc.Windowed = TRUE;
-
-    HRESULT hr = this->dxFactory->CreateSwapChain(this->directXDevice, &desc, &swapChain);
-
-    if (FAILED(hr)) {
-        std::string message = std::system_category().message(hr);
-        std::cout << "An error occured when creating a swap chain. " <<width << " " << height << "\n";
-        std::cout << message << "\n";
-    }
-
-    if (swapChain == NULL) {
-        std::cout << "Swap chain is null!!!! \n";
-    }
-    else {
-        std::cout << "Swap chain is initialized. \n";
-    }
+    return this->dxFactory;
 }
 
 void GraphicsEngine::init()
