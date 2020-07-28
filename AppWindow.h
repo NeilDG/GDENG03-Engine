@@ -24,6 +24,7 @@ private:
 	SwapChain* swapChain;
 	VertexBuffer* vertexBuffer;
 	VertexBuffer* secondBuffer;
+	ConstantBuffer* constantBuffer;
 
 	VertexShader* vertexShader;
 	PixelShader* pixelShader;

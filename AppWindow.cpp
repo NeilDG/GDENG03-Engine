@@ -2,6 +2,7 @@
 #include "EngineTime.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
+#include "ConstantBuffer.h"
 
 struct Vector3 {
 	float x, y, z;
@@ -9,7 +10,12 @@ struct Vector3 {
 
 struct Vertex {
 	Vector3 position;
+	Vector3 position2;
 	Vector3 color;
+};
+_declspec(align(16)) //make CBData a size of 16-bytes.
+struct CBData {
+	unsigned int time; //size of only 4 bytes. this won't align in GPU device because device requires 16 bytes.
 };
 
 AppWindow* AppWindow::sharedInstance = NULL;
@@ -33,10 +39,12 @@ void AppWindow::onCreate()
 void AppWindow::onUpdate()
 {
 	this->ticks += EngineTime::getDeltaTime();
-	if (this->ticks > this->CHANGE_DELAY) {
+	
+	/*if (this->ticks > this->CHANGE_DELAY) {
 		this->ticks = 0.0f;
 		this->displayAlt = !this->displayAlt;
-	}
+	}*/
+
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
 	DeviceContext* deviceContext = graphEngine->getImmediateContext();
 	deviceContext->setVertexShader(this->vertexShader);
@@ -48,7 +56,13 @@ void AppWindow::onUpdate()
 	int height = windowRect.bottom - windowRect.top;
 
 	deviceContext->setViewportSize(width, height);
-	//GraphicsEngine::getInstance()->setShaders();
+
+	CBData cbData = {};
+	cbData.time = this->ticks * 20.0f;
+
+	this->constantBuffer->update(deviceContext, &cbData);
+	deviceContext->setConstantBuffer(this->vertexShader, this->constantBuffer);
+	deviceContext->setConstantBuffer(this->pixelShader, this->constantBuffer);
 
 	if (this->displayAlt) {
 		deviceContext->setVertexBuffer(this->vertexBuffer);
@@ -107,10 +121,10 @@ void AppWindow::createGraphicsWindow()
 
 	Vertex quadList[] = {
 		//X, Y, Z
-		{-0.5f,-0.5f,0.0f, 1.0f, 0.0f, 0.0f}, // POS1
-		{-0.5f,0.5f,0.0f, 0.0f, 1.0f, 0.0f}, // POS2
-		{ 0.5f,-0.5f,0.0f, 0.0f, 0.0f, 1.0f},// POS2
-		{ 0.5f,0.5f,0.0f, 1.0f, 1.0f, 0.0f}
+		{-0.5f,-0.5f,0.0f, -0.32f, -0.11f, 0.0f,		1.0f, 0.0f, 0.0f}, // POS1
+		{-0.5f,0.5f,0.0f,	-0.1f, 0.5f, 0.0f, 		0.0f, 1.0f, 0.0f}, // POS2
+		{ 0.5f,-0.5f,0.0f,	0.75f, -0.73f, 0.0f,		0.0f, 0.0f, 1.0f},// POS2
+		{ 0.5f,0.5f,0.0f,	0.88f, 0.77f, 0.0f,		1.0f, 1.0f, 0.0f}
 	};
 
 	this->vertexBuffer = GraphicsEngine::getInstance()->createVertexBuffer();
@@ -125,6 +139,12 @@ void AppWindow::createGraphicsWindow()
 	graphEngine->compilePixelShader(L"PixelShader.hlsl", "main", &shaderByteCode, &sizeShader);
 	this->pixelShader = graphEngine->createPixelShader(shaderByteCode, sizeShader);
 	graphEngine->releaseCompiledShader();
+
+	//create constant buffer
+	CBData cbData = {};
+	cbData.time = 0;
+	this->constantBuffer = GraphicsEngine::getInstance()->createConstantBuffer();
+	this->constantBuffer->load(&cbData, sizeof(CBData));
 }
 
 AppWindow::AppWindow():Window()
