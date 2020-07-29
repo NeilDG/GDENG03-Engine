@@ -12,10 +12,13 @@ struct Vertex {
 	Vector3 position;
 	Vector3 position2;
 	Vector3 color;
+	Vector3 color2;
+
 };
 _declspec(align(16)) //make CBData a size of 16-bytes.
 struct CBData {
-	unsigned int time; //size of only 4 bytes. this won't align in GPU device because device requires 16 bytes.
+	//unsigned int time; //size of only 4 bytes. this won't align in GPU device because device requires 16 bytes.
+	float time;
 };
 
 AppWindow* AppWindow::sharedInstance = NULL;
@@ -58,7 +61,9 @@ void AppWindow::onUpdate()
 	deviceContext->setViewportSize(width, height);
 
 	CBData cbData = {};
-	cbData.time = this->ticks * 20.0f;
+	cbData.time = this->ticks;
+
+	std::cout << "CB time is: " << cbData.time << "\n";
 
 	this->constantBuffer->update(deviceContext, &cbData);
 	deviceContext->setConstantBuffer(this->vertexShader, this->constantBuffer);
@@ -121,10 +126,10 @@ void AppWindow::createGraphicsWindow()
 
 	Vertex quadList[] = {
 		//X, Y, Z
-		{-0.5f,-0.5f,0.0f, -0.32f, -0.11f, 0.0f,		1.0f, 0.0f, 0.0f}, // POS1
-		{-0.5f,0.5f,0.0f,	-0.1f, 0.5f, 0.0f, 		0.0f, 1.0f, 0.0f}, // POS2
-		{ 0.5f,-0.5f,0.0f,	0.75f, -0.73f, 0.0f,		0.0f, 0.0f, 1.0f},// POS2
-		{ 0.5f,0.5f,0.0f,	0.88f, 0.77f, 0.0f,		1.0f, 1.0f, 0.0f}
+		{-0.5f,-0.5f,0.0f,    -0.32f,-0.11f,0.0f,   0,0,0,  0,1,0 }, // POS1
+		{-0.5f,0.5f,0.0f,     -0.11f,0.78f,0.0f,    1,1,0,  1,1,0 }, // POS2
+		{ 0.5f,-0.5f,0.0f,     0.75f,-0.73f,0.0f,   0,0,1,  1,0,0 },// POS2
+		{ 0.5f,0.5f,0.0f,      0.88f,0.77f,0.0f,    1,1,1,  0,0,1 }
 	};
 
 	this->vertexBuffer = GraphicsEngine::getInstance()->createVertexBuffer();
