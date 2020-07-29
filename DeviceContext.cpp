@@ -3,6 +3,7 @@
 #include "VertexBuffer.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
+#include "ConstantBuffer.h"
 
 DeviceContext::DeviceContext(ID3D11DeviceContext* deviceContext): myContext(deviceContext)
 {
@@ -63,7 +64,24 @@ void DeviceContext::setPixelShader(PixelShader* pixelShader)
 	this->myContext->PSSetShader(pixelShader->getShader(), NULL, 0);
 }
 
+void DeviceContext::setConstantBuffer(VertexShader* vertexShader, ConstantBuffer* buffer)
+{
+	ID3D11Buffer* deviceBuffer = buffer->getBuffer();
+	this->myContext->VSSetConstantBuffers(0, 1, &deviceBuffer);
+}
+
+void DeviceContext::setConstantBuffer(PixelShader* vertexShader, ConstantBuffer* buffer)
+{
+	ID3D11Buffer* deviceBuffer = buffer->getBuffer();
+	this->myContext->PSSetConstantBuffers(0, 1, &deviceBuffer);
+}
+
 void DeviceContext::release()
 {
 	this->myContext->Release();
+}
+
+ID3D11DeviceContext* DeviceContext::getContext()
+{
+	return this->myContext;
 }

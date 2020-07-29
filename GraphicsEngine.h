@@ -3,12 +3,12 @@
 #include <iostream>
 #include "DeviceContext.h"
 #include "VertexBuffer.h"
+#include "ConstantBuffer.h"
 #include <d3dcompiler.h>
 
 class SwapChain;
 class VertexShader;
 class PixelShader;
-
 class GraphicsEngine
 {
 public: 
@@ -21,6 +21,7 @@ public:
 	IDXGIFactory* getDirectXFactory();
 	ID3D11Device* getDirectXDevice();
 	VertexBuffer* createVertexBuffer();
+	ConstantBuffer* createConstantBuffer();
 	VertexShader* createVertexShader(void* shaderByteCode, size_t byteCodeSize);
 	PixelShader* createPixelShader(void* shaderByteCode, size_t byteCodeSize);
 	void compileVertexShader(const wchar_t* fileName, const char* entryPointName, void** shaderByteCode, size_t* byteCodeSize);
