@@ -11,6 +11,9 @@ public:
 	void setIdentity();
 	void setTranslation(const Vector3D translation);
 	void setScale(const Vector3D scale);
+	void setRotationX(float x);
+	void setRotationY(float y);
+	void setRotationZ(float z);
 	void setOrthoLH(float width, float height, float near_plane, float far_plane);
 	Matrix4x4 multiplyTo(Matrix4x4 matrix);
 

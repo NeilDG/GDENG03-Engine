@@ -3,12 +3,13 @@
 #include "VertexShader.h"
 #include "PixelShader.h"
 #include "ConstantBuffer.h"
+#include "IndexBuffer.h"
+#include "VertexBuffer.h"
 #include "Vector3D.h"
 #include "Matrix4x4.h"
 
 struct Vertex {
 	Vector3D position;
-	Vector3D position2;
 	Vector3D color;
 	Vector3D color2;
 
@@ -86,8 +87,20 @@ void AppWindow::updateQuads()
 	}
 
 	cbData.worldMatrix.setTranslation(Vector3D::lerp(Vector3D(-1.5f, -1.5f, 0), Vector3D(1.5f, 1.5f, 0), deltaPos));
-	Matrix4x4 scaleMatrix; scaleMatrix.setScale(Vector3D::lerp(Vector3D(0.5, 0.5, 0), Vector3D(1.0f, 1.0f, 0), (sin(deltaPos * 20.0f) + 1.0f) / 2.0f));
+	Matrix4x4 scaleMatrix; scaleMatrix.setScale(Vector3D::lerp(Vector3D(0.5f, 0.5f, 0.5f), Vector3D(1.0f, 1.0f, 1.0f), (sin(deltaPos * 20.0f) + 1.0f) / 2.0f));
 	cbData.worldMatrix = cbData.worldMatrix.multiplyTo(scaleMatrix);
+
+	//cbData.worldMatrix.setScale(Vector3D(1.0f, 1.0f, 1.0f));
+	Matrix4x4 zMatrix; zMatrix.setIdentity();
+	zMatrix.setRotationZ(deltaPos * 10.0f);
+
+	Matrix4x4 xMatrix; xMatrix.setIdentity();
+	xMatrix.setRotationX(deltaPos * 10.0f);
+
+	Matrix4x4 yMatrix; yMatrix.setIdentity();
+	yMatrix.setRotationY(deltaPos * 10.0f);
+
+	cbData.worldMatrix = cbData.worldMatrix.multiplyTo(xMatrix.multiplyTo(yMatrix.multiplyTo(zMatrix)));
 	cbData.viewMatrix.setIdentity();
 	cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
 	
@@ -102,8 +115,9 @@ void AppWindow::updateQuads()
 	deviceContext->setConstantBuffer(this->pixelShader, this->constantBuffer);
 
 	deviceContext->setVertexBuffer(this->secondBuffer);
-	UINT listSize = this->secondBuffer->getListSize();
-	deviceContext->drawTriangleStrip(listSize, 0);
+	deviceContext->setIndexBuffer(this->indexBuffer);
+
+	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
 	this->swapChain->present(true);
 }
 
@@ -111,6 +125,8 @@ void AppWindow::onDestroy()
 {
 	Window::onDestroy();
 	this->vertexBuffer->release();
+	this->indexBuffer->release();
+	this->constantBuffer->release();
 	this->swapChain->release();
 	this->vertexShader->release();
 	this->pixelShader->release();
@@ -142,16 +158,47 @@ void AppWindow::createGraphicsWindow()
 	//create buffers for drawing. vertex data that needs to be drawn are temporarily placed here.
 	Vertex quadList[] = {
 		//X, Y, Z
-		{Vector3D(-0.5f,-0.5f,0.0f),    Vector3D(-0.32f,-0.11f,0.0f),   Vector3D(0,0,0), Vector3D(0,1,0) }, // POS1
-		{Vector3D(-0.5f,0.5f,0.0f),     Vector3D(-0.11f,0.78f,0.0f),   Vector3D(1,1,0), Vector3D(0,1,1) }, // POS2
-		{Vector3D(0.5f,-0.5f,0.0f),     Vector3D(0.75f,-0.73f,0.0f), Vector3D(0,0,1),  Vector3D(1,0,0) },// POS2
-		{Vector3D(0.5f,0.5f,0.0f),     Vector3D(0.88f,0.77f,0.0f),    Vector3D(1,1,1), Vector3D(0,0,1) }
+		//FRONT FACE
+		{Vector3D(-0.5f,-0.5f,-0.5f),    Vector3D(1,0,0),  Vector3D(0.2f,0,0) },
+		{Vector3D(-0.5f,0.5f,-0.5f),    Vector3D(1,1,0), Vector3D(0.2f,0.2f,0) },
+		{ Vector3D(0.5f,0.5f,-0.5f),   Vector3D(1,1,0),  Vector3D(0.2f,0.2f,0) },
+		{ Vector3D(0.5f,-0.5f,-0.5f),     Vector3D(1,0,0), Vector3D(0.2f,0,0) },
+
+		//BACK FACE
+		{ Vector3D(0.5f,-0.5f,0.5f),    Vector3D(0,1,0), Vector3D(0,0.2f,0) },
+		{ Vector3D(0.5f,0.5f,0.5f),    Vector3D(0,1,1), Vector3D(0,0.2f,0.2f) },
+		{ Vector3D(-0.5f,0.5f,0.5f),   Vector3D(0,1,1),  Vector3D(0,0.2f,0.2f) },
+		{ Vector3D(-0.5f,-0.5f,0.5f),     Vector3D(0,1,0), Vector3D(0,0.2f,0) },
 	};
 
 	this->secondBuffer = GraphicsEngine::getInstance()->createVertexBuffer();
 	this->secondBuffer->load(quadList, sizeof(Vertex), ARRAYSIZE(quadList), shaderByteCode, sizeShader);
 
-	graphEngine->releaseCompiledShader(); //this must be called after all buffers declared.
+	unsigned int indexList[] =
+	{
+		//FRONT SIDE
+		0,1,2,  //FIRST TRIANGLE
+		2,3,0,  //SECOND TRIANGLE
+		//BACK SIDE
+		4,5,6,
+		6,7,4,
+		//TOP SIDE
+		1,6,5,
+		5,2,1,
+		//BOTTOM SIDE
+		7,0,3,
+		3,4,7,
+		//RIGHT SIDE
+		3,2,5,
+		5,4,3,
+		//LEFT SIDE
+		7,6,1,
+		1,0,7
+	};
+	this->indexBuffer = GraphicsEngine::getInstance()->createIndexBuffer();
+	this->indexBuffer->load(indexList, ARRAYSIZE(indexList));
+
+	graphEngine->releaseCompiledShader(); //this must be called after each stage.
 
 	//pixel shading stage
 	graphEngine->compilePixelShader(L"PixelShader.hlsl", "main", &shaderByteCode, &sizeShader);

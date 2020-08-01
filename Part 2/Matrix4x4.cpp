@@ -37,6 +37,30 @@ void Matrix4x4::setScale(const Vector3D scale)
 	this->matrix[2][2] = vect.z;
 }
 
+void Matrix4x4::setRotationX(float x)
+{
+	this->matrix[1][1] = cos(x);
+	this->matrix[1][2] = sin(x);
+	this->matrix[2][1] = -sin(x);
+	this->matrix[2][2] = cos(x);
+}
+
+void Matrix4x4::setRotationY(float y)
+{
+	this->matrix[0][0] = cos(y);
+	this->matrix[0][2] = -sin(y);
+	this->matrix[2][0] = sin(y);
+	this->matrix[2][2] = cos(y);
+}
+
+
+void Matrix4x4::setRotationZ(float z)
+{
+	this->matrix[0][0] = cos(z);
+	this->matrix[0][1] = sin(z);
+	this->matrix[1][0] = -sin(z);
+	this->matrix[1][1] = cos(z);
+}
 
 void Matrix4x4::setOrthoLH(float width, float height, float near_plane, float far_plane)
 {
