@@ -26,7 +26,7 @@ void GraphicsEngine::destroy()
     }
 }
 
-SwapChain* GraphicsEngine::createSwapChain()
+SwapChain* GraphicsEngine::getSwapChain()
 {
     return new SwapChain(this->directXDevice);
 }

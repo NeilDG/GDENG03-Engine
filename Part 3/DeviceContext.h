@@ -31,8 +31,6 @@ public:
 	void release();
 	ID3D11DeviceContext* getContext();
 
-	int bufferCount = 0;
-
 private:
 	ID3D11DeviceContext* myContext;
 };

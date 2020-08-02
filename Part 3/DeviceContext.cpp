@@ -29,10 +29,8 @@ void DeviceContext::setVertexBuffer(VertexBuffer* vertexBuffer)
 	UINT stride = vertexBuffer->getVertexSize();
 	UINT offset = 0;
 	ID3D11Buffer* buffer = vertexBuffer->getBuffer();
-	this->myContext->IASetVertexBuffers(this->bufferCount, 1, &buffer, &stride, &offset);
+	this->myContext->IASetVertexBuffers(0, 1, &buffer, &stride, &offset);
 	this->myContext->IASetInputLayout(vertexBuffer->getInputLayout());
-
-	//this->bufferCount++;
 }
 
 void DeviceContext::setIndexBuffer(IndexBuffer* indexBuffer)

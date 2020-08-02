@@ -102,6 +102,9 @@
     <ClCompile Include="Cube.cpp">
       <Filter>GameEngine\Primitive</Filter>
     </ClCompile>
+    <ClCompile Include="MathUtils.cpp">
+      <Filter>GameEngine\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -151,6 +154,9 @@
     </ClInclude>
     <ClInclude Include="Cube.h">
       <Filter>GameEngine\Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="MathUtils.h">
+      <Filter>GameEngine\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
