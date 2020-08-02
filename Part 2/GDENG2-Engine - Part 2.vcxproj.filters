@@ -46,6 +46,9 @@
     <Filter Include="GameEngine\GraphicsEngine\IndexBuffer">
       <UniqueIdentifier>{6870e591-d092-4f4b-8946-0cbc18f231cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameEngine\Primitive">
+      <UniqueIdentifier>{ee2a5f44-d007-41f4-9711-929614de8d47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -93,6 +96,12 @@
     <ClCompile Include="IndexBuffer.cpp">
       <Filter>GameEngine\GraphicsEngine\IndexBuffer</Filter>
     </ClCompile>
+    <ClCompile Include="AGameObject.cpp">
+      <Filter>GameEngine\Primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="Cube.cpp">
+      <Filter>GameEngine\Primitive</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -136,6 +145,12 @@
     </ClInclude>
     <ClInclude Include="IndexBuffer.h">
       <Filter>GameEngine\GraphicsEngine\IndexBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="AGameObject.h">
+      <Filter>GameEngine\Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.h">
+      <Filter>GameEngine\Primitive</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

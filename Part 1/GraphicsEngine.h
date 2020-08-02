@@ -16,7 +16,7 @@ public:
 	static void initialize();
 	static void destroy();
 
-	SwapChain* createSwapChain();
+	SwapChain* getSwapChain();
 	DeviceContext* getImmediateContext();
 	IDXGIFactory* getDirectXFactory();
 	ID3D11Device* getDirectXDevice();

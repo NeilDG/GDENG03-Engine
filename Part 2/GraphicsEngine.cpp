@@ -26,9 +26,13 @@ void GraphicsEngine::destroy()
     }
 }
 
-SwapChain* GraphicsEngine::createSwapChain()
+SwapChain* GraphicsEngine::getSwapChain()
 {
-    return new SwapChain(this->directXDevice);
+    if (this->activeSwapChain == NULL) {
+        this->activeSwapChain = new SwapChain(this->directXDevice);
+    }
+    
+    return this->activeSwapChain;
 }
 
 DeviceContext* GraphicsEngine::getImmediateContext()

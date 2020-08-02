@@ -17,7 +17,7 @@ public:
 	static void initialize();
 	static void destroy();
 
-	SwapChain* createSwapChain();
+	SwapChain* getSwapChain();
 	DeviceContext* getImmediateContext();
 	IDXGIFactory* getDirectXFactory();
 	ID3D11Device* getDirectXDevice();
@@ -51,7 +51,7 @@ private:
 	IDXGIAdapter* dxAdapter;
 	IDXGIFactory* dxFactory;
 	DeviceContext* customContext;
-
+	SwapChain* activeSwapChain;
 	ID3DBlob* customBlob = NULL;
 	/*ID3DBlob* m_vsblob = NULL;
 	ID3DBlob* m_psblob = NULL;

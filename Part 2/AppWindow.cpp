@@ -12,8 +12,8 @@ struct Vertex {
 	Vector3D position;
 	Vector3D color;
 	Vector3D color2;
-
 };
+
 _declspec(align(16)) //make CBData a size of 16-bytes.
 struct CBData {
 	Matrix4x4 worldMatrix;
@@ -62,9 +62,13 @@ void AppWindow::onUpdate()
 
 	deviceContext->setViewportSize(width, height);
 
-	this->updateQuads();
+	//this->updateQuads();
+
+	for (int i = 0; i < this->cubeList.size(); i++) {
+		this->cubeList[i]->update(EngineTime::getDeltaTime());
+		this->cubeList[i]->draw(width, height, this->vertexShader, this->pixelShader);
+	}
 	
-	//std::cout << "On update \n";
 }
 
 void AppWindow::updateQuads()
@@ -103,12 +107,6 @@ void AppWindow::updateQuads()
 	cbData.worldMatrix = cbData.worldMatrix.multiplyTo(xMatrix.multiplyTo(yMatrix.multiplyTo(zMatrix)));
 	cbData.viewMatrix.setIdentity();
 	cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
-	
-	/*std::cout << "CB time is: " << cbData.time << " World matrix: \n";
-	cbData.worldMatrix.debugPrint();
-
-	std::cout << "Proj matrix: \n";
-	cbData.projMatrix.debugPrint();*/
 
 	this->constantBuffer->update(deviceContext, &cbData);
 	deviceContext->setConstantBuffer(this->vertexShader, this->constantBuffer);
@@ -139,7 +137,7 @@ void AppWindow::createGraphicsWindow()
 	GraphicsEngine::initialize();
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
 
-	this->swapChain = GraphicsEngine::getInstance()->createSwapChain();
+	this->swapChain = GraphicsEngine::getInstance()->getSwapChain();
 	RECT windowRect = this->getClientWindowRect();
 	int width = windowRect.right - windowRect.left;
 	int height = windowRect.bottom - windowRect.top;
@@ -156,7 +154,7 @@ void AppWindow::createGraphicsWindow()
 	this->vertexShader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
 
 	//create buffers for drawing. vertex data that needs to be drawn are temporarily placed here.
-	Vertex quadList[] = {
+	/*Vertex quadList[] = {
 		//X, Y, Z
 		//FRONT FACE
 		{Vector3D(-0.5f,-0.5f,-0.5f),    Vector3D(1,0,0),  Vector3D(0.2f,0,0) },
@@ -196,7 +194,15 @@ void AppWindow::createGraphicsWindow()
 		1,0,7
 	};
 	this->indexBuffer = GraphicsEngine::getInstance()->createIndexBuffer();
-	this->indexBuffer->load(indexList, ARRAYSIZE(indexList));
+	this->indexBuffer->load(indexList, ARRAYSIZE(indexList));*/
+
+	Cube* cubeObject = new Cube("Cube", shaderByteCode, sizeShader);
+	cubeObject->setAnimSpeed(100.0f);
+	this->cubeList.push_back(cubeObject);
+
+	cubeObject = new Cube("Cube2", shaderByteCode, sizeShader);
+	cubeObject->setAnimSpeed(25.0f);
+	this->cubeList.push_back(cubeObject);
 
 	graphEngine->releaseCompiledShader(); //this must be called after each stage.
 
@@ -206,10 +212,10 @@ void AppWindow::createGraphicsWindow()
 	graphEngine->releaseCompiledShader();
 
 	//create constant buffer
-	CBData cbData = {};
+	/*CBData cbData = {};
 	cbData.time = 0;
 	this->constantBuffer = GraphicsEngine::getInstance()->createConstantBuffer();
-	this->constantBuffer->load(&cbData, sizeof(CBData));
+	this->constantBuffer->load(&cbData, sizeof(CBData));*/
 }
 
 

@@ -2,6 +2,10 @@
 #include "Window.h"
 #include "GraphicsEngine.h"
 #include "SwapChain.h"
+#include "Cube.h"
+#include <vector>
+
+typedef std::vector<Cube*> CubeList;
 
 class AppWindow : public Window
 {
@@ -30,6 +34,8 @@ private:
 
 	VertexShader* vertexShader;
 	PixelShader* pixelShader;
+
+	CubeList cubeList;
 
 	float ticks = 0.0f;
 	float CHANGE_DELAY = 1.0f;

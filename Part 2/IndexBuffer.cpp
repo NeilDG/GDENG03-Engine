@@ -37,6 +37,8 @@ void IndexBuffer::load(void* vertexList, UINT listSize)
 
 void IndexBuffer::release()
 {
+	this->buffer->Release();
+	delete this;
 }
 
 ID3D11Buffer* IndexBuffer::getBuffer()

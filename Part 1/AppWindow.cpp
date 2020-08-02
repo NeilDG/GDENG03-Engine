@@ -100,7 +100,7 @@ void AppWindow::createGraphicsWindow()
 	GraphicsEngine::initialize();
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
 
-	this->swapChain = GraphicsEngine::getInstance()->createSwapChain();
+	this->swapChain = GraphicsEngine::getInstance()->getSwapChain();
 	RECT windowRect = this->getClientWindowRect();
 	int width = windowRect.right - windowRect.left;
 	int height = windowRect.bottom - windowRect.top;
