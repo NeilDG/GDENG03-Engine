@@ -1,6 +1,6 @@
 #include "Cube.h"
 #include "GraphicsEngine.h"
-
+#include "InputSystem.h"
 #include "SwapChain.h"
 
 Cube::Cube(string name, void* shaderByteCode, size_t sizeShader):AGameObject(name)
@@ -64,11 +64,19 @@ Cube::~Cube()
 
 void Cube::update(float deltaTime)
 {
-	this->ticks += deltaTime;
 	this->deltaTime = deltaTime;
+	if (InputSystem::getInstance()->isKeyDown('W')) {
+		this->ticks += deltaTime;
 
-	float rotSpeed = this->ticks * this->speed;
-	this->setRotation(rotSpeed, rotSpeed, rotSpeed);
+		float rotSpeed = this->ticks * this->speed;
+		this->setRotation(rotSpeed, rotSpeed, rotSpeed);
+	}
+	else if (InputSystem::getInstance()->isKeyDown('S')) {
+		this->ticks -= deltaTime;
+
+		float rotSpeed = this->ticks * this->speed;
+		this->setRotation(rotSpeed, rotSpeed, rotSpeed);
+	}
 }
 
 void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* pixelShader)

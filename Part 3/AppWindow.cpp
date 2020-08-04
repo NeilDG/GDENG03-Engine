@@ -40,6 +40,10 @@ void AppWindow::onCreate()
 {
 	Window::onCreate();
 	srand(time(NULL));
+
+	InputSystem::initialize();
+	InputSystem::getInstance()->addListener(this);
+
 	std::cout << "On create \n";
 }
 
@@ -47,10 +51,7 @@ void AppWindow::onUpdate()
 {
 	this->ticks += EngineTime::getDeltaTime();
 	
-	/*if (this->ticks > this->CHANGE_DELAY) {
-		this->ticks = 0.0f;
-		this->displayAlt = !this->displayAlt;
-	}*/
+	InputSystem::getInstance()->update();
 
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
 	DeviceContext* deviceContext = graphEngine->getImmediateContext();
@@ -75,6 +76,8 @@ void AppWindow::onUpdate()
 void AppWindow::onDestroy()
 {
 	Window::onDestroy();
+	InputSystem::getInstance()->removeListener(this);
+	InputSystem::getInstance()->destroy();
 	this->vertexBuffer->release();
 	this->indexBuffer->release();
 	this->constantBuffer->release();
@@ -123,6 +126,20 @@ void AppWindow::createGraphicsWindow()
 	graphEngine->compilePixelShader(L"PixelShader.hlsl", "main", &shaderByteCode, &sizeShader);
 	this->pixelShader = graphEngine->createPixelShader(shaderByteCode, sizeShader);
 	graphEngine->releaseCompiledShader();
+}
+
+void AppWindow::onKeyDown(int key)
+{
+	if (key == 'W') {
+		std::cout << "Key W pressed down! \n";
+	}
+}
+
+void AppWindow::onKeyUp(int key)
+{
+	if (key == 'W') {
+		std::cout << "Key W pressed up! \n";
+	}
 }
 
 
