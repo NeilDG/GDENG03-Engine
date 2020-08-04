@@ -4,10 +4,11 @@
 #include "SwapChain.h"
 #include "Cube.h"
 #include <vector>
+#include "InputSystem.h"
 
 typedef std::vector<Cube*> CubeList;
 
-class AppWindow : public Window
+class AppWindow : public Window, public InputListener
 {
 public:
 	static AppWindow* getInstance();
@@ -17,6 +18,9 @@ public:
 	virtual void onDestroy() override;
 
 	void createGraphicsWindow();
+
+	virtual void onKeyDown(int key) override;
+	virtual void onKeyUp(int key) override;
 
 private:
 	AppWindow();
