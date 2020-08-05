@@ -132,6 +132,9 @@
     <ClCompile Include="imgui_widgets.cpp">
       <Filter>IMGUI</Filter>
     </ClCompile>
+    <ClCompile Include="Point.cpp">
+      <Filter>GameEngine\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -214,6 +217,9 @@
     </ClInclude>
     <ClInclude Include="imstb_truetype.h">
       <Filter>IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Point.h">
+      <Filter>GameEngine\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

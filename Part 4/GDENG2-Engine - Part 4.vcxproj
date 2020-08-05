@@ -161,6 +161,7 @@
     <ClCompile Include="MathUtils.cpp" />
     <ClCompile Include="Matrix4x4.cpp" />
     <ClCompile Include="PixelShader.cpp" />
+    <ClCompile Include="Point.cpp" />
     <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="Vector3D.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="MathUtils.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="PixelShader.h" />
+    <ClInclude Include="Point.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="Vector3D.h" />
     <ClInclude Include="VertexBuffer.h" />

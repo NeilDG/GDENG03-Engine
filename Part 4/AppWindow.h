@@ -22,6 +22,14 @@ public:
 
 	virtual void onKeyDown(int key) override;
 	virtual void onKeyUp(int key) override;
+	virtual void onMouseMove(const Point deltaPos) override;
+	virtual void onLeftMouseDown(const Point deltaPos) override;
+	virtual void onLeftMouseUp(const Point deltaPos) override;
+	virtual void onRightMouseDown(const Point deltaPos) override;
+	virtual void onRightMouseUp(const Point deltaPos) override;
+
+	virtual void onFocus();
+	virtual void onDefocus();
 
 private:
 	AppWindow();
@@ -45,6 +53,8 @@ private:
 	float CHANGE_DELAY = 1.0f;
 
 	float deltaPos = 0.0f;
+
+	bool shouldRotate = false;
 
 };
 
