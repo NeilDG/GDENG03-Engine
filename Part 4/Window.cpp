@@ -27,6 +27,14 @@ LRESULT CALLBACK WndProc(HWND windowHandle, UINT msg, WPARAM wparam, LPARAM lpar
         windowInstance->onCreate();
         break;
     }
+    case WM_SETFOCUS: {
+        windowInstance->onFocus();
+        break;
+    }
+    case WM_KILLFOCUS: {
+        windowInstance->onDefocus();
+        break;
+    }
     case WM_DESTROY: {
         windowInstance->onDestroy();
         ::PostQuitMessage(0);
@@ -131,4 +139,12 @@ void Window::onUpdate()
 void Window::onDestroy()
 {
     this->runningFlag = false;
+}
+
+void Window::onFocus()
+{
+}
+
+void Window::onDefocus()
+{
 }

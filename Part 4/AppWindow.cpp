@@ -11,6 +11,8 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
+#include "Point.h"
+#include "SceneCameraHandler.h"
 
 
 static float f = 0.0f;
@@ -49,7 +51,7 @@ void AppWindow::onCreate()
 	srand(time(NULL));
 
 	InputSystem::initialize();
-	InputSystem::getInstance()->addListener(this);
+	//InputSystem::getInstance()->addListener(this);
 
 	std::cout << "On create \n";
 }
@@ -84,12 +86,7 @@ void AppWindow::onUpdate()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-	ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-
-	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-
+	ImGui::Begin("GDENG-2 Engine Profiler");                          // Create a window called "Hello, world!" and append into it.
 	if (ImGui::Button("Button")) {
 		// Buttons return true when clicked (most widgets return true when edited/activated)
 		counter++;
@@ -105,6 +102,9 @@ void AppWindow::onUpdate()
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
+
+	SceneCameraHandler::getInstance()->update();
+
 	graphEngine->getSwapChain()->present(true); //NOTE: Called once per screen refresh.
 }
 
@@ -119,6 +119,7 @@ void AppWindow::onDestroy()
 	this->swapChain->release();
 	this->vertexShader->release();
 	this->pixelShader->release();
+	SceneCameraHandler::destroy();
 	GraphicsEngine::destroy();
 
 	// IMGUI Cleanup
@@ -150,14 +151,14 @@ void AppWindow::createGraphicsWindow()
 	graphEngine->compileVertexShader(L"VertexShader.hlsl", "main", &shaderByteCode, &sizeShader);
 	this->vertexShader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
 
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 10; i++) {
 		float x = MathUtils::randomFloat(-0.75, 0.75f);
 		float y = MathUtils::randomFloat(-0.75, 0.75f);
 
 		Cube* cubeObject = new Cube("Cube", shaderByteCode, sizeShader);
 		cubeObject->setAnimSpeed(MathUtils::randomFloat(-3.75f, 3.75f));
-		cubeObject->setPosition(Vector3D(x, y, 0.0f));
-		cubeObject->setScale(Vector3D(0.25, 0.25, 0.25));
+		cubeObject->setPosition(Vector3D(x, y, 1.0f));
+		cubeObject->setScale(Vector3D(1.0f, 1.0f, 1.0f));
 		this->cubeList.push_back(cubeObject);
 	}
 
@@ -167,6 +168,8 @@ void AppWindow::createGraphicsWindow()
 	graphEngine->compilePixelShader(L"PixelShader.hlsl", "main", &shaderByteCode, &sizeShader);
 	this->pixelShader = graphEngine->createPixelShader(shaderByteCode, sizeShader);
 	graphEngine->releaseCompiledShader();
+
+	SceneCameraHandler::initialize();
 }
 
 void AppWindow::createInterface()
@@ -199,6 +202,55 @@ void AppWindow::onKeyUp(int key)
 	if (key == 'W') {
 		std::cout << "Key W pressed up! \n";
 	}
+}
+
+void AppWindow::onMouseMove(const Point deltaPos)
+{
+	/*if (this->shouldRotate) {
+		for (int i = 0; i < this->cubeList.size(); i++) {
+			Vector3D localRot = this->cubeList[i]->getLocalRotation();
+			float x = localRot.getX();
+			float y = localRot.getY();
+			float z = localRot.getZ();
+
+			x -= deltaPos.getY() * EngineTime::getDeltaTime() * 1.0f;
+			y -= deltaPos.getX() * EngineTime::getDeltaTime() * 1.0f;
+
+			this->cubeList[i]->setRotation(x, y, z);
+		}
+	}*/
+}
+
+void AppWindow::onLeftMouseDown(const Point deltaPos)
+{
+	std::cout << "Left mouse down! \n";
+}
+
+void AppWindow::onLeftMouseUp(const Point deltaPos)
+{
+	std::cout << "Left mouse up! \n";
+}
+
+void AppWindow::onRightMouseDown(const Point deltaPos)
+{
+	std::cout << "Right mouse down! \n";
+	this->shouldRotate = true;
+}
+
+void AppWindow::onRightMouseUp(const Point deltaPos)
+{
+	std::cout << "Right mouse up! \n";
+	this->shouldRotate = false;
+}
+
+void AppWindow::onFocus()
+{
+	InputSystem::getInstance()->addListener(this);
+}
+
+void AppWindow::onDefocus()
+{
+	InputSystem::getInstance()->removeListener(this);
 }
 
 

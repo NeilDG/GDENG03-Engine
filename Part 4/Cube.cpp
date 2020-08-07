@@ -2,6 +2,7 @@
 #include "GraphicsEngine.h"
 #include "InputSystem.h"
 #include "SwapChain.h"
+#include "SceneCameraHandler.h"
 
 Cube::Cube(string name, void* shaderByteCode, size_t sizeShader):AGameObject(name)
 {
@@ -95,12 +96,12 @@ void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* 
 	}
 
 	Matrix4x4 allMatrix; allMatrix.setIdentity();
-	Matrix4x4 translationMatrix; translationMatrix.setTranslation(this->getLocalPosition());
+	Matrix4x4 translationMatrix; translationMatrix.setIdentity();  translationMatrix.setTranslation(this->getLocalPosition());
 	Matrix4x4 scaleMatrix; scaleMatrix.setScale(this->getLocalScale());
 	Vector3D rotation = this->getLocalRotation();
-	Matrix4x4 zMatrix; zMatrix.setRotationZ(rotation.getValues().z);
-	Matrix4x4 xMatrix; xMatrix.setRotationX(rotation.getValues().x);
-	Matrix4x4 yMatrix; yMatrix.setRotationY(rotation.getValues().y);
+	Matrix4x4 zMatrix; zMatrix.setRotationZ(rotation.getZ());
+	Matrix4x4 xMatrix; xMatrix.setRotationX(rotation.getX());
+	Matrix4x4 yMatrix; yMatrix.setRotationY(rotation.getY());
 
 	//Scale --> Rotate --> Transform as recommended order.
 	Matrix4x4 rotMatrix; rotMatrix.setIdentity();
@@ -109,8 +110,12 @@ void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* 
 	allMatrix = allMatrix.multiplyTo(translationMatrix);
 	cbData.worldMatrix = allMatrix;
 
-	cbData.viewMatrix.setIdentity();
-	cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
+	Matrix4x4 cameraMatrix = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
+	cbData.viewMatrix = cameraMatrix;
+
+	//cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
+	float aspectRatio = (float)width / (float)height;
+	cbData.projMatrix.setPerspectiveFovLH(aspectRatio, aspectRatio, 0.1f, 1000.0f);
 
 	this->constantBuffer->update(deviceContext, &cbData);
 	deviceContext->setConstantBuffer(vertexShader, this->constantBuffer);
@@ -120,7 +125,6 @@ void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* 
 	deviceContext->setVertexBuffer(this->vertexBuffer);
 
 	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
-	//graphEngine->getSwapChain()->present(true); 
 }
 
 void Cube::setAnimSpeed(float speed)
