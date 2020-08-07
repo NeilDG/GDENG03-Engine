@@ -68,6 +68,18 @@ void Matrix4x4::setRotationZ(float z)
 	this->matrix[1][1] = cos(z);
 }
 
+void Matrix4x4::setPerspectiveFovLH(float fov, float aspect, float znear, float zfar)
+{
+	this->setIdentity();
+	float yscale = 1.0f / tan(fov / 2.0f);
+	float xscale = yscale / aspect;
+	this->matrix[0][0] = xscale;
+	this->matrix[1][1] = yscale;
+	this->matrix[2][2] = zfar / (zfar - znear);
+	this->matrix[2][3] = 1.0f;
+	this->matrix[3][2] = (-znear * zfar) / (zfar - znear);
+}
+
 void Matrix4x4::setOrthoLH(float width, float height, float near_plane, float far_plane)
 {
 	this->setIdentity();
@@ -124,6 +136,21 @@ Matrix4x4 Matrix4x4::multiplyTo(Matrix4x4 matrix)
 	}
 
 	return out;
+}
+
+Vector3D Matrix4x4::getZDirection()
+{
+	return Vector3D(this->matrix[2][0], this->matrix[2][1], this->matrix[2][2]);
+}
+
+Vector3D Matrix4x4::getXDirection()
+{
+	return Vector3D(this->matrix[0][0], this->matrix[0][1], this->matrix[0][2]);
+}
+
+Vector3D Matrix4x4::getTranslation()
+{
+	return Vector3D(this->matrix[3][0], this->matrix[3][1], this->matrix[3][2]);
 }
 
 void Matrix4x4::debugPrint()

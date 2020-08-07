@@ -158,7 +158,7 @@ void AppWindow::createGraphicsWindow()
 		Cube* cubeObject = new Cube("Cube", shaderByteCode, sizeShader);
 		cubeObject->setAnimSpeed(MathUtils::randomFloat(-3.75f, 3.75f));
 		cubeObject->setPosition(Vector3D(x, y, 1.0f));
-		cubeObject->setScale(Vector3D(0.25, 0.25, 0.25));
+		cubeObject->setScale(Vector3D(1.0f, 1.0f, 1.0f));
 		this->cubeList.push_back(cubeObject);
 	}
 
@@ -206,7 +206,7 @@ void AppWindow::onKeyUp(int key)
 
 void AppWindow::onMouseMove(const Point deltaPos)
 {
-	if (this->shouldRotate) {
+	/*if (this->shouldRotate) {
 		for (int i = 0; i < this->cubeList.size(); i++) {
 			Vector3D localRot = this->cubeList[i]->getLocalRotation();
 			float x = localRot.getX();
@@ -218,7 +218,7 @@ void AppWindow::onMouseMove(const Point deltaPos)
 
 			this->cubeList[i]->setRotation(x, y, z);
 		}
-	}
+	}*/
 }
 
 void AppWindow::onLeftMouseDown(const Point deltaPos)

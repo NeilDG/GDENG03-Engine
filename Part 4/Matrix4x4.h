@@ -16,10 +16,15 @@ public:
 	void setRotationX(float x);
 	void setRotationY(float y);
 	void setRotationZ(float z);
+
+	void setPerspectiveFovLH(float fov, float aspect, float znear, float zfar);
 	void setOrthoLH(float width, float height, float near_plane, float far_plane);
 	void getInverse();
 
 	Matrix4x4 multiplyTo(Matrix4x4 matrix);
+	Vector3D getZDirection();
+	Vector3D getXDirection();
+	Vector3D getTranslation();
 
 	void debugPrint();
 	

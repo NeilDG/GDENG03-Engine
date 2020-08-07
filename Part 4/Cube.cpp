@@ -110,11 +110,12 @@ void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* 
 	allMatrix = allMatrix.multiplyTo(translationMatrix);
 	cbData.worldMatrix = allMatrix;
 
-	//cbData.viewMatrix.setIdentity(); //TODO: set camera here.
 	Matrix4x4 cameraMatrix = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
 	cbData.viewMatrix = cameraMatrix;
 
-	cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
+	//cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
+	float aspectRatio = (float)width / (float)height;
+	cbData.projMatrix.setPerspectiveFovLH(aspectRatio, aspectRatio, 0.1f, 1000.0f);
 
 	this->constantBuffer->update(deviceContext, &cbData);
 	deviceContext->setConstantBuffer(vertexShader, this->constantBuffer);
@@ -124,7 +125,6 @@ void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* 
 	deviceContext->setVertexBuffer(this->vertexBuffer);
 
 	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
-	//graphEngine->getSwapChain()->present(true); 
 }
 
 void Cube::setAnimSpeed(float speed)

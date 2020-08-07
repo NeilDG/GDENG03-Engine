@@ -34,6 +34,16 @@ float Vector3D::getZ() const
 	return this->z;
 }
 
+Vector3D Vector3D::operator*(float num)
+{
+	return Vector3D(this->x * num, this->y * num, this->z * num);
+}
+
+Vector3D Vector3D::operator+(Vector3D vec)
+{
+	return Vector3D(this->x + vec.x, this->y + vec.y, this->z + vec.z);
+}
+
 Vector3D Vector3D::lerp(const Vector3D start, const Vector3D end, float delta)
 {
 	Vector3D v;
