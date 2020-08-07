@@ -19,14 +19,19 @@ Vector3D::Vector3D(const Vector3D* vector)
 	this->z = vector->z;
 }
 
-Vector3D::Vect Vector3D::getValues() const
+float Vector3D::getX() const
 {
-	Vect vect = {};
-	vect.x = this->x;
-	vect.y = this->y;
-	vect.z = this->z;
+	return this->x;
+}
 
-	return vect;
+float Vector3D::getY() const
+{
+	return this->y;
+}
+
+float Vector3D::getZ() const
+{
+	return this->z;
 }
 
 Vector3D Vector3D::lerp(const Vector3D start, const Vector3D end, float delta)

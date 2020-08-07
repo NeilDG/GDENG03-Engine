@@ -19,22 +19,25 @@ void Matrix4x4::setIdentity()
 	this->matrix[3][3] = 1;
 }
 
+void Matrix4x4::setMatrix(const Matrix4x4 matrix)
+{
+	::memcpy(this->matrix, matrix.matrix, sizeof(float) * 16);
+}
+
 void Matrix4x4::setTranslation(const Vector3D translation)
 {
 	this->setIdentity();
-	Vector3D::Vect vect = translation.getValues();
-	this->matrix[3][0] = vect.x;
-	this->matrix[3][1] = vect.y;
-	this->matrix[3][2] = vect.z;
+	this->matrix[3][0] = translation.getX();
+	this->matrix[3][1] = translation.getY();
+	this->matrix[3][2] = translation.getZ();
 }
 
 void Matrix4x4::setScale(const Vector3D scale)
 {
 	this->setIdentity();
-	Vector3D::Vect vect = scale.getValues();
-	this->matrix[0][0] = vect.x;
-	this->matrix[1][1] = vect.y;
-	this->matrix[2][2] = vect.z;
+	this->matrix[0][0] = scale.getX();
+	this->matrix[1][1] = scale.getY();
+	this->matrix[2][2] = scale.getZ();
 }
 
 void Matrix4x4::setRotationX(float x)
@@ -74,6 +77,41 @@ void Matrix4x4::setOrthoLH(float width, float height, float near_plane, float fa
 	this->matrix[3][2] = -(near_plane / (far_plane - near_plane));
 }
 
+void Matrix4x4::getInverse()
+{
+	int a, i, j;
+	Matrix4x4 out;
+	Vector4D v, vec[3];
+	float det = 0.0f;
+
+	det = this->determinant();
+	if (!det) return;
+
+	for (i = 0; i < 4; i++)
+	{
+		for (j = 0; j < 4; j++)
+		{
+			if (j != i)
+			{
+				a = j;
+				if (j > i) a = a - 1;
+				vec[a].x = (this->matrix[j][0]);
+				vec[a].y = (this->matrix[j][1]);
+				vec[a].z = (this->matrix[j][2]);
+				vec[a].w = (this->matrix[j][3]);
+			}
+		}
+		v.cross(vec[0], vec[1], vec[2]);
+
+		out.matrix[0][i] = pow(-1.0f, i) * v.x / det;
+		out.matrix[1][i] = pow(-1.0f, i) * v.y / det;
+		out.matrix[2][i] = pow(-1.0f, i) * v.z / det;
+		out.matrix[3][i] = pow(-1.0f, i) * v.w / det;
+	}
+
+	this->setMatrix(out);
+}
+
 Matrix4x4 Matrix4x4::multiplyTo(Matrix4x4 matrix)
 {
 	Matrix4x4 out;
@@ -105,4 +143,20 @@ void Matrix4x4::matrixInitialize()
 			this->matrix[i][j] = 0.0f;
 		}
 	}
+}
+
+float Matrix4x4::determinant()
+{
+	Vector4D minor, v1, v2, v3;
+	float det;
+
+	v1 = Vector4D(this->matrix[0][0], this->matrix[1][0], this->matrix[2][0], this->matrix[3][0]);
+	v2 = Vector4D(this->matrix[0][1], this->matrix[1][1], this->matrix[2][1], this->matrix[3][1]);
+	v3 = Vector4D(this->matrix[0][2], this->matrix[1][2], this->matrix[2][2], this->matrix[3][2]);
+
+
+	minor.cross(v1, v2, v3);
+	det = -(this->matrix[0][3] * minor.getX() + this->matrix[1][3] * minor.getY() + this->matrix[2][3] * minor.getZ() +
+		this->matrix[3][3] * minor.getW());
+	return det;
 }

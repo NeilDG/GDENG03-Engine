@@ -12,6 +12,7 @@
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
 #include "Point.h"
+#include "SceneCameraHandler.h"
 
 
 static float f = 0.0f;
@@ -101,6 +102,9 @@ void AppWindow::onUpdate()
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
+
+	SceneCameraHandler::getInstance()->update();
+
 	graphEngine->getSwapChain()->present(true); //NOTE: Called once per screen refresh.
 }
 
@@ -115,6 +119,7 @@ void AppWindow::onDestroy()
 	this->swapChain->release();
 	this->vertexShader->release();
 	this->pixelShader->release();
+	SceneCameraHandler::destroy();
 	GraphicsEngine::destroy();
 
 	// IMGUI Cleanup
@@ -163,6 +168,8 @@ void AppWindow::createGraphicsWindow()
 	graphEngine->compilePixelShader(L"PixelShader.hlsl", "main", &shaderByteCode, &sizeShader);
 	this->pixelShader = graphEngine->createPixelShader(shaderByteCode, sizeShader);
 	graphEngine->releaseCompiledShader();
+
+	SceneCameraHandler::initialize();
 }
 
 void AppWindow::createInterface()
@@ -202,9 +209,9 @@ void AppWindow::onMouseMove(const Point deltaPos)
 	if (this->shouldRotate) {
 		for (int i = 0; i < this->cubeList.size(); i++) {
 			Vector3D localRot = this->cubeList[i]->getLocalRotation();
-			float x = localRot.getValues().x;
-			float y = localRot.getValues().y;
-			float z = localRot.getValues().z;
+			float x = localRot.getX();
+			float y = localRot.getY();
+			float z = localRot.getZ();
 
 			x -= deltaPos.getY() * EngineTime::getDeltaTime() * 1.0f;
 			y -= deltaPos.getX() * EngineTime::getDeltaTime() * 1.0f;
