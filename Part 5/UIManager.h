@@ -13,6 +13,7 @@ class UINames {
 public:
 	const String PROFILER_SCREEN = "PROFILER_SCREEN";
 	const String MENU_SCREEN = "MENU_SCREEN";
+	const String INSPECTOR_SCREEN = "INSPECTOR_SCREEN";
 };
 
 

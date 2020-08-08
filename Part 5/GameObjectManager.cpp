@@ -74,11 +74,12 @@ void GameObjectManager::createObject(PrimitiveType type, void* shaderByteCode, s
 {
 	if (type == PrimitiveType::CUBE) {
 		Cube* cube = new Cube("Cube", shaderByteCode, sizeShader);
-		float x = MathUtils::randomFloat(-1.0f, 1.0f);
-		float y = MathUtils::randomFloat(-1.0f, 1.0f);
-		float z = MathUtils::randomFloat(-1.0f, 1.0f);
-		cube->setPosition(Vector3D(x, y, z));
-		cube->setScale(Vector3D(1.0f, 1.0f, 1.0f));
+		//float x = MathUtils::randomFloat(-1.0f, 1.0f);
+		//float y = MathUtils::randomFloat(-1.0f, 1.0f);
+		//float z = MathUtils::randomFloat(-1.0f, 1.0f);
+		//cube->setPosition(x, y, z);
+		cube->setPosition(0.0f, 0.0f, 0.0f);
+		cube->setScale(1.0f, 1.0f, 1.0f);
 		this->addObject(cube);
 	}
 }

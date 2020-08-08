@@ -159,6 +159,7 @@
     <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="InputSystem.cpp" />
+    <ClCompile Include="InspectorScreen.cpp" />
     <ClCompile Include="LogUtils.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MathUtils.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputListener.h" />
     <ClInclude Include="InputSystem.h" />
+    <ClInclude Include="InspectorScreen.h" />
     <ClInclude Include="LogUtils.h" />
     <ClInclude Include="MathUtils.h" />
     <ClInclude Include="Matrix4x4.h" />
