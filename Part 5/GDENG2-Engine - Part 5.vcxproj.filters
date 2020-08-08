@@ -58,6 +58,12 @@
     <Filter Include="Editor">
       <UniqueIdentifier>{42d084f9-c1f6-4604-8f47-8205fa2219ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Editor\Screens">
+      <UniqueIdentifier>{c14fd873-2001-4db4-b017-b3d9ccee8ef0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hierarchy">
+      <UniqueIdentifier>{0cbcd5de-6420-4799-89d3-360cc5705056}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -150,7 +156,21 @@
     <ClCompile Include="UIManager.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
-    <ClCompile Include="AUIScreen.cpp" />
+    <ClCompile Include="AUIScreen.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfilerScreen.cpp">
+      <Filter>Editor\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuScreen.cpp">
+      <Filter>Editor\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjectManager.cpp">
+      <Filter>Hierarchy</Filter>
+    </ClCompile>
+    <ClCompile Include="InspectorScreen.cpp">
+      <Filter>Editor\Screens</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -249,7 +269,21 @@
     <ClInclude Include="UIManager.h">
       <Filter>Editor</Filter>
     </ClInclude>
-    <ClInclude Include="AUIScreen.h" />
+    <ClInclude Include="AUIScreen.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="ProfilerScreen.h">
+      <Filter>Editor\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuScreen.h">
+      <Filter>Editor\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjectManager.h">
+      <Filter>Hierarchy</Filter>
+    </ClInclude>
+    <ClInclude Include="InspectorScreen.h">
+      <Filter>Editor\Screens</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
