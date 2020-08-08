@@ -127,10 +127,9 @@ void AppWindow::createGraphicsWindow()
 	//vertex stage
 	graphEngine->compileVertexShader(L"VertexShader.hlsl", "main", &shaderByteCode, &sizeShader);
 	this->vertexShader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
+	graphEngine->releaseCompiledShader(); //this must be called after each stage.
 
 	GameObjectManager::initialize();
-
-	graphEngine->releaseCompiledShader(); //this must be called after each stage.
 
 	//pixel shading stage
 	graphEngine->compilePixelShader(L"PixelShader.hlsl", "main", &shaderByteCode, &sizeShader);
