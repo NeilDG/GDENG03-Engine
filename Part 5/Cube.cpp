@@ -65,19 +65,7 @@ Cube::~Cube()
 
 void Cube::update(float deltaTime)
 {
-	this->deltaTime = deltaTime;
-	if (InputSystem::getInstance()->isKeyDown('W')) {
-		this->ticks += deltaTime;
 
-		float rotSpeed = this->ticks * this->speed;
-		this->setRotation(rotSpeed, rotSpeed, rotSpeed);
-	}
-	else if (InputSystem::getInstance()->isKeyDown('S')) {
-		this->ticks -= deltaTime;
-
-		float rotSpeed = this->ticks * this->speed;
-		this->setRotation(rotSpeed, rotSpeed, rotSpeed);
-	}
 }
 
 void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* pixelShader)
@@ -86,14 +74,6 @@ void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* 
 	DeviceContext* deviceContext = graphEngine->getImmediateContext();
 
 	CBData cbData = {};
-	//cbData.time = this->ticks * this->speed;
-
-	if (this->deltaPos > 1.0f) {
-		this->deltaPos = 0.0f;
-	}
-	else {
-		this->deltaPos += this->deltaTime * 0.1f;
-	}
 
 	Matrix4x4 allMatrix; allMatrix.setIdentity();
 	Matrix4x4 translationMatrix; translationMatrix.setIdentity();  translationMatrix.setTranslation(this->getLocalPosition());
@@ -125,9 +105,4 @@ void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* 
 	deviceContext->setVertexBuffer(this->vertexBuffer);
 
 	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
-}
-
-void Cube::setAnimSpeed(float speed)
-{
-	this->speed = speed;
 }

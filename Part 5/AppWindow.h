@@ -47,13 +47,10 @@ private:
 	VertexShader* vertexShader;
 	PixelShader* pixelShader;
 
-	CubeList cubeList;
-
 	float ticks = 0.0f;
 	float CHANGE_DELAY = 1.0f;
 
 	float deltaPos = 0.0f;
-
 	bool shouldRotate = false;
 
 };

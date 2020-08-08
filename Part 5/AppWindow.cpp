@@ -14,6 +14,7 @@
 #include "Point.h"
 #include "SceneCameraHandler.h"
 #include "UIManager.h"
+#include "GameObjectManager.h"
 
 static float f = 0.0f;
 static int counter = 0;
@@ -76,11 +77,8 @@ void AppWindow::onUpdate()
 
 	deviceContext->setViewportSize(width, height);
 
-	for (int i = 0; i < this->cubeList.size(); i++) {
-		this->cubeList[i]->update(EngineTime::getDeltaTime());
-		this->cubeList[i]->draw(width, height, this->vertexShader, this->pixelShader);
-	}
-
+	GameObjectManager::getInstance()->updateAll();
+	GameObjectManager::getInstance()->renderAll(width, height, this->vertexShader, this->pixelShader);
 	SceneCameraHandler::getInstance()->update();
 	UIManager::getInstance()->drawAllUI();
 
@@ -130,16 +128,7 @@ void AppWindow::createGraphicsWindow()
 	graphEngine->compileVertexShader(L"VertexShader.hlsl", "main", &shaderByteCode, &sizeShader);
 	this->vertexShader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
 
-	for (int i = 0; i < 10; i++) {
-		float x = MathUtils::randomFloat(-0.75, 0.75f);
-		float y = MathUtils::randomFloat(-0.75, 0.75f);
-
-		Cube* cubeObject = new Cube("Cube", shaderByteCode, sizeShader);
-		cubeObject->setAnimSpeed(MathUtils::randomFloat(-3.75f, 3.75f));
-		cubeObject->setPosition(Vector3D(x, y, 1.0f));
-		cubeObject->setScale(Vector3D(1.0f, 1.0f, 1.0f));
-		this->cubeList.push_back(cubeObject);
-	}
+	GameObjectManager::initialize();
 
 	graphEngine->releaseCompiledShader(); //this must be called after each stage.
 

@@ -2,16 +2,12 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <map>
+#include <unordered_map>
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
 #include "Window.h"
 #include "AUIScreen.h"
-
-typedef std::string String;
-typedef std::vector<AUIScreen*> UIList;
-typedef std::map<String, AUIScreen*> UITable;
 
 class UINames {
 public:
@@ -23,6 +19,10 @@ public:
 class UIManager
 {
 public: 
+	typedef std::string String;
+	typedef std::vector<AUIScreen*> UIList;
+	typedef std::unordered_map<String, AUIScreen*> UITable;
+
 	static UIManager* getInstance();
 	static void initialize(HWND windowHandle);
 	static void destroy();

@@ -8,11 +8,11 @@
 //Also added support for direct checking of keyboard/mouse events here, like Unity Engine.
 //By: Neil DG
 
-typedef std::vector<InputListener*> List;
-
 class InputSystem
 {
 public:
+	typedef std::vector<InputListener*> List;
+
 	static InputSystem* getInstance();
 	static void initialize();
 	static void destroy();

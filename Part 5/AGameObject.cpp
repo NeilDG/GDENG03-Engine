@@ -57,6 +57,16 @@ Vector3D AGameObject::getLocalRotation()
 	return this->localRotation;
 }
 
+bool AGameObject::isEnabled()
+{
+	return this->enabled;
+}
+
+void AGameObject::setEnabled(bool flag)
+{
+	this->enabled = flag;
+}
+
 Vector3D AGameObject::getLocalScale()
 {
 	return this->localScale;
