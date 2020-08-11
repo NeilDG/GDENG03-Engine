@@ -1,6 +1,7 @@
 #include "GameObjectManager.h"
 #include "EngineTime.h"
 #include "Cube.h"
+#include "Plane.h"
 #include "MathUtils.h"
 #include "AGameObject.h"
 
@@ -66,7 +67,21 @@ void GameObjectManager::renderAll(int viewportWidth, int viewportHeight, VertexS
 
 void GameObjectManager::addObject(AGameObject* gameObject)
 {
-	this->gameObjectMap[gameObject->getName()] = gameObject;
+	if (this->gameObjectMap[gameObject->getName()] != NULL) {
+		int count = 1;
+		String revisedString = gameObject->getName() + " " + "(" +to_string(count)+ ")";
+		while (this->gameObjectMap[revisedString] != NULL) {
+			count++;
+			revisedString = gameObject->getName() + " " + "(" + to_string(count) + ")";
+		}
+		//std::cout << "Duplicate found. New name is: " << revisedString << "\n";
+		gameObject->name = revisedString;
+		this->gameObjectMap[revisedString] = gameObject;
+	}
+	else {
+		this->gameObjectMap[gameObject->getName()] = gameObject;
+	}
+	
 	this->gameObjectList.push_back(gameObject);
 }
 
@@ -74,13 +89,14 @@ void GameObjectManager::createObject(PrimitiveType type, void* shaderByteCode, s
 {
 	if (type == PrimitiveType::CUBE) {
 		Cube* cube = new Cube("Cube", shaderByteCode, sizeShader);
-		//float x = MathUtils::randomFloat(-1.0f, 1.0f);
-		//float y = MathUtils::randomFloat(-1.0f, 1.0f);
-		//float z = MathUtils::randomFloat(-1.0f, 1.0f);
-		//cube->setPosition(x, y, z);
 		cube->setPosition(0.0f, 0.0f, 0.0f);
 		cube->setScale(1.0f, 1.0f, 1.0f);
 		this->addObject(cube);
+	}
+
+	if (type == PrimitiveType::PLANE) {
+		Plane* plane = new Plane("Plane", shaderByteCode, sizeShader);
+		this->addObject(plane);
 	}
 }
 
@@ -110,6 +126,23 @@ void GameObjectManager::deleteObjectByName(string name)
 	if (object != NULL) {
 		this->deleteObject(object);
 	}
+}
+
+void GameObjectManager::setSelectedObject(string name)
+{
+	if (this->gameObjectMap[name] != NULL) {
+		this->setSelectedObject(this->gameObjectMap[name]);
+	}
+}
+
+void GameObjectManager::setSelectedObject(AGameObject* gameObject)
+{
+	this->selectedObject = gameObject;
+}
+
+AGameObject* GameObjectManager::getSelectedObject()
+{
+	return this->selectedObject;
 }
 
 GameObjectManager::GameObjectManager()

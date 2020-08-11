@@ -13,7 +13,7 @@ public:
 	void update(float deltaTime) override;
 	void draw(int width, int height, VertexShader* vertexShader, PixelShader* pixelShader) override;
 
-private:
+protected:
 	VertexBuffer* vertexBuffer;
 	IndexBuffer* indexBuffer;
 	ConstantBuffer* constantBuffer;

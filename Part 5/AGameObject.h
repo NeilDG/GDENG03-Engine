@@ -5,6 +5,7 @@
 
 using namespace std;
 
+class GameObjectManager;
 class VertexShader;
 class PixelShader;
 class AGameObject
@@ -31,6 +32,7 @@ public:
 	bool isEnabled();
 	void setEnabled(bool flag);
 	string getName();
+	friend class GameObjectManager;
 
 	struct Vertex {
 		Vector3D position;

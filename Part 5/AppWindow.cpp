@@ -177,12 +177,12 @@ void AppWindow::onMouseMove(const Point deltaPos)
 
 void AppWindow::onLeftMouseDown(const Point deltaPos)
 {
-	std::cout << "Left mouse down! \n";
+	//std::cout << "Left mouse down! \n";
 }
 
 void AppWindow::onLeftMouseUp(const Point deltaPos)
 {
-	std::cout << "Left mouse up! \n";
+	//std::cout << "Left mouse up! \n";
 }
 
 void AppWindow::onRightMouseDown(const Point deltaPos)
