@@ -151,6 +151,7 @@
     <ClCompile Include="EngineTime.cpp" />
     <ClCompile Include="GameObjectManager.cpp" />
     <ClCompile Include="GraphicsEngine.cpp" />
+    <ClCompile Include="HierarchyScreen.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
@@ -166,6 +167,7 @@
     <ClCompile Include="Matrix4x4.cpp" />
     <ClCompile Include="MenuScreen.cpp" />
     <ClCompile Include="PixelShader.cpp" />
+    <ClCompile Include="Plane.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="ProfilerScreen.cpp" />
     <ClCompile Include="SceneCameraHandler.cpp" />
@@ -188,6 +190,7 @@
     <ClInclude Include="EngineTime.h" />
     <ClInclude Include="GameObjectManager.h" />
     <ClInclude Include="GraphicsEngine.h" />
+    <ClInclude Include="HierarchyScreen.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
     <ClInclude Include="imgui_impl_dx11.h" />
@@ -205,6 +208,7 @@
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="MenuScreen.h" />
     <ClInclude Include="PixelShader.h" />
+    <ClInclude Include="Plane.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="ProfilerScreen.h" />
     <ClInclude Include="SceneCameraHandler.h" />

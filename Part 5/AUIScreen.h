@@ -7,6 +7,8 @@ class UIManager;
 class AUIScreen
 {
 protected:
+	typedef std::string String;
+
 	AUIScreen(String name);
 	~AUIScreen();
 

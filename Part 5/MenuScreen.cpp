@@ -43,10 +43,9 @@ void MenuScreen::drawUI()
 
 void MenuScreen::OnCreateCubeClicked()
 {
+	//initialize vertex for object
 	void* shaderByteCode = nullptr;
 	size_t sizeShader = 0;
-
-	//vertex stage
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
 	graphEngine->compileVertexShader(L"VertexShader.hlsl", "main", &shaderByteCode, &sizeShader);
 	VertexShader* vertexShader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
@@ -63,5 +62,14 @@ void MenuScreen::OnCreateSphereClicked()
 
 void MenuScreen::OnCreatePlaneClicked()
 {
-	std::cout << "Creating plane placeholder. \n";
+	//initialize vertex for object
+	void* shaderByteCode = nullptr;
+	size_t sizeShader = 0;
+	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
+	graphEngine->compileVertexShader(L"VertexShader.hlsl", "main", &shaderByteCode, &sizeShader);
+	VertexShader* vertexShader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
+
+	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::PLANE, shaderByteCode, sizeShader);
+
+	vertexShader->release();
 }

@@ -31,6 +31,9 @@ public:
 	void createObject(PrimitiveType type, void* shaderByteCode, size_t sizeShader);
 	void deleteObject(AGameObject* gameObject);
 	void deleteObjectByName(string name);
+	void setSelectedObject(string name);
+	void setSelectedObject(AGameObject* gameObject);
+	AGameObject* getSelectedObject();
 
 private:
 	GameObjectManager();
@@ -41,5 +44,7 @@ private:
 
 	HashTable gameObjectMap;
 	List gameObjectList;
+
+	AGameObject* selectedObject = NULL;
 };
 

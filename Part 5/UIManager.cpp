@@ -3,6 +3,7 @@
 #include "ProfilerScreen.h"
 #include "MenuScreen.h"
 #include "InspectorScreen.h"
+#include "HierarchyScreen.h"
 
 
 UIManager* UIManager::sharedInstance = NULL;
@@ -66,6 +67,10 @@ UIManager::UIManager(HWND windowHandle)
 	InspectorScreen* inspectorScreen = new InspectorScreen();
 	this->uiTable[uiNames.INSPECTOR_SCREEN] = inspectorScreen;
 	this->uiList.push_back(inspectorScreen);
+
+	HierarchyScreen* hierarchyScreen = new HierarchyScreen();
+	this->uiTable[uiNames.HIERARCHY_SCREEN] = hierarchyScreen;
+	this->uiList.push_back(hierarchyScreen);
 }
 
 UIManager::~UIManager()

@@ -23,12 +23,23 @@ void Camera::update(float deltaTime)
 	float moveSpeed = 10.0f;
 
 	if (InputSystem::getInstance()->isKeyDown('W')) {
-		z += deltaTime * moveSpeed;
+		if (this->mouseDown) {
+			y += deltaTime * moveSpeed;
+		}
+		else {
+			z += deltaTime * moveSpeed;
+		}
+		
 		this->setPosition(x, y, z);
 		this->updateViewMatrix();
 	}
 	else if (InputSystem::getInstance()->isKeyDown('S')) {
-		z -= deltaTime * moveSpeed;
+		if (this->mouseDown) {
+			y -= deltaTime * moveSpeed;
+		}
+		else {
+			z -= deltaTime * moveSpeed;
+		}
 		this->setPosition(x, y, z);
 		this->updateViewMatrix();
 	}
@@ -71,6 +82,8 @@ void Camera::onMouseMove(const Point deltaPos)
 
 		this->setRotation(x, y, z);
 		this->updateViewMatrix();
+
+		std::cout << " Local rot: " << this->getLocalRotation().getX() << " " << this->getLocalRotation().getY() << " " << this->getLocalRotation().getZ() << "\n";
 	}
 }
 

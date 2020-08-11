@@ -14,6 +14,7 @@ public:
 	const String PROFILER_SCREEN = "PROFILER_SCREEN";
 	const String MENU_SCREEN = "MENU_SCREEN";
 	const String INSPECTOR_SCREEN = "INSPECTOR_SCREEN";
+	const String HIERARCHY_SCREEN = "HIERARCHY_SCREEN";
 };
 
 
@@ -29,6 +30,9 @@ public:
 	static void destroy();
 
 	void drawAllUI();
+
+	static const int WINDOW_WIDTH = 1440;
+	static const int WINDOW_HEIGHT = 900;
 
 private:
 	UIManager(HWND windowHandle);
