@@ -15,6 +15,7 @@
 #include "SceneCameraHandler.h"
 #include "UIManager.h"
 #include "GameObjectManager.h"
+#include "TextureManager.h"
 
 static float f = 0.0f;
 static int counter = 0;
@@ -98,6 +99,7 @@ void AppWindow::onDestroy()
 	this->pixelShader->release();
 	SceneCameraHandler::destroy();
 	GraphicsEngine::destroy();
+	TextureManager::destroy();
 
 	// IMGUI Cleanup
 	ImGui_ImplDX11_Shutdown();
@@ -111,6 +113,8 @@ void AppWindow::createGraphicsWindow()
 {
 	GraphicsEngine::initialize();
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
+
+	TextureManager::initialize();
 
 	this->swapChain = GraphicsEngine::getInstance()->getSwapChain();
 	RECT windowRect = this->getClientWindowRect();
@@ -137,6 +141,10 @@ void AppWindow::createGraphicsWindow()
 	graphEngine->releaseCompiledShader();
 
 	SceneCameraHandler::initialize();
+
+	//TEST: Texture
+	Texture* woodTex = (Texture*) TextureManager::getInstance()->createTextureFromFile(L"D:/Users/delgallegon/Documents/GithubProjects/GDENG2-Engine/Part 6/Assets/Textures/wood.jpg");
+	std::cout << "Wood tex: " << woodTex;
 }
 
 void AppWindow::createInterface()
