@@ -24,7 +24,7 @@ void GameObjectManager::destroy()
 	delete sharedInstance;
 }
 
-AGameObject* GameObjectManager::findObjectByName(string name)
+AGameObject* GameObjectManager::findObjectByName(String name)
 {
 	if (this->gameObjectMap[name] != NULL) {
 		return this->gameObjectMap[name];
@@ -69,10 +69,10 @@ void GameObjectManager::addObject(AGameObject* gameObject)
 {
 	if (this->gameObjectMap[gameObject->getName()] != NULL) {
 		int count = 1;
-		String revisedString = gameObject->getName() + " " + "(" +to_string(count)+ ")";
+		String revisedString = gameObject->getName() + " " + "(" +std::to_string(count)+ ")";
 		while (this->gameObjectMap[revisedString] != NULL) {
 			count++;
-			revisedString = gameObject->getName() + " " + "(" + to_string(count) + ")";
+			revisedString = gameObject->getName() + " " + "(" + std::to_string(count) + ")";
 		}
 		//std::cout << "Duplicate found. New name is: " << revisedString << "\n";
 		gameObject->name = revisedString;
@@ -119,7 +119,7 @@ void GameObjectManager::deleteObject(AGameObject* gameObject)
 	delete gameObject;
 }
 
-void GameObjectManager::deleteObjectByName(string name)
+void GameObjectManager::deleteObjectByName(String name)
 {
 	AGameObject* object = this->findObjectByName(name);
 
@@ -128,7 +128,7 @@ void GameObjectManager::deleteObjectByName(string name)
 	}
 }
 
-void GameObjectManager::setSelectedObject(string name)
+void GameObjectManager::setSelectedObject(String name)
 {
 	if (this->gameObjectMap[name] != NULL) {
 		this->setSelectedObject(this->gameObjectMap[name]);

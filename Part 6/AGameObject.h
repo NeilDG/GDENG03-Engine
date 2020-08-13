@@ -3,15 +3,14 @@
 #include "Vector3D.h"
 #include "Matrix4x4.h"
 
-using namespace std;
-
 class GameObjectManager;
 class VertexShader;
 class PixelShader;
 class AGameObject
 {
 public:
-	AGameObject(string name);
+	typedef std::string String;
+	AGameObject(String name);
 	~AGameObject();
 
 	virtual void update(float deltaTime) = 0;
@@ -31,7 +30,7 @@ public:
 	
 	bool isEnabled();
 	void setEnabled(bool flag);
-	string getName();
+	String getName();
 	friend class GameObjectManager;
 
 	struct Vertex {
@@ -50,7 +49,7 @@ public:
 	};
 
 protected:
-	string name;
+	String name;
 	Vector3D localPosition;
 	Vector3D localScale;
 	Vector3D localRotation;

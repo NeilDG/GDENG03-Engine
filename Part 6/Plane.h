@@ -8,7 +8,7 @@
 class Plane :    public Cube
 {
 public:
-	Plane(string name, void* shaderByteCode, size_t sizeShader);
+	Plane(String name, void* shaderByteCode, size_t sizeShader);
 	~Plane();
 
 	void update(float deltaTime) override;

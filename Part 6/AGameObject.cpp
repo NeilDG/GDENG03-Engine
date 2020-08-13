@@ -1,6 +1,6 @@
 #include "AGameObject.h"
 
-AGameObject::AGameObject(string name)
+AGameObject::AGameObject(String name)
 {
 	this->name = name;
 	this->localRotation = Vector3D::zeros();
@@ -72,7 +72,7 @@ Vector3D AGameObject::getLocalScale()
 	return this->localScale;
 }
 
-string AGameObject::getName()
+AGameObject::String AGameObject::getName()
 {
 	return this->name;
 }

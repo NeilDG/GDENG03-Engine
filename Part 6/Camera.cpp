@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include "InputSystem.h"
 
-Camera::Camera(string name): AGameObject(name)
+Camera::Camera(String name): AGameObject(name)
 {
 	this->setPosition(0.0f, 0.0f, -4.0f);
 	//this->worldCameraMatrix.setTranslation(this->getLocalPosition());
