@@ -55,6 +55,11 @@ VertexBuffer* GraphicsEngine::createVertexBuffer()
     return new VertexBuffer();
 }
 
+TexturedVertexBuffer* GraphicsEngine::createTexturedBuffer()
+{
+    return new TexturedVertexBuffer();
+}
+
 ConstantBuffer* GraphicsEngine::createConstantBuffer()
 {
     return new ConstantBuffer();

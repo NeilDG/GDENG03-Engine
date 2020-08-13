@@ -64,7 +64,7 @@ TexturedCube::TexturedCube(String name, void* shaderByteCode, size_t sizeShader)
 
 	};
 
-	this->vertexBuffer = GraphicsEngine::getInstance()->createVertexBuffer();
+	this->vertexBuffer = GraphicsEngine::getInstance()->createTexturedBuffer();
 	this->vertexBuffer->load(quadList, sizeof(Vertex), ARRAYSIZE(quadList), shaderByteCode, sizeShader);
 
 	unsigned int indexList[] =
@@ -96,6 +96,7 @@ TexturedCube::TexturedCube(String name, void* shaderByteCode, size_t sizeShader)
 	cbData.time = 0;
 	this->constantBuffer = GraphicsEngine::getInstance()->createConstantBuffer();
 	this->constantBuffer->load(&cbData, sizeof(CBData));
+
 }
 
 TexturedCube::~TexturedCube()

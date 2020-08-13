@@ -79,28 +79,17 @@ void DeviceContext::setPixelShader(PixelShader* pixelShader)
 	this->myContext->PSSetShader(pixelShader->getShader(), NULL, 0);
 }
 
-void DeviceContext::setConstantBuffer(VertexShader* vertexShader, ConstantBuffer* buffer)
+void DeviceContext::setConstantBuffer(ConstantBuffer* buffer)
 {
 	ID3D11Buffer* deviceBuffer = buffer->getBuffer();
 	this->myContext->VSSetConstantBuffers(0, 1, &deviceBuffer);
-}
-
-void DeviceContext::setConstantBuffer(PixelShader* vertexShader, ConstantBuffer* buffer)
-{
-	ID3D11Buffer* deviceBuffer = buffer->getBuffer();
 	this->myContext->PSSetConstantBuffers(0, 1, &deviceBuffer);
 }
-
-void DeviceContext::setTexture(VertexShader* vertexShader, Texture* texture)
+void DeviceContext::setTexture(Texture* texture)
 {
 	ID3D11ShaderResourceView* shaderRes = texture->getShaderResource();
-	this->myContext->VSGetShaderResources(0, 1, &shaderRes);
-}
-
-void DeviceContext::setTexture(PixelShader* vertexShader, Texture* texture)
-{
-	ID3D11ShaderResourceView* shaderRes = texture->getShaderResource();
-	this->myContext->PSGetShaderResources(0, 1, &shaderRes);
+	this->myContext->VSSetShaderResources(0, 1, &shaderRes);
+	this->myContext->PSSetShaderResources(0, 1, &shaderRes);
 }
 
 void DeviceContext::release()

@@ -26,10 +26,8 @@ public:
 
 	void setVertexShader(VertexShader* vertexShader);
 	void setPixelShader(PixelShader* pixelShader);
-	void setConstantBuffer(VertexShader* vertexShader, ConstantBuffer* buffer);
-	void setConstantBuffer(PixelShader* vertexShader, ConstantBuffer* buffer);
-	void setTexture(VertexShader* vertexShader, Texture* texture);
-	void setTexture(PixelShader* vertexShader, Texture* texture);
+	void setConstantBuffer(ConstantBuffer* buffer);
+	void setTexture(Texture* texture);
 
 	void release();
 	ID3D11DeviceContext* getContext();

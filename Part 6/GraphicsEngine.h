@@ -3,6 +3,7 @@
 #include <iostream>
 #include "DeviceContext.h"
 #include "VertexBuffer.h"
+#include "TexturedVertexBuffer.h"
 #include "ConstantBuffer.h"
 #include "IndexBuffer.h"
 #include <d3dcompiler.h>
@@ -22,6 +23,7 @@ public:
 	IDXGIFactory* getDirectXFactory();
 	ID3D11Device* getDirectXDevice();
 	VertexBuffer* createVertexBuffer();
+	TexturedVertexBuffer* createTexturedBuffer();
 	ConstantBuffer* createConstantBuffer();
 	IndexBuffer* createIndexBuffer();
 	VertexShader* createVertexShader(void* shaderByteCode, size_t byteCodeSize);
