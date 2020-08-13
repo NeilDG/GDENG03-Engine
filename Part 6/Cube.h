@@ -7,6 +7,7 @@
 class Cube :    public AGameObject
 {
 public:
+	Cube(String name);
 	Cube(String name, void* shaderByteCode, size_t sizeShader);
 	~Cube();
 
@@ -14,9 +15,16 @@ public:
 	void draw(int width, int height, VertexShader* vertexShader, PixelShader* pixelShader) override;
 
 protected:
-	VertexBuffer* vertexBuffer;
-	IndexBuffer* indexBuffer;
-	ConstantBuffer* constantBuffer;
+
+	struct Vertex {
+		Vector3D position;
+		Vector3D color;
+		Vector3D color2;
+	};
+
+	VertexBuffer* vertexBuffer = NULL;
+	IndexBuffer* indexBuffer = NULL;
+	ConstantBuffer* constantBuffer = NULL;
 	float ticks = 0.0f;
 };
 

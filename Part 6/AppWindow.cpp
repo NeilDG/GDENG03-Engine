@@ -145,6 +145,13 @@ void AppWindow::createGraphicsWindow()
 	//TEST: Texture
 	Texture* woodTex = (Texture*) TextureManager::getInstance()->createTextureFromFile(L"D:/Users/delgallegon/Documents/GithubProjects/GDENG2-Engine/Part 6/Assets/Textures/wood.jpg");
 	std::cout << "Wood tex: " << woodTex;
+
+	graphEngine->compileVertexShader(L"VertexShader.hlsl", "main", &shaderByteCode, &sizeShader);
+	VertexShader* vertexShader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
+
+	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::CUBE, shaderByteCode, sizeShader);
+
+	vertexShader->release();
 }
 
 void AppWindow::createInterface()

@@ -13,6 +13,7 @@ public:
 	typedef std::unordered_map<String, AGameObject*> HashTable;
 
 	enum PrimitiveType {
+		TEXTURED_CUBE,
 		CUBE,
 		PLANE,
 		SPHERE

@@ -5,7 +5,7 @@
 #include "PixelShader.h"
 #include "ConstantBuffer.h"
 #include "IndexBuffer.h"
-
+#include "Texture.h"
 
 DeviceContext::DeviceContext(ID3D11DeviceContext* deviceContext): myContext(deviceContext)
 {
@@ -89,6 +89,18 @@ void DeviceContext::setConstantBuffer(PixelShader* vertexShader, ConstantBuffer*
 {
 	ID3D11Buffer* deviceBuffer = buffer->getBuffer();
 	this->myContext->PSSetConstantBuffers(0, 1, &deviceBuffer);
+}
+
+void DeviceContext::setTexture(VertexShader* vertexShader, Texture* texture)
+{
+	ID3D11ShaderResourceView* shaderRes = texture->getShaderResource();
+	this->myContext->VSGetShaderResources(0, 1, &shaderRes);
+}
+
+void DeviceContext::setTexture(PixelShader* vertexShader, Texture* texture)
+{
+	ID3D11ShaderResourceView* shaderRes = texture->getShaderResource();
+	this->myContext->PSGetShaderResources(0, 1, &shaderRes);
 }
 
 void DeviceContext::release()

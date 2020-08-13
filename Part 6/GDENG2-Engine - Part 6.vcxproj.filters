@@ -195,6 +195,15 @@
     <ClCompile Include="TextureManager.cpp">
       <Filter>GameEngine\ResourceManager\TextureManager</Filter>
     </ClCompile>
+    <ClCompile Include="TexturedVertexBuffer.cpp">
+      <Filter>GameEngine\GraphicsEngine\VertexBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="TexturedCube.cpp">
+      <Filter>GameEngine\Primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector2D.cpp">
+      <Filter>GameEngine\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -326,12 +335,27 @@
     <ClInclude Include="TextureManager.h">
       <Filter>GameEngine\ResourceManager\TextureManager</Filter>
     </ClInclude>
+    <ClInclude Include="TexturedVertexBuffer.h">
+      <Filter>GameEngine\GraphicsEngine\VertexBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="TexturedCube.h">
+      <Filter>GameEngine\Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2D.h">
+      <Filter>GameEngine\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
       <Filter>GameEngine\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="VertexShader.hlsl">
+      <Filter>GameEngine\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="TexturedVertexShader.hlsl">
+      <Filter>GameEngine\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="TexturedPixelShader.hlsl">
       <Filter>GameEngine\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

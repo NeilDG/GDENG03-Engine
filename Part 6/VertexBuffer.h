@@ -7,7 +7,7 @@ public:
 	VertexBuffer();
 	~VertexBuffer();
 
-	void load(void* vertexList, UINT vertexSize, UINT listSize, void* shaderByteCode, UINT byteShaderSize);
+	virtual void load(void* vertexList, UINT vertexSize, UINT listSize, void* shaderByteCode, UINT byteShaderSize);
 	void release();
 
 	ID3D11Buffer* getBuffer();
@@ -15,7 +15,7 @@ public:
 	UINT getVertexSize();
 	UINT getListSize();
 
-private:
+protected:
 	UINT vertexSize;
 	UINT listSize;
 	ID3D11Buffer* buffer;

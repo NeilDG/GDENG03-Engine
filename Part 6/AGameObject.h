@@ -33,12 +33,7 @@ public:
 	String getName();
 	friend class GameObjectManager;
 
-	struct Vertex {
-		Vector3D position;
-		Vector3D color;
-		Vector3D color2;
-	};
-
+	
 	_declspec(align(16)) //make CBData a size of 16-bytes.
 		struct CBData {
 		Matrix4x4 worldMatrix;

@@ -4,6 +4,7 @@
 #include "Plane.h"
 #include "MathUtils.h"
 #include "AGameObject.h"
+#include "TexturedCube.h"
 
 GameObjectManager* GameObjectManager::sharedInstance = NULL;
 
@@ -94,9 +95,16 @@ void GameObjectManager::createObject(PrimitiveType type, void* shaderByteCode, s
 		this->addObject(cube);
 	}
 
-	if (type == PrimitiveType::PLANE) {
+	else if (type == PrimitiveType::PLANE) {
 		Plane* plane = new Plane("Plane", shaderByteCode, sizeShader);
 		this->addObject(plane);
+	}
+
+	else if (type == PrimitiveType::TEXTURED_CUBE) {
+		TexturedCube* cube = new TexturedCube("Cube_Textured", shaderByteCode, sizeShader);
+		cube->setPosition(0.0f, 0.0f, 0.0f);
+		cube->setScale(1.0f, 1.0f, 1.0f);
+		this->addObject(cube);
 	}
 }
 

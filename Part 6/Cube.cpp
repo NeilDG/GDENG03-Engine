@@ -4,6 +4,11 @@
 #include "SwapChain.h"
 #include "SceneCameraHandler.h"
 
+Cube::Cube(String name): AGameObject(name)
+{
+
+}
+
 Cube::Cube(String name, void* shaderByteCode, size_t sizeShader):AGameObject(name)
 {
 	//create buffers for drawing. vertex data that needs to be drawn are temporarily placed here.

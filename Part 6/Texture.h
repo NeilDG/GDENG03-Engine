@@ -8,6 +8,7 @@ public:
 	Texture(const wchar_t* fullPath);
 	~Texture();
 	AResource::String getPath();
+	ID3D11ShaderResourceView* getShaderResource();
 
 private:
 	ID3D11Resource* myTexture = NULL;

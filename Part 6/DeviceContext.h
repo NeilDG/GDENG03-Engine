@@ -7,6 +7,7 @@ class IndexBuffer;
 class ConstantBuffer;
 class VertexShader;
 class PixelShader;
+class Texture;
 
 class DeviceContext
 {
@@ -27,6 +28,8 @@ public:
 	void setPixelShader(PixelShader* pixelShader);
 	void setConstantBuffer(VertexShader* vertexShader, ConstantBuffer* buffer);
 	void setConstantBuffer(PixelShader* vertexShader, ConstantBuffer* buffer);
+	void setTexture(VertexShader* vertexShader, Texture* texture);
+	void setTexture(PixelShader* vertexShader, Texture* texture);
 
 	void release();
 	ID3D11DeviceContext* getContext();

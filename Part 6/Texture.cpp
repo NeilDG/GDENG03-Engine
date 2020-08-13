@@ -37,3 +37,8 @@ AResource::String Texture::getPath()
 {
 	return this->fullPath;
 }
+
+ID3D11ShaderResourceView* Texture::getShaderResource()
+{
+	return this->shaderResView;
+}
