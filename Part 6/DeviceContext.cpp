@@ -5,7 +5,7 @@
 #include "PixelShader.h"
 #include "ConstantBuffer.h"
 #include "IndexBuffer.h"
-
+#include "Texture.h"
 
 DeviceContext::DeviceContext(ID3D11DeviceContext* deviceContext): myContext(deviceContext)
 {
@@ -69,26 +69,23 @@ void DeviceContext::setViewportSize(UINT width, UINT height)
 	this->myContext->RSSetViewports(1, &vp);
 }
 
-void DeviceContext::setVertexShader(VertexShader* vertexShader)
+void DeviceContext::setRenderConfig(VertexShader* vertexShader, PixelShader* pixelShader)
 {
 	this->myContext->VSSetShader(vertexShader->getShader(), NULL, 0);
-}
-
-void DeviceContext::setPixelShader(PixelShader* pixelShader)
-{
 	this->myContext->PSSetShader(pixelShader->getShader(), NULL, 0);
 }
 
-void DeviceContext::setConstantBuffer(VertexShader* vertexShader, ConstantBuffer* buffer)
+void DeviceContext::setConstantBuffer(ConstantBuffer* buffer)
 {
 	ID3D11Buffer* deviceBuffer = buffer->getBuffer();
 	this->myContext->VSSetConstantBuffers(0, 1, &deviceBuffer);
-}
-
-void DeviceContext::setConstantBuffer(PixelShader* vertexShader, ConstantBuffer* buffer)
-{
-	ID3D11Buffer* deviceBuffer = buffer->getBuffer();
 	this->myContext->PSSetConstantBuffers(0, 1, &deviceBuffer);
+}
+void DeviceContext::setTexture(Texture* texture)
+{
+	ID3D11ShaderResourceView* shaderRes = texture->getShaderResource();
+	this->myContext->VSSetShaderResources(0, 1, &shaderRes);
+	this->myContext->PSSetShaderResources(0, 1, &shaderRes);
 }
 
 void DeviceContext::release()

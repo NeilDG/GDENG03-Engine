@@ -1,8 +1,14 @@
 #include "Plane.h"
 #include "GraphicsEngine.h"
+#include "ShaderLibrary.h"
 
-Plane::Plane(string name, void* shaderByteCode, size_t sizeShader): Cube(name, shaderByteCode, sizeShader)
+Plane::Plane(String name): Cube(name)
 {
+	ShaderNames shaderNames;
+	void* shaderByteCode = NULL;
+	size_t sizeShader = 0;
+	ShaderLibrary::getInstance()->requestVertexShaderData(shaderNames.BASE_VERTEX_SHADER_NAME, &shaderByteCode, &sizeShader);
+
 	//override cube constructor with different renderer
 	//create buffers for drawing. vertex data that needs to be drawn are temporarily placed here.
 	Vertex quadList[] = {
@@ -20,7 +26,7 @@ Plane::Plane(string name, void* shaderByteCode, size_t sizeShader): Cube(name, s
 		{Vector3D(-0.5f,-0.5f,0.5f),     Vector3D(1,1,1), Vector3D(0,0.2f,0) },
 	};
 
-	this->vertexBuffer->release();
+	//this->vertexBuffer->release();
 	this->vertexBuffer = GraphicsEngine::getInstance()->createVertexBuffer();
 	this->vertexBuffer->load(quadList, sizeof(Vertex), ARRAYSIZE(quadList), shaderByteCode, sizeShader);
 
@@ -70,7 +76,7 @@ void Plane::update(float deltaTime)
 	Cube::update(deltaTime);
 }
 
-void Plane::draw(int width, int height, VertexShader* vertexShader, PixelShader* pixelShader)
+void Plane::draw(int width, int height)
 {
-	Cube::draw(width, height, vertexShader, pixelShader);
+	Cube::draw(width, height);
 }
