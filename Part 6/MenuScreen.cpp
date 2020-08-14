@@ -30,6 +30,7 @@ void MenuScreen::drawUI()
 		}
 		if (ImGui::BeginMenu("Game Object")) {
 			if (ImGui::MenuItem("Create Cube")) { this->OnCreateCubeClicked(); }
+			if (ImGui::MenuItem("Create Textured Cube")) { this->OnCreateTexturedCubeClicked(); }
 			if (ImGui::MenuItem("Create Sphere")) { this->OnCreateSphereClicked(); }
 			if (ImGui::MenuItem("Create Plane")) { this->OnCreatePlaneClicked(); }
 			if (ImGui::BeginMenu("Light")) {
@@ -45,12 +46,12 @@ void MenuScreen::drawUI()
 void MenuScreen::OnCreateCubeClicked()
 {
 	//initialize vertex for object
-	ShaderNames shaderNames;
-	void* shaderByteCode = NULL;
-	size_t sizeShader = 0;
-	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
-	graphEngine->compileVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME.c_str(), "main", &shaderByteCode, &sizeShader);
-	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::CUBE, shaderByteCode, sizeShader);
+	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::CUBE);
+}
+
+void MenuScreen::OnCreateTexturedCubeClicked()
+{
+	std::cout << "Creating textured cube placeholder. \n";
 }
 
 void MenuScreen::OnCreateSphereClicked()
@@ -61,10 +62,5 @@ void MenuScreen::OnCreateSphereClicked()
 void MenuScreen::OnCreatePlaneClicked()
 {
 	//initialize vertex for object
-	ShaderNames shaderNames;
-	void* shaderByteCode = NULL;
-	size_t sizeShader = 0;
-	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
-	graphEngine->compileVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME.c_str(), "main", &shaderByteCode, &sizeShader);
-	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::PLANE, shaderByteCode, sizeShader);
+	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::PLANE);
 }

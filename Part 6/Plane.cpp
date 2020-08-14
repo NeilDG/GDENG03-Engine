@@ -1,7 +1,7 @@
 #include "Plane.h"
 #include "GraphicsEngine.h"
 
-Plane::Plane(String name, void* shaderByteCode, size_t sizeShader): Cube(name, shaderByteCode, sizeShader)
+Plane::Plane(String name, void* shaderByteCode, size_t sizeShader): Cube(name)
 {
 	//override cube constructor with different renderer
 	//create buffers for drawing. vertex data that needs to be drawn are temporarily placed here.

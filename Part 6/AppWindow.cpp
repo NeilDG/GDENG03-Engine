@@ -70,7 +70,7 @@ void AppWindow::onUpdate()
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
 	DeviceContext* deviceContext = graphEngine->getImmediateContext();
 	ShaderNames shaderNames;
-	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.BASE_PIXEL_SHADER_NAME));
+	//deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.BASE_PIXEL_SHADER_NAME));
 	deviceContext->clearRenderTargetColor(this->swapChain, 0, 0.5, 0.5, 1);
 
 	RECT windowRect = this->getClientWindowRect();

@@ -5,6 +5,8 @@
 #include "MathUtils.h"
 #include "AGameObject.h"
 #include "TexturedCube.h"
+#include "ShaderLibrary.h"
+#include "GraphicsEngine.h"
 
 GameObjectManager* GameObjectManager::sharedInstance = NULL;
 
@@ -86,21 +88,33 @@ void GameObjectManager::addObject(AGameObject* gameObject)
 	this->gameObjectList.push_back(gameObject);
 }
 
-void GameObjectManager::createObject(PrimitiveType type, void* shaderByteCode, size_t sizeShader)
+void GameObjectManager::createObject(PrimitiveType type)
 {
 	if (type == PrimitiveType::CUBE) {
-		Cube* cube = new Cube("Cube", shaderByteCode, sizeShader);
+		Cube* cube = new Cube("Cube");
 		cube->setPosition(0.0f, 0.0f, 0.0f);
 		cube->setScale(1.0f, 1.0f, 1.0f);
 		this->addObject(cube);
 	}
 
 	else if (type == PrimitiveType::PLANE) {
+		ShaderNames shaderNames;
+		void* shaderByteCode = NULL;
+		size_t sizeShader = 0;
+		GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
+		graphEngine->compileVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME.c_str(), "main", &shaderByteCode, &sizeShader);
+
 		Plane* plane = new Plane("Plane", shaderByteCode, sizeShader);
 		this->addObject(plane);
 	}
 
 	else if (type == PrimitiveType::TEXTURED_CUBE) {
+		ShaderNames shaderNames;
+		void* shaderByteCode = NULL;
+		size_t sizeShader = 0;
+		GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
+		graphEngine->compileVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME.c_str(), "main", &shaderByteCode, &sizeShader);
+
 		TexturedCube* cube = new TexturedCube("Cube_Textured", shaderByteCode, sizeShader);
 		cube->setPosition(0.0f, 0.0f, 0.0f);
 		cube->setScale(1.0f, 1.0f, 1.0f);

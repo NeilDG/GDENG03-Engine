@@ -35,6 +35,7 @@ public:
 	static void initialize();
 	static void destroy();
 
+	void requestVertexShaderData(String vertexShaderName, void** shaderByteCode, size_t* sizeShader); //since shader byte code gets dereferenced for some reason if stored in a hash table. request manually.
 	VertexShader* getVertexShader(String vertexShaderName);
 	PixelShader* getPixelShader(String pixelShaderName);
 

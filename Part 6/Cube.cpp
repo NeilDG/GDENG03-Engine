@@ -3,14 +3,16 @@
 #include "InputSystem.h"
 #include "SwapChain.h"
 #include "SceneCameraHandler.h"
+#include "ShaderLibrary.h"
 
-Cube::Cube(String name): AGameObject(name)
+
+Cube::Cube(String name):AGameObject(name)
 {
+	ShaderNames shaderNames;
+	void* shaderByteCode = NULL;
+	size_t sizeShader = 0;
+	ShaderLibrary::getInstance()->requestVertexShaderData(shaderNames.BASE_VERTEX_SHADER_NAME, &shaderByteCode, &sizeShader);
 
-}
-
-Cube::Cube(String name, void* shaderByteCode, size_t sizeShader):AGameObject(name)
-{
 	//create buffers for drawing. vertex data that needs to be drawn are temporarily placed here.
 	Vertex quadList[] = {
 		//X, Y, Z
@@ -59,6 +61,10 @@ Cube::Cube(String name, void* shaderByteCode, size_t sizeShader):AGameObject(nam
 	cbData.time = 0;
 	this->constantBuffer = GraphicsEngine::getInstance()->createConstantBuffer();
 	this->constantBuffer->load(&cbData, sizeof(CBData));
+
+	//set vertex shader and pixel shader for the object
+	DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
+	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.BASE_PIXEL_SHADER_NAME));
 }
 
 Cube::~Cube()

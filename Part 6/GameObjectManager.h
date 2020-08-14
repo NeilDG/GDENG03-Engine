@@ -29,7 +29,7 @@ public:
 	void updateAll();
 	void renderAll(int viewportWidth, int viewportHeight);
 	void addObject(AGameObject* gameObject);
-	void createObject(PrimitiveType type, void* shaderByteCode, size_t sizeShader);
+	void createObject(PrimitiveType type);
 	void deleteObject(AGameObject* gameObject);
 	void deleteObjectByName(String name);
 	void setSelectedObject(String name);

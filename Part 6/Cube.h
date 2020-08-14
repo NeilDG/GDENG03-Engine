@@ -8,7 +8,6 @@ class Cube :    public AGameObject
 {
 public:
 	Cube(String name);
-	Cube(String name, void* shaderByteCode, size_t sizeShader);
 	~Cube();
 
 	void update(float deltaTime) override;

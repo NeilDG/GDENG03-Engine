@@ -20,6 +20,12 @@ void ShaderLibrary::destroy()
     delete sharedInstance;
 }
 
+void ShaderLibrary::requestVertexShaderData(String vertexShaderName, void** shaderByteCode, size_t* sizeShader)
+{
+	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
+	graphEngine->compileVertexShader(vertexShaderName.c_str(), "main", shaderByteCode, sizeShader);
+}
+
 VertexShader* ShaderLibrary::getVertexShader(String vertexShaderName)
 {
 	if (this->activeVertexShaders[vertexShaderName] == NULL) {

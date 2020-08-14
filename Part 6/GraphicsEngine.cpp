@@ -96,8 +96,6 @@ void GraphicsEngine::compileVertexShader(const wchar_t* fileName, const char* en
         std::cout << "An error occured when compiling vertex shader. \n";
     }
 
-    //*shaderByteCode = this->customBlob->GetBufferPointer();
-    //*byteCodeSize = this->customBlob->GetBufferSize();
     *shaderByteCode = resultBlob->GetBufferPointer();
     *byteCodeSize = resultBlob->GetBufferSize();
 }
@@ -113,8 +111,6 @@ void GraphicsEngine::compilePixelShader(const wchar_t* fileName, const char* ent
         std::cout << "An error occured when compiling pixel shader. \n";
     }
 
-    //*shaderByteCode = this->customBlob->GetBufferPointer();
-    //*byteCodeSize = this->customBlob->GetBufferSize();
     *shaderByteCode = resultBlob->GetBufferPointer();
     *byteCodeSize = resultBlob->GetBufferSize();
 }
