@@ -51,7 +51,7 @@ void MenuScreen::OnCreateCubeClicked()
 
 void MenuScreen::OnCreateTexturedCubeClicked()
 {
-	std::cout << "Creating textured cube placeholder. \n";
+	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::TEXTURED_CUBE);
 }
 
 void MenuScreen::OnCreateSphereClicked()

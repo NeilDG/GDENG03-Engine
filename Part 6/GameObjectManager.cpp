@@ -98,24 +98,12 @@ void GameObjectManager::createObject(PrimitiveType type)
 	}
 
 	else if (type == PrimitiveType::PLANE) {
-		ShaderNames shaderNames;
-		void* shaderByteCode = NULL;
-		size_t sizeShader = 0;
-		GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
-		graphEngine->compileVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME.c_str(), "main", &shaderByteCode, &sizeShader);
-
-		Plane* plane = new Plane("Plane", shaderByteCode, sizeShader);
+		Plane* plane = new Plane("Plane");
 		this->addObject(plane);
 	}
 
 	else if (type == PrimitiveType::TEXTURED_CUBE) {
-		ShaderNames shaderNames;
-		void* shaderByteCode = NULL;
-		size_t sizeShader = 0;
-		GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
-		graphEngine->compileVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME.c_str(), "main", &shaderByteCode, &sizeShader);
-
-		TexturedCube* cube = new TexturedCube("Cube_Textured", shaderByteCode, sizeShader);
+		TexturedCube* cube = new TexturedCube("Cube_Textured");
 		cube->setPosition(0.0f, 0.0f, 0.0f);
 		cube->setScale(1.0f, 1.0f, 1.0f);
 		this->addObject(cube);

@@ -7,11 +7,11 @@
 class Cube :    public AGameObject
 {
 public:
-	Cube(String name);
+	Cube(String name, bool skipInit = false);
 	~Cube();
 
 	void update(float deltaTime) override;
-	void draw(int width, int height) override;
+	virtual void draw(int width, int height) override;
 
 protected:
 

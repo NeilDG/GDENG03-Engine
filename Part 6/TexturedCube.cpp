@@ -1,8 +1,16 @@
 #include "TexturedCube.h"
 #include "GraphicsEngine.h"
+#include "ShaderLibrary.h"
+#include "SceneCameraHandler.h"
+#include "TextureManager.h"
 
-TexturedCube::TexturedCube(String name, void* shaderByteCode, size_t sizeShader): Cube(name)
+TexturedCube::TexturedCube(String name): Cube(name, true)
 {
+	ShaderNames shaderNames;
+	void* shaderByteCode = NULL;
+	size_t sizeShader = 0;
+	ShaderLibrary::getInstance()->requestVertexShaderData(shaderNames.TEXTURED_VERTEX_SHADER_NAME, &shaderByteCode, &sizeShader);
+
 	//create buffers for drawing. vertex data that needs to be drawn are temporarily placed here.
 	Vector3D position_list[] =
 	{
@@ -97,8 +105,55 @@ TexturedCube::TexturedCube(String name, void* shaderByteCode, size_t sizeShader)
 	this->constantBuffer = GraphicsEngine::getInstance()->createConstantBuffer();
 	this->constantBuffer->load(&cbData, sizeof(CBData));
 
+	//set vertex shader and pixel shader for the object
+	DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
+	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME), 
+		ShaderLibrary::getInstance()->getPixelShader(shaderNames.TEXTURED_PIXEL_SHADER_NAME));
+
 }
 
 TexturedCube::~TexturedCube()
 {
+}
+
+void TexturedCube::draw(int width, int height)
+{
+	ShaderNames shaderNames;
+	DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
+	Texture* woodTex = (Texture*)TextureManager::getInstance()->createTextureFromFile(L"D:/Users/delgallegon/Documents/GithubProjects/GDENG2-Engine/Part 6/Assets/Textures/wood.jpg");
+	
+	//set vertex shader and pixel shader for the object
+	deviceContext->setTexture(woodTex);
+	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.TEXTURED_PIXEL_SHADER_NAME));
+
+	CBData cbData = {};
+
+	Matrix4x4 allMatrix; allMatrix.setIdentity();
+	Matrix4x4 translationMatrix; translationMatrix.setIdentity();  translationMatrix.setTranslation(this->getLocalPosition());
+	Matrix4x4 scaleMatrix; scaleMatrix.setScale(this->getLocalScale());
+	Vector3D rotation = this->getLocalRotation();
+	Matrix4x4 zMatrix; zMatrix.setRotationZ(rotation.getZ());
+	Matrix4x4 xMatrix; xMatrix.setRotationX(rotation.getX());
+	Matrix4x4 yMatrix; yMatrix.setRotationY(rotation.getY());
+
+	//Scale --> Rotate --> Transform as recommended order.
+	Matrix4x4 rotMatrix; rotMatrix.setIdentity();
+	rotMatrix = rotMatrix.multiplyTo(zMatrix.multiplyTo(yMatrix.multiplyTo(xMatrix)));
+	allMatrix = allMatrix.multiplyTo(scaleMatrix.multiplyTo(rotMatrix));
+	allMatrix = allMatrix.multiplyTo(translationMatrix);
+	cbData.worldMatrix = allMatrix;
+
+	Matrix4x4 cameraMatrix = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
+	cbData.viewMatrix = cameraMatrix;
+
+	//cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
+	float aspectRatio = (float)width / (float)height;
+	cbData.projMatrix.setPerspectiveFovLH(aspectRatio, aspectRatio, 0.1f, 1000.0f);
+
+	this->constantBuffer->update(deviceContext, &cbData);
+	deviceContext->setConstantBuffer(this->constantBuffer);
+	deviceContext->setIndexBuffer(this->indexBuffer);
+	deviceContext->setVertexBuffer(this->vertexBuffer);
+
+	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
 }

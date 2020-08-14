@@ -5,8 +5,10 @@
 class TexturedCube :    public Cube
 {
 public:
-	TexturedCube(String name, void* shaderByteCode, size_t sizeShader);
+	TexturedCube(String name);
 	~TexturedCube();
+
+	void draw(int width, int height) override;
 private:
 	struct Vertex {
 		Vector3D position;

@@ -1,8 +1,14 @@
 #include "Plane.h"
 #include "GraphicsEngine.h"
+#include "ShaderLibrary.h"
 
-Plane::Plane(String name, void* shaderByteCode, size_t sizeShader): Cube(name)
+Plane::Plane(String name): Cube(name)
 {
+	ShaderNames shaderNames;
+	void* shaderByteCode = NULL;
+	size_t sizeShader = 0;
+	ShaderLibrary::getInstance()->requestVertexShaderData(shaderNames.BASE_VERTEX_SHADER_NAME, &shaderByteCode, &sizeShader);
+
 	//override cube constructor with different renderer
 	//create buffers for drawing. vertex data that needs to be drawn are temporarily placed here.
 	Vertex quadList[] = {

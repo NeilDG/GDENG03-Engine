@@ -6,8 +6,12 @@
 #include "ShaderLibrary.h"
 
 
-Cube::Cube(String name):AGameObject(name)
+Cube::Cube(String name, bool skipInit):AGameObject(name)
 {
+	if (skipInit) {
+		return;
+	}
+
 	ShaderNames shaderNames;
 	void* shaderByteCode = NULL;
 	size_t sizeShader = 0;
@@ -61,10 +65,6 @@ Cube::Cube(String name):AGameObject(name)
 	cbData.time = 0;
 	this->constantBuffer = GraphicsEngine::getInstance()->createConstantBuffer();
 	this->constantBuffer->load(&cbData, sizeof(CBData));
-
-	//set vertex shader and pixel shader for the object
-	DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
-	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.BASE_PIXEL_SHADER_NAME));
 }
 
 Cube::~Cube()
@@ -81,8 +81,10 @@ void Cube::update(float deltaTime)
 
 void Cube::draw(int width, int height)
 {
-	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
-	DeviceContext* deviceContext = graphEngine->getImmediateContext();
+	//set vertex shader and pixel shader for the object
+	ShaderNames shaderNames;
+	DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
+	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.BASE_PIXEL_SHADER_NAME));
 
 	CBData cbData = {};
 
