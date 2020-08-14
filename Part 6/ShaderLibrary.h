@@ -21,6 +21,12 @@ public:
 class ShaderLibrary
 {
 public:
+	class ShaderData {
+	public:
+		void* shaderByteCode = NULL;
+		size_t sizeShader = 0;
+	};
+
 	typedef std::wstring String;
 	typedef std::unordered_map<String, VertexShader*> VertexShaderTable;
 	typedef std::unordered_map<String, PixelShader*> PixelShaderTable;

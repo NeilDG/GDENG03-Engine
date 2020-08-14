@@ -70,8 +70,7 @@ void AppWindow::onUpdate()
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
 	DeviceContext* deviceContext = graphEngine->getImmediateContext();
 	ShaderNames shaderNames;
-	deviceContext->setVertexShader(ShaderLibrary::getInstance()->getVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME));
-	deviceContext->setPixelShader(ShaderLibrary::getInstance()->getPixelShader(shaderNames.BASE_PIXEL_SHADER_NAME));
+	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.BASE_PIXEL_SHADER_NAME));
 	deviceContext->clearRenderTargetColor(this->swapChain, 0, 0.5, 0.5, 1);
 
 	RECT windowRect = this->getClientWindowRect();
@@ -81,7 +80,8 @@ void AppWindow::onUpdate()
 	deviceContext->setViewportSize(width, height);
 
 	GameObjectManager::getInstance()->updateAll();
-	GameObjectManager::getInstance()->renderAll(width, height, this->vertexShader, this->pixelShader);
+	GameObjectManager::getInstance()->renderAll(width, height);
+	//GameObjectManager::getInstance()->renderAll(width, height, this->vertexShader, this->pixelShader);
 	SceneCameraHandler::getInstance()->update();
 	UIManager::getInstance()->drawAllUI();
 
@@ -97,8 +97,8 @@ void AppWindow::onDestroy()
 	this->indexBuffer->release();
 	this->constantBuffer->release();
 	this->swapChain->release();
-	this->vertexShader->release();
-	this->pixelShader->release();
+	//this->vertexShader->release();
+	//this->pixelShader->release();
 	SceneCameraHandler::destroy();
 	GraphicsEngine::destroy();
 	ShaderLibrary::destroy();

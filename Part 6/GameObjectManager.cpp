@@ -56,7 +56,7 @@ void GameObjectManager::updateAll()
 	}
 }
 
-void GameObjectManager::renderAll(int viewportWidth, int viewportHeight, VertexShader* vertexShader, PixelShader* pixelShader)
+void GameObjectManager::renderAll(int viewportWidth, int viewportHeight)
 {
 	for (int i = 0; i < this->gameObjectList.size(); i++) {
 		//replace with component update

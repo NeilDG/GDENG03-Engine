@@ -59,6 +59,7 @@ void VertexBuffer::load(void* vertexList, UINT vertexSize, UINT listSize, void* 
 	}
 	else {
 		std::cout << "An error occurred in creating an input layout. \n";
+		std::cout << std::system_category().message(layoutResult) << "\n";
 	}
 }
 

@@ -25,7 +25,6 @@ void VertexShader::init(void* shaderByteCode, size_t byteCodeSize)
 {
 	ID3D11Device* directXDevice = GraphicsEngine::getInstance()->getDirectXDevice();
 	HRESULT vertexResult =  directXDevice->CreateVertexShader(shaderByteCode, byteCodeSize, NULL, &this->vertexShader);
-
 	if (SUCCEEDED(vertexResult)) {
 		std::cout << "Created runtime vertex shader successfully. \n";
 	}

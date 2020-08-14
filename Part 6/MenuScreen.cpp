@@ -6,6 +6,7 @@
 #include "GameObjectManager.h"
 #include "GraphicsEngine.h"
 #include "VertexShader.h"
+#include "ShaderLibrary.h"
 
 MenuScreen::MenuScreen(): AUIScreen("MenuScreen")
 {
@@ -44,15 +45,12 @@ void MenuScreen::drawUI()
 void MenuScreen::OnCreateCubeClicked()
 {
 	//initialize vertex for object
-	void* shaderByteCode = nullptr;
+	ShaderNames shaderNames;
+	void* shaderByteCode = NULL;
 	size_t sizeShader = 0;
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
-	graphEngine->compileVertexShader(L"VertexShader.hlsl", "main", &shaderByteCode, &sizeShader);
-	VertexShader* vertexShader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
-
+	graphEngine->compileVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME.c_str(), "main", &shaderByteCode, &sizeShader);
 	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::CUBE, shaderByteCode, sizeShader);
-
-	vertexShader->release();
 }
 
 void MenuScreen::OnCreateSphereClicked()
@@ -63,13 +61,10 @@ void MenuScreen::OnCreateSphereClicked()
 void MenuScreen::OnCreatePlaneClicked()
 {
 	//initialize vertex for object
-	void* shaderByteCode = nullptr;
+	ShaderNames shaderNames;
+	void* shaderByteCode = NULL;
 	size_t sizeShader = 0;
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
-	graphEngine->compileVertexShader(L"VertexShader.hlsl", "main", &shaderByteCode, &sizeShader);
-	VertexShader* vertexShader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
-
+	graphEngine->compileVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME.c_str(), "main", &shaderByteCode, &sizeShader);
 	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::PLANE, shaderByteCode, sizeShader);
-
-	vertexShader->release();
 }

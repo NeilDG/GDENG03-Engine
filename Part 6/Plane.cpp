@@ -20,7 +20,7 @@ Plane::Plane(String name, void* shaderByteCode, size_t sizeShader): Cube(name, s
 		{Vector3D(-0.5f,-0.5f,0.5f),     Vector3D(1,1,1), Vector3D(0,0.2f,0) },
 	};
 
-	this->vertexBuffer->release();
+	//this->vertexBuffer->release();
 	this->vertexBuffer = GraphicsEngine::getInstance()->createVertexBuffer();
 	this->vertexBuffer->load(quadList, sizeof(Vertex), ARRAYSIZE(quadList), shaderByteCode, sizeShader);
 

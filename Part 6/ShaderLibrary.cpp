@@ -40,23 +40,22 @@ ShaderLibrary::ShaderLibrary()
 {
 	//initialize and load all shaders for use
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
-	void* shaderByteCode = NULL;
-	size_t sizeShader = 0;
 
 	ShaderNames shaderNames;
-	graphEngine->compileVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME.c_str(), "main", &shaderByteCode, &sizeShader);
-	this->activeVertexShaders[shaderNames.BASE_VERTEX_SHADER_NAME] = graphEngine->createVertexShader(shaderByteCode, sizeShader);
-	graphEngine->releaseCompiledShader();
+	ShaderData shaderData;
+	graphEngine->compileVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME.c_str(), "main", &shaderData.shaderByteCode, &shaderData.sizeShader);
+	this->activeVertexShaders[shaderNames.BASE_VERTEX_SHADER_NAME] = graphEngine->createVertexShader(shaderData.shaderByteCode, shaderData.sizeShader);
 
-	graphEngine->compilePixelShader(shaderNames.BASE_PIXEL_SHADER_NAME.c_str(), "main", &shaderByteCode, &sizeShader);
-	this->activePixelShaders[shaderNames.BASE_PIXEL_SHADER_NAME] = graphEngine->createPixelShader(shaderByteCode, sizeShader);
-	graphEngine->releaseCompiledShader();
+	graphEngine->compilePixelShader(shaderNames.BASE_PIXEL_SHADER_NAME.c_str(), "main", &shaderData.shaderByteCode, &shaderData.sizeShader);
+	this->activePixelShaders[shaderNames.BASE_PIXEL_SHADER_NAME] = graphEngine->createPixelShader(shaderData.shaderByteCode, shaderData.sizeShader);
 
-	graphEngine->compileVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME.c_str(), "main", &shaderByteCode, &sizeShader);
-	this->activeVertexShaders[shaderNames.TEXTURED_VERTEX_SHADER_NAME] = graphEngine->createVertexShader(shaderByteCode, sizeShader);
+	graphEngine->compileVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME.c_str(), "main", &shaderData.shaderByteCode, &shaderData.sizeShader);
+	this->activeVertexShaders[shaderNames.TEXTURED_VERTEX_SHADER_NAME] = graphEngine->createVertexShader(shaderData.shaderByteCode, shaderData.sizeShader);
 
-	graphEngine->compilePixelShader(shaderNames.TEXTURED_PIXEL_SHADER_NAME.c_str(), "main", &shaderByteCode, &sizeShader);
-	this->activeVertexShaders[shaderNames.BASE_PIXEL_SHADER_NAME] = graphEngine->createVertexShader(shaderByteCode, sizeShader);
+	graphEngine->compilePixelShader(shaderNames.TEXTURED_PIXEL_SHADER_NAME.c_str(), "main", &shaderData.shaderByteCode, &shaderData.sizeShader);
+	this->activeVertexShaders[shaderNames.TEXTURED_PIXEL_SHADER_NAME] = graphEngine->createVertexShader(shaderData.shaderByteCode, shaderData.sizeShader);
+
+	std::cout << "Shader library initialized. \n";
 }
 
 ShaderLibrary::~ShaderLibrary()

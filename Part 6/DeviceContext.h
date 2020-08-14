@@ -24,8 +24,7 @@ public:
 	void drawTriangleStrip(UINT vertexCount, UINT startIndex);
 	void setViewportSize(UINT width, UINT height);
 
-	void setVertexShader(VertexShader* vertexShader);
-	void setPixelShader(PixelShader* pixelShader);
+	void setRenderConfig(VertexShader* vertexShader, PixelShader* pixelShader);
 	void setConstantBuffer(ConstantBuffer* buffer);
 	void setTexture(Texture* texture);
 

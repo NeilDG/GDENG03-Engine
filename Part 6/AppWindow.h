@@ -44,8 +44,8 @@ private:
 	IndexBuffer* indexBuffer;
 	ConstantBuffer* constantBuffer;
 
-	VertexShader* vertexShader;
-	PixelShader* pixelShader;
+	//VertexShader* vertexShader;
+	//PixelShader* pixelShader;
 
 	float ticks = 0.0f;
 	float CHANGE_DELAY = 1.0f;
