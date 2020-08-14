@@ -12,7 +12,7 @@ AGameObject::~AGameObject()
 {
 }
 
-void AGameObject::draw(int width, int height, VertexShader* vertexShader, PixelShader* pixelShader)
+void AGameObject::draw(int width, int height)
 {
 	//no drawing
 }

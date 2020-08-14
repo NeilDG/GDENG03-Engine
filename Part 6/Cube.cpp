@@ -73,7 +73,7 @@ void Cube::update(float deltaTime)
 
 }
 
-void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* pixelShader)
+void Cube::draw(int width, int height)
 {
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
 	DeviceContext* deviceContext = graphEngine->getImmediateContext();

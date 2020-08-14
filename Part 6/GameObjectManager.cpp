@@ -61,7 +61,7 @@ void GameObjectManager::renderAll(int viewportWidth, int viewportHeight, VertexS
 	for (int i = 0; i < this->gameObjectList.size(); i++) {
 		//replace with component update
 		if (this->gameObjectList[i]->isEnabled()) {
-			this->gameObjectList[i]->draw(viewportWidth, viewportHeight, vertexShader, pixelShader);
+			this->gameObjectList[i]->draw(viewportWidth, viewportHeight);
 		}
 	}
 }

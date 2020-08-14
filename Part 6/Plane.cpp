@@ -70,7 +70,7 @@ void Plane::update(float deltaTime)
 	Cube::update(deltaTime);
 }
 
-void Plane::draw(int width, int height, VertexShader* vertexShader, PixelShader* pixelShader)
+void Plane::draw(int width, int height)
 {
-	Cube::draw(width, height, vertexShader, pixelShader);
+	Cube::draw(width, height);
 }

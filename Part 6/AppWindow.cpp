@@ -16,6 +16,7 @@
 #include "UIManager.h"
 #include "GameObjectManager.h"
 #include "TextureManager.h"
+#include "ShaderLibrary.h"
 
 static float f = 0.0f;
 static int counter = 0;
@@ -68,8 +69,9 @@ void AppWindow::onUpdate()
 
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
 	DeviceContext* deviceContext = graphEngine->getImmediateContext();
-	deviceContext->setVertexShader(this->vertexShader);
-	deviceContext->setPixelShader(this->pixelShader);
+	ShaderNames shaderNames;
+	deviceContext->setVertexShader(ShaderLibrary::getInstance()->getVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME));
+	deviceContext->setPixelShader(ShaderLibrary::getInstance()->getPixelShader(shaderNames.BASE_PIXEL_SHADER_NAME));
 	deviceContext->clearRenderTargetColor(this->swapChain, 0, 0.5, 0.5, 1);
 
 	RECT windowRect = this->getClientWindowRect();
@@ -99,6 +101,7 @@ void AppWindow::onDestroy()
 	this->pixelShader->release();
 	SceneCameraHandler::destroy();
 	GraphicsEngine::destroy();
+	ShaderLibrary::destroy();
 	TextureManager::destroy();
 
 	// IMGUI Cleanup
@@ -113,7 +116,7 @@ void AppWindow::createGraphicsWindow()
 {
 	GraphicsEngine::initialize();
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
-
+	ShaderLibrary::initialize();
 	TextureManager::initialize();
 
 	this->swapChain = GraphicsEngine::getInstance()->getSwapChain();
@@ -125,32 +128,11 @@ void AppWindow::createGraphicsWindow()
 
 	this->swapChain->init(this->getWindowHandle(), width, height);
 
-	void* shaderByteCode = nullptr;
-	size_t sizeShader = 0;
-
-	//vertex stage
-	graphEngine->compileVertexShader(L"VertexShader.hlsl", "main", &shaderByteCode, &sizeShader);
-	this->vertexShader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
-	graphEngine->releaseCompiledShader(); //this must be called after each stage.
-
 	GameObjectManager::initialize();
-
-	//pixel shading stage
-	graphEngine->compilePixelShader(L"PixelShader.hlsl", "main", &shaderByteCode, &sizeShader);
-	this->pixelShader = graphEngine->createPixelShader(shaderByteCode, sizeShader);
-	graphEngine->releaseCompiledShader();
-
 	SceneCameraHandler::initialize();
 
-	/*graphEngine->compileVertexShader(L"TexturedVertexShader.hlsl", "main", &shaderByteCode, &sizeShader);
-	this->vertexShader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
-
-	graphEngine->compilePixelShader(L"TexturedPixelShader.hlsl", "main", &shaderByteCode, &sizeShader);
-	this->pixelShader = graphEngine->createPixelShader(shaderByteCode, sizeShader);
-	graphEngine->releaseCompiledShader();
-
 	//TEST: Texture
-	Texture* woodTex = (Texture*) TextureManager::getInstance()->createTextureFromFile(L"D:/Users/delgallegon/Documents/GithubProjects/GDENG2-Engine/Part 6/Assets/Textures/wood.jpg");
+	/*Texture* woodTex = (Texture*) TextureManager::getInstance()->createTextureFromFile(L"D:/Users/delgallegon/Documents/GithubProjects/GDENG2-Engine/Part 6/Assets/Textures/wood.jpg");
 	std::cout << "Wood tex: " << woodTex;
 
 	DeviceContext* deviceContext = graphEngine->getImmediateContext();
@@ -180,19 +162,6 @@ void AppWindow::onKeyUp(int key)
 
 void AppWindow::onMouseMove(const Point deltaPos)
 {
-	/*if (this->shouldRotate) {
-		for (int i = 0; i < this->cubeList.size(); i++) {
-			Vector3D localRot = this->cubeList[i]->getLocalRotation();
-			float x = localRot.getX();
-			float y = localRot.getY();
-			float z = localRot.getZ();
-
-			x -= deltaPos.getY() * EngineTime::getDeltaTime() * 1.0f;
-			y -= deltaPos.getX() * EngineTime::getDeltaTime() * 1.0f;
-
-			this->cubeList[i]->setRotation(x, y, z);
-		}
-	}*/
 }
 
 void AppWindow::onLeftMouseDown(const Point deltaPos)
