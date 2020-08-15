@@ -77,7 +77,6 @@ void GameObjectManager::addObject(AGameObject* gameObject)
 			count++;
 			revisedString = gameObject->getName() + " " + "(" + std::to_string(count) + ")";
 		}
-		//std::cout << "Duplicate found. New name is: " << revisedString << "\n";
 		gameObject->name = revisedString;
 		this->gameObjectMap[revisedString] = gameObject;
 	}
