@@ -78,5 +78,5 @@ void MenuScreen::OnRigidBodyComponentClicked()
 
 void MenuScreen::OnPhysicsCubeClicked()
 {
-	std::cout << "Creating physics cube clicked. \n";
+	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::PHYSICS_CUBE);
 }

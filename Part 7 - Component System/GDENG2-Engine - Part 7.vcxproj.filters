@@ -222,6 +222,9 @@
     <ClCompile Include="AGameObject.cpp">
       <Filter>Hierarchy</Filter>
     </ClCompile>
+    <ClCompile Include="PhysicsCube.cpp">
+      <Filter>GameEngine\Primitive</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -376,6 +379,9 @@
     </ClInclude>
     <ClInclude Include="AComponent.h">
       <Filter>ComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsCube.h">
+      <Filter>GameEngine\Primitive</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

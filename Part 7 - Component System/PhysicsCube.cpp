@@ -1,8 +1,9 @@
 #include "PhysicsCube.h"
+#include "PhysicsComponent.h"
 
 PhysicsCube::PhysicsCube(String name, bool skipInit): Cube(name, skipInit)
 {
-
+	this->attachComponent(new PhysicsComponent("PhysicsComponent", AComponent::ComponentType::Physics, this));
 }
 
 PhysicsCube::~PhysicsCube()

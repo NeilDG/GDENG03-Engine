@@ -2,6 +2,7 @@
 #include "Cube.h"
 class PhysicsCube :    public Cube
 {
+public:
 	PhysicsCube(String name, bool skipInit = false);
 	~PhysicsCube();
 

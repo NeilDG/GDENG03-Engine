@@ -17,6 +17,8 @@
 #include "GameObjectManager.h"
 #include "TextureManager.h"
 #include "ShaderLibrary.h"
+#include "BaseComponentSystem.h"
+#include "PhysicsSystem.h"
 
 static float f = 0.0f;
 static int counter = 0;
@@ -52,7 +54,6 @@ void AppWindow::onCreate()
 {
 	Window::onCreate();
 	srand(time(NULL));
-
 	InputSystem::initialize();
 
 	std::cout << "On create \n";
@@ -77,6 +78,7 @@ void AppWindow::onUpdate()
 
 	deviceContext->setViewportSize(width, height);
 
+	BaseComponentSystem::getInstance()->getPhysicsSystem()->updateAllComponents();
 	GameObjectManager::getInstance()->updateAll();
 	GameObjectManager::getInstance()->renderAll(width, height);
 	SceneCameraHandler::getInstance()->update();
@@ -100,6 +102,7 @@ void AppWindow::onDestroy()
 	GraphicsEngine::destroy();
 	ShaderLibrary::destroy();
 	TextureManager::destroy();
+	BaseComponentSystem::destroy();
 
 	// IMGUI Cleanup
 	ImGui_ImplDX11_Shutdown();
@@ -127,6 +130,7 @@ void AppWindow::createGraphicsWindow()
 
 	GameObjectManager::initialize();
 	SceneCameraHandler::initialize();
+	BaseComponentSystem::initialize();
 }
 
 void AppWindow::createInterface()

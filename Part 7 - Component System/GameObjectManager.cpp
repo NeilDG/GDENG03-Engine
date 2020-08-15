@@ -7,6 +7,7 @@
 #include "TexturedCube.h"
 #include "ShaderLibrary.h"
 #include "GraphicsEngine.h"
+#include "PhysicsCube.h"
 
 GameObjectManager* GameObjectManager::sharedInstance = NULL;
 
@@ -103,6 +104,13 @@ void GameObjectManager::createObject(PrimitiveType type)
 
 	else if (type == PrimitiveType::TEXTURED_CUBE) {
 		TexturedCube* cube = new TexturedCube("Cube_Textured");
+		cube->setPosition(0.0f, 0.0f, 0.0f);
+		cube->setScale(1.0f, 1.0f, 1.0f);
+		this->addObject(cube);
+	}
+
+	else if (type == PrimitiveType::PHYSICS_CUBE) {
+		PhysicsCube* cube = new PhysicsCube("Cube_Physics");
 		cube->setPosition(0.0f, 0.0f, 0.0f);
 		cube->setScale(1.0f, 1.0f, 1.0f);
 		this->addObject(cube);

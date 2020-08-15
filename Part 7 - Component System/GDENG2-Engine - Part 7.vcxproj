@@ -172,6 +172,7 @@
     <ClCompile Include="Matrix4x4.cpp" />
     <ClCompile Include="MenuScreen.cpp" />
     <ClCompile Include="PhysicsComponent.cpp" />
+    <ClCompile Include="PhysicsCube.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PixelShader.cpp" />
     <ClCompile Include="Plane.cpp" />
@@ -225,6 +226,7 @@
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="MenuScreen.h" />
     <ClInclude Include="PhysicsComponent.h" />
+    <ClInclude Include="PhysicsCube.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PixelShader.h" />
     <ClInclude Include="Plane.h" />

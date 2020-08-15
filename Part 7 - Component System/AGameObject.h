@@ -25,7 +25,7 @@ public:
 	AGameObject(String name);
 	~AGameObject();
 
-	virtual void update(float deltaTime) = 0;
+	virtual void update(float deltaTime);
 	virtual void draw(int width, int height);
 
 	void setPosition(float x, float y, float z);

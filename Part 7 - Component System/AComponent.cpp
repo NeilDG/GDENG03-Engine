@@ -21,6 +21,7 @@ void AComponent::attachOwner(AGameObject* owner)
 void AComponent::detachOwner()
 {
     //if object owner gets detached. then component must also be deleted.
+    this->owner = NULL;
     delete this;
 }
 

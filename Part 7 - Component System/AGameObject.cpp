@@ -10,6 +10,15 @@ AGameObject::AGameObject(String name)
 
 AGameObject::~AGameObject()
 {
+	for (int i = 0; i < this->componentList.size(); i++) {
+		this->componentList[i]->detachOwner();
+	}
+	this->componentList.clear();
+}
+
+void AGameObject::update(float deltaTime)
+{
+
 }
 
 void AGameObject::draw(int width, int height)
