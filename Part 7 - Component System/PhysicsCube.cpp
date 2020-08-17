@@ -3,7 +3,8 @@
 
 PhysicsCube::PhysicsCube(String name, bool skipInit): Cube(name, skipInit)
 {
-	this->attachComponent(new PhysicsComponent("PhysicsComponent", AComponent::ComponentType::Physics, this));
+	//this->setPosition(0.0f, 0.5f, 0.0f);
+	this->attachComponent(new PhysicsComponent("PhysicsComponent", this));
 }
 
 PhysicsCube::~PhysicsCube()

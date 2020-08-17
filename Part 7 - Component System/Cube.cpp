@@ -98,7 +98,7 @@ void Cube::draw(int width, int height)
 
 	//Scale --> Rotate --> Transform as recommended order.
 	Matrix4x4 rotMatrix; rotMatrix.setIdentity();
-	rotMatrix = rotMatrix.multiplyTo(zMatrix.multiplyTo(yMatrix.multiplyTo(xMatrix)));
+	rotMatrix = rotMatrix.multiplyTo(xMatrix.multiplyTo(yMatrix.multiplyTo(zMatrix)));
 	allMatrix = allMatrix.multiplyTo(scaleMatrix.multiplyTo(rotMatrix));
 	allMatrix = allMatrix.multiplyTo(translationMatrix);
 	cbData.worldMatrix = allMatrix;

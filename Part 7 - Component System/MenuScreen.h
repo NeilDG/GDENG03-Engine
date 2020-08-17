@@ -14,6 +14,7 @@ private:
 
 	void OnRigidBodyComponentClicked();
 	void OnPhysicsCubeClicked();
+	void OnPhysicsPlaneClicked();
 
 	friend class UIManager;
 

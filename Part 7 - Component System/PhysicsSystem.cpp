@@ -5,10 +5,18 @@
 
 PhysicsSystem::PhysicsSystem()
 {
+	// Create the physics engine and world
+	this->physicsCommon = new PhysicsCommon();
+	PhysicsWorld::WorldSettings settings;
+	settings.defaultVelocitySolverNbIterations = 50;
+	settings.gravity = Vector3(0, -9.81, 0);
+	this->physicsWorld = this->physicsCommon->createPhysicsWorld(settings);
+	std::cout << "Successfully created physics world. \n";
 }
 
 PhysicsSystem::~PhysicsSystem()
 {
+	delete this->physicsCommon;
 }
 
 void PhysicsSystem::registerComponent(PhysicsComponent* component)
@@ -61,7 +69,22 @@ PhysicsSystem::ComponentList PhysicsSystem::getAllComponents()
 
 void PhysicsSystem::updateAllComponents()
 {
-	for (int i = 0; i < this->componentList.size(); i++) {
-		this->componentList[i]->perform(EngineTime::getDeltaTime());
+	//do not update during first frame. Delta time is still 0.
+	if (EngineTime::getDeltaTime() > 0.0f) {
+		//update physics world
+		this->physicsWorld->update(EngineTime::getDeltaTime());
+		for (int i = 0; i < this->componentList.size(); i++) {
+			this->componentList[i]->perform(EngineTime::getDeltaTime());
+		}
 	}
+}
+
+PhysicsWorld* PhysicsSystem::getPhysicsWorld()
+{
+	return this->physicsWorld;
+}
+
+PhysicsCommon* PhysicsSystem::getPhysicsCommon()
+{
+	return this->physicsCommon;
 }

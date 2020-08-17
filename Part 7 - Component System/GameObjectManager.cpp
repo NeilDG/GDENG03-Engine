@@ -8,6 +8,7 @@
 #include "ShaderLibrary.h"
 #include "GraphicsEngine.h"
 #include "PhysicsCube.h"
+#include "PhysicsPlane.h"
 
 GameObjectManager* GameObjectManager::sharedInstance = NULL;
 
@@ -114,6 +115,11 @@ void GameObjectManager::createObject(PrimitiveType type)
 		cube->setPosition(0.0f, 0.0f, 0.0f);
 		cube->setScale(1.0f, 1.0f, 1.0f);
 		this->addObject(cube);
+	}
+
+	else if (type == PrimitiveType::PHYSICS_PLANE) {
+		PhysicsPlane* plane = new PhysicsPlane("Plane_Physics");
+		this->addObject(plane);
 	}
 }
 

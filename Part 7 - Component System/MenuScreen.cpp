@@ -29,11 +29,12 @@ void MenuScreen::drawUI()
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Game Object")) {
+			if (ImGui::MenuItem("Create Sphere")) { this->OnCreateSphereClicked(); }
 			if (ImGui::MenuItem("Create Cube")) { this->OnCreateCubeClicked(); }
 			if (ImGui::MenuItem("Create Textured Cube")) { this->OnCreateTexturedCubeClicked(); }
 			if (ImGui::MenuItem("Create Placeholder Physics Cube")) { this->OnPhysicsCubeClicked(); }
-			if (ImGui::MenuItem("Create Sphere")) { this->OnCreateSphereClicked(); }
 			if (ImGui::MenuItem("Create Plane")) { this->OnCreatePlaneClicked(); }
+			if (ImGui::MenuItem("Create Placeholder Physics Plane")) { this->OnPhysicsPlaneClicked(); }
 			if (ImGui::BeginMenu("Light")) {
 				if (ImGui::MenuItem("Point Light")) { /* Do stuff */ }
 				ImGui::EndMenu();
@@ -78,5 +79,12 @@ void MenuScreen::OnRigidBodyComponentClicked()
 
 void MenuScreen::OnPhysicsCubeClicked()
 {
-	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::PHYSICS_CUBE);
+	for (int i = 0; i < 20; i++) {
+		GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::PHYSICS_CUBE);
+	}
+}
+
+void MenuScreen::OnPhysicsPlaneClicked()
+{
+	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::PHYSICS_PLANE);
 }

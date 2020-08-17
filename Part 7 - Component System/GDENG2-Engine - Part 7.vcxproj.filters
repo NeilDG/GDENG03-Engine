@@ -225,6 +225,9 @@
     <ClCompile Include="PhysicsCube.cpp">
       <Filter>GameEngine\Primitive</Filter>
     </ClCompile>
+    <ClCompile Include="PhysicsPlane.cpp">
+      <Filter>GameEngine\Primitive</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -381,6 +384,9 @@
       <Filter>ComponentSystem</Filter>
     </ClInclude>
     <ClInclude Include="PhysicsCube.h">
+      <Filter>GameEngine\Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsPlane.h">
       <Filter>GameEngine\Primitive</Filter>
     </ClInclude>
   </ItemGroup>

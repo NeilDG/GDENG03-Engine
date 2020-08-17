@@ -17,7 +17,8 @@ public:
 		CUBE,
 		PLANE,
 		SPHERE,
-		PHYSICS_CUBE
+		PHYSICS_CUBE,
+		PHYSICS_PLANE
 	};
 
 	static GameObjectManager* getInstance();
