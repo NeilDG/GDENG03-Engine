@@ -17,6 +17,8 @@
 #include "GameObjectManager.h"
 #include "TextureManager.h"
 #include "ShaderLibrary.h"
+#include "BaseComponentSystem.h"
+#include "PhysicsSystem.h"
 
 static float f = 0.0f;
 static int counter = 0;
@@ -52,9 +54,7 @@ void AppWindow::onCreate()
 {
 	Window::onCreate();
 	srand(time(NULL));
-
 	InputSystem::initialize();
-	//InputSystem::getInstance()->addListener(this);
 
 	std::cout << "On create \n";
 }
@@ -70,7 +70,6 @@ void AppWindow::onUpdate()
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
 	DeviceContext* deviceContext = graphEngine->getImmediateContext();
 	ShaderNames shaderNames;
-	//deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.BASE_PIXEL_SHADER_NAME));
 	deviceContext->clearRenderTargetColor(this->swapChain, 0, 0.5, 0.5, 1);
 
 	RECT windowRect = this->getClientWindowRect();
@@ -79,9 +78,9 @@ void AppWindow::onUpdate()
 
 	deviceContext->setViewportSize(width, height);
 
+	BaseComponentSystem::getInstance()->getPhysicsSystem()->updateAllComponents();
 	GameObjectManager::getInstance()->updateAll();
 	GameObjectManager::getInstance()->renderAll(width, height);
-	//GameObjectManager::getInstance()->renderAll(width, height, this->vertexShader, this->pixelShader);
 	SceneCameraHandler::getInstance()->update();
 	UIManager::getInstance()->drawAllUI();
 
@@ -103,6 +102,7 @@ void AppWindow::onDestroy()
 	GraphicsEngine::destroy();
 	ShaderLibrary::destroy();
 	TextureManager::destroy();
+	BaseComponentSystem::destroy();
 
 	// IMGUI Cleanup
 	ImGui_ImplDX11_Shutdown();
@@ -130,15 +130,7 @@ void AppWindow::createGraphicsWindow()
 
 	GameObjectManager::initialize();
 	SceneCameraHandler::initialize();
-
-	//TEST: Texture
-	/*Texture* woodTex = (Texture*) TextureManager::getInstance()->createTextureFromFile(L"D:/Users/delgallegon/Documents/GithubProjects/GDENG2-Engine/Part 6/Assets/Textures/wood.jpg");
-	std::cout << "Wood tex: " << woodTex;
-
-	DeviceContext* deviceContext = graphEngine->getImmediateContext();
-	deviceContext->setTexture(woodTex);
-
-	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::TEXTURED_CUBE, shaderByteCode, sizeShader);*/
+	BaseComponentSystem::initialize();
 }
 
 void AppWindow::createInterface()
