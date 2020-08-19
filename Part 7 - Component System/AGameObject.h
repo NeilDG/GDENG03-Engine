@@ -4,12 +4,23 @@
 #include "Matrix4x4.h"
 #include <vector>
 #include "AComponent.h"
+#include "reactphysics3d/reactphysics3d.h"
+
+using namespace reactphysics3d;
+
 class GameObjectManager;
 class VertexShader;
 class PixelShader;
 class AGameObject
 {
 public:
+	struct AQuaternion {
+		float w = 0.0f;
+		float x = 0.0f;
+		float y = 0.0f;
+		float z = 0.0f;
+	};
+
 	typedef std::string String;
 	typedef std::vector<AComponent*> ComponentList;
 
@@ -38,7 +49,11 @@ public:
 
 	void setRotation(float x, float y, float z);
 	void setRotation(Vector3D rot);
+	void setRotation(float x, float y, float z, float w);
 	Vector3D getLocalRotation();
+
+	//void setEulerAnglesRotation(float x, float y, float z);
+	//Vector3D getEulerAngles();
 	
 	bool isEnabled();
 	void setEnabled(bool flag);
@@ -53,14 +68,22 @@ public:
 	ComponentList getComponentsOfType(AComponent::ComponentType type);
 	ComponentList getComponentsOfTypeRecursive(AComponent::ComponentType type);
 
+	void updateLocalMatrix(); //updates local matrix based from latest position, rotation, and scale.
+	void setLocalMatrix(float matrix[16]);
+	float* getLocalMatrix();
+	float* getPhysicsLocalMatrix(); //scale is set to 1.0
+
 protected:
 	String name;
 	Vector3D localPosition;
 	Vector3D localScale;
-	Vector3D localRotation;
+	//Vector3D localRotation;
+	AQuaternion orientation;
 	Matrix4x4 localMatrix;
 
 	ComponentList componentList;
+
+	bool overrideMatrix = false;
 
 private:
 	bool enabled = true;

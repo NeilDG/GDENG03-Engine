@@ -112,8 +112,6 @@ void GameObjectManager::createObject(PrimitiveType type)
 
 	else if (type == PrimitiveType::PHYSICS_CUBE) {
 		PhysicsCube* cube = new PhysicsCube("Cube_Physics");
-		cube->setPosition(0.0f, 0.0f, 0.0f);
-		cube->setScale(1.0f, 1.0f, 1.0f);
 		this->addObject(cube);
 	}
 

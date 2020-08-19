@@ -24,6 +24,11 @@ void Matrix4x4::setMatrix(const Matrix4x4 matrix)
 	::memcpy(this->matrix, matrix.matrix, sizeof(float) * 16);
 }
 
+void Matrix4x4::setMatrix(float matrix[4][4])
+{
+	::memcpy(this->matrix, matrix, sizeof(float) * 16);
+}
+
 void Matrix4x4::setTranslation(const Vector3D translation)
 {
 	this->setIdentity();
@@ -161,6 +166,24 @@ void Matrix4x4::debugPrint()
 		}
 		std::cout << "\n";
 	}
+}
+
+float* Matrix4x4::getMatrix()
+{
+	//re-arrange to be compatible with react physics
+	/*float matrix4x4[16];
+	matrix4x4[0] = matrix[0][0]; matrix4x4[1] = matrix[1][0];
+	matrix4x4[2] = matrix[2][0]; matrix4x4[3] = 0.0;
+	matrix4x4[4] = matrix[0][1]; matrix4x4[5] = matrix[1][1];
+	matrix4x4[6] = matrix[2][1]; matrix4x4[7] = 0.0;
+	matrix4x4[8] = matrix[0][2]; matrix4x4[9] = matrix[1][2];
+	matrix4x4[10] = matrix[2][2]; matrix4x4[11] = 0.0;
+	matrix4x4[12] = matrix[3][0]; matrix4x4[13] = matrix[3][1];
+	matrix4x4[14] = matrix[3][2]; matrix4x4[15] = 1.0;
+
+	return matrix4x4;*/
+
+	return *this->matrix;
 }
 
 void Matrix4x4::matrixInitialize()

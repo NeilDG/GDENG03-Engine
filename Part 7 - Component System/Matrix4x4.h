@@ -11,6 +11,7 @@ public:
 	~Matrix4x4();
 	void setIdentity();
 	void setMatrix(const Matrix4x4 matrix);
+	void setMatrix(float matrix[4][4]);
 	void setTranslation(const Vector3D translation);
 	void setScale(const Vector3D scale);
 	void setRotationX(float x);
@@ -27,6 +28,7 @@ public:
 	Vector3D getTranslation();
 
 	void debugPrint();
+	float* getMatrix();
 	
 private:
 	void matrixInitialize();

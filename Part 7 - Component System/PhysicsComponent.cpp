@@ -17,10 +17,10 @@ PhysicsComponent::PhysicsComponent(String name, AGameObject* owner): AComponent(
 	Vector3D scale = this->getOwner()->getLocalScale();
 	Vector3D rot = this->getOwner()->getLocalRotation();
 
-	Vector3 position = Vector3(pos.getX(), pos.getY(), pos.getZ());
-	Quaternion orientation = Quaternion::fromEulerAngles(rot.getX(), rot.getY(), rot.getZ());
-	Transform transform = Transform(position, orientation);
-	
+	//Vector3 position = Vector3(pos.getX(), pos.getY(), pos.getZ());
+	//Quaternion orientation = Quaternion::identity();
+	//Transform transform = Transform(position, orientation);
+	Transform transform; transform.setFromOpenGL(this->getOwner()->getPhysicsLocalMatrix());
 	BoxShape* boxShape = physicsCommon->createBoxShape(Vector3(scale.getX()/2, scale.getY()/2, scale.getZ()/2)); //half extent
 	this->rigidBody = physicsWorld->createRigidBody(transform);
 	this->rigidBody->addCollider(boxShape, transform);
@@ -41,14 +41,14 @@ PhysicsComponent::~PhysicsComponent()
 
 void PhysicsComponent::perform(float deltaTime)
 {
-	const Transform transform = this->rigidBody->getTransform();
-	const Vector3 position = transform.getPosition();
+	if (this->rigidBody->getType() == BodyType::DYNAMIC) {
+		const Transform transform = this->rigidBody->getTransform();
+		float matrix[16];
+		transform.getOpenGLMatrix(matrix);
 
-	const Quaternion rot = transform.getOrientation();
-	const Vector3 convertedRot = rot.getVectorV();
-
-	this->getOwner()->setPosition(position.x, position.y, position.z);
-	this->getOwner()->setRotation(convertedRot.x, convertedRot.y, convertedRot.z);
+		//this->getOwner()->setPosition(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z);
+		this->getOwner()->setLocalMatrix(matrix);
+	}
 }
 
 RigidBody* PhysicsComponent::getRigidBody()

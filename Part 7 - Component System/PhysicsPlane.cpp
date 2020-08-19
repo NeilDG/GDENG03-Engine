@@ -66,8 +66,9 @@ PhysicsPlane::PhysicsPlane(String name, bool skipInit): Cube(name)
 	this->constantBuffer = GraphicsEngine::getInstance()->createConstantBuffer();
 	this->constantBuffer->load(&cbData, sizeof(CBData));
 
-	this->setPosition(0.0f, -10.0f, 0.0f);
-	this->setScale(16.0f, 1.0f, 16.0f);
+	this->setPosition(0.0f, -5.0f, 0.0f);
+	this->setScale(32.0f, 0.2f, 32.0f);
+	this->updateLocalMatrix();
 	this->attachComponent(new PhysicsComponent("PhysicsComponent", this));
 
 	PhysicsComponent* component = (PhysicsComponent*) this->findComponentOfType(AComponent::ComponentType::Physics, "PhysicsComponent");

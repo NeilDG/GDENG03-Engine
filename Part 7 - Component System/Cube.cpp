@@ -21,16 +21,16 @@ Cube::Cube(String name, bool skipInit):AGameObject(name)
 	Vertex quadList[] = {
 		//X, Y, Z
 		//FRONT FACE
-		{Vector3D(-0.5f,-0.5f,-0.5f),    Vector3D(1,0,0),  Vector3D(0.2f,0,0) },
-		{Vector3D(-0.5f,0.5f,-0.5f),    Vector3D(1,1,0), Vector3D(0.2f,0.2f,0) },
-		{Vector3D(0.5f,0.5f,-0.5f),   Vector3D(1,1,0),  Vector3D(0.2f,0.2f,0) },
-		{Vector3D(0.5f,-0.5f,-0.5f),     Vector3D(1,0,0), Vector3D(0.2f,0,0) },
+		{Vector3D(-0.5f,-0.5f,-0.5f),    Vector3D(1,1,1),  Vector3D(0.2f,0,0) },
+		{Vector3D(-0.5f,0.5f,-0.5f),    Vector3D(1,1,1), Vector3D(0.2f,0.2f,0) },
+		{Vector3D(0.5f,0.5f,-0.5f),   Vector3D(0,0,0),  Vector3D(0.2f,0.2f,0) },
+		{Vector3D(0.5f,-0.5f,-0.5f),     Vector3D(0,0,0), Vector3D(0.2f,0,0) },
 
 		//BACK FACE
-		{Vector3D(0.5f,-0.5f,0.5f),    Vector3D(0,1,0), Vector3D(0,0.2f,0) },
-		{Vector3D(0.5f,0.5f,0.5f),    Vector3D(0,1,1), Vector3D(0,0.2f,0.2f) },
-		{Vector3D(-0.5f,0.5f,0.5f),   Vector3D(0,1,1),  Vector3D(0,0.2f,0.2f) },
-		{Vector3D(-0.5f,-0.5f,0.5f),     Vector3D(0,1,0), Vector3D(0,0.2f,0) },
+		{Vector3D(0.5f,-0.5f,0.5f),    Vector3D(1,0,0), Vector3D(0,0.2f,0) },
+		{Vector3D(0.5f,0.5f,0.5f),    Vector3D(1,1,0), Vector3D(0,0.2f,0.2f) },
+		{Vector3D(-0.5f,0.5f,0.5f),   Vector3D(0,0,0),  Vector3D(0,0.2f,0.2f) },
+		{Vector3D(-0.5f,-0.5f,0.5f),     Vector3D(0,0,0), Vector3D(0,0.2f,0) },
 	};
 
 	this->vertexBuffer = GraphicsEngine::getInstance()->createVertexBuffer();
@@ -76,7 +76,9 @@ Cube::~Cube()
 
 void Cube::update(float deltaTime)
 {
-
+	/*float inc = this->orientation.y;
+	inc += deltaTime * 0.5f;
+	this->orientation.y = inc;*/
 }
 
 void Cube::draw(int width, int height)
@@ -88,27 +90,35 @@ void Cube::draw(int width, int height)
 
 	CBData cbData = {};
 
-	Matrix4x4 allMatrix; allMatrix.setIdentity();
-	Matrix4x4 translationMatrix; translationMatrix.setIdentity();  translationMatrix.setTranslation(this->getLocalPosition());
-	Matrix4x4 scaleMatrix; scaleMatrix.setScale(this->getLocalScale());
-	Vector3D rotation = this->getLocalRotation();
-	Matrix4x4 zMatrix; zMatrix.setRotationZ(rotation.getZ());
-	Matrix4x4 xMatrix; xMatrix.setRotationX(rotation.getX());
-	Matrix4x4 yMatrix; yMatrix.setRotationY(rotation.getY());
+	if (this->overrideMatrix) {
+		cbData.worldMatrix = this->localMatrix;
+	}
+	else {
+		/*Matrix4x4 allMatrix; allMatrix.setIdentity();
+		Matrix4x4 translationMatrix; translationMatrix.setIdentity();  translationMatrix.setTranslation(this->getLocalPosition());
+		Matrix4x4 scaleMatrix; scaleMatrix.setScale(this->getLocalScale());
+		Vector3D rotation = this->getLocalRotation();
+		Matrix4x4 xMatrix; xMatrix.setRotationX(rotation.getX());
+		Matrix4x4 yMatrix; yMatrix.setRotationY(rotation.getY());
+		Matrix4x4 zMatrix; zMatrix.setRotationZ(rotation.getZ());
 
-	//Scale --> Rotate --> Transform as recommended order.
-	Matrix4x4 rotMatrix; rotMatrix.setIdentity();
-	rotMatrix = rotMatrix.multiplyTo(xMatrix.multiplyTo(yMatrix.multiplyTo(zMatrix)));
-	allMatrix = allMatrix.multiplyTo(scaleMatrix.multiplyTo(rotMatrix));
-	allMatrix = allMatrix.multiplyTo(translationMatrix);
-	cbData.worldMatrix = allMatrix;
+		//Scale --> Rotate --> Transform as recommended order.
+		Matrix4x4 rotMatrix; rotMatrix.setIdentity();
+		rotMatrix = rotMatrix.multiplyTo(xMatrix.multiplyTo(yMatrix.multiplyTo(zMatrix)));
 
+		allMatrix = allMatrix.multiplyTo(scaleMatrix.multiplyTo(rotMatrix));
+		allMatrix = allMatrix.multiplyTo(translationMatrix);
+		cbData.worldMatrix = allMatrix;*/
+		this->updateLocalMatrix();
+		cbData.worldMatrix = this->localMatrix;
+	}
+	
 	Matrix4x4 cameraMatrix = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
 	cbData.viewMatrix = cameraMatrix;
 
-	//cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
 	float aspectRatio = (float)width / (float)height;
-	cbData.projMatrix.setPerspectiveFovLH(aspectRatio, aspectRatio, 0.1f, 1000.0f);
+	//cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
+	cbData.projMatrix.setPerspectiveFovLH(2, aspectRatio, 0.1f, 1000.0f);
 
 	this->constantBuffer->update(deviceContext, &cbData);
 	deviceContext->setConstantBuffer(this->constantBuffer);
@@ -116,4 +126,6 @@ void Cube::draw(int width, int height)
 	deviceContext->setVertexBuffer(this->vertexBuffer);
 
 	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
+
+	//this->localMatrix = cbData.projMatrix;
 }
