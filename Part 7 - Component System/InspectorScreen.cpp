@@ -16,7 +16,7 @@ InspectorScreen::~InspectorScreen()
 
 void InspectorScreen::drawUI()
 {
-	ImGui::Begin("Inspector Window"); 
+	ImGui::Begin("Inspector Window", 0, ImGuiWindowFlags_NoResize);
 	ImGui::SetWindowPos(ImVec2(UIManager::WINDOW_WIDTH - 275, 20));
 	ImGui::SetWindowSize(ImVec2(250, UIManager::WINDOW_HEIGHT));
 	this->selectedObject = GameObjectManager::getInstance()->getSelectedObject();

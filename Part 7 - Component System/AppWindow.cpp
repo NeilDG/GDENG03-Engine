@@ -19,6 +19,7 @@
 #include "ShaderLibrary.h"
 #include "BaseComponentSystem.h"
 #include "PhysicsSystem.h"
+#include "EngineBackend.h"
 
 static float f = 0.0f;
 static int counter = 0;
@@ -78,7 +79,10 @@ void AppWindow::onUpdate()
 
 	deviceContext->setViewportSize(width, height);
 
-	BaseComponentSystem::getInstance()->getPhysicsSystem()->updateAllComponents();
+	if (EngineBackend::getInstance()->getMode() == EngineBackend::EditorMode::PLAY) {
+		BaseComponentSystem::getInstance()->getPhysicsSystem()->updateAllComponents();
+	}
+
 	GameObjectManager::getInstance()->updateAll();
 	GameObjectManager::getInstance()->renderAll(width, height);
 	SceneCameraHandler::getInstance()->update();
@@ -96,8 +100,8 @@ void AppWindow::onDestroy()
 	this->indexBuffer->release();
 	this->constantBuffer->release();
 	this->swapChain->release();
-	//this->vertexShader->release();
-	//this->pixelShader->release();
+
+	EngineBackend::destroy();
 	SceneCameraHandler::destroy();
 	GraphicsEngine::destroy();
 	ShaderLibrary::destroy();
@@ -112,8 +116,9 @@ void AppWindow::onDestroy()
 	std::cout << "On destroy \n";
 }
 
-void AppWindow::createGraphicsWindow()
+void AppWindow::initializeEngine()
 {
+	EngineBackend::initialize();
 	GraphicsEngine::initialize();
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
 	ShaderLibrary::initialize();

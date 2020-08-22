@@ -137,6 +137,7 @@ void AppWindow::createGraphicsWindow()
 	graphEngine->releaseCompiledShader();
 
 	SceneCameraHandler::initialize();
+
 }
 
 void AppWindow::createInterface()
@@ -160,19 +161,7 @@ void AppWindow::onKeyUp(int key)
 
 void AppWindow::onMouseMove(const Point deltaPos)
 {
-	/*if (this->shouldRotate) {
-		for (int i = 0; i < this->cubeList.size(); i++) {
-			Vector3D localRot = this->cubeList[i]->getLocalRotation();
-			float x = localRot.getX();
-			float y = localRot.getY();
-			float z = localRot.getZ();
 
-			x -= deltaPos.getY() * EngineTime::getDeltaTime() * 1.0f;
-			y -= deltaPos.getX() * EngineTime::getDeltaTime() * 1.0f;
-
-			this->cubeList[i]->setRotation(x, y, z);
-		}
-	}*/
 }
 
 void AppWindow::onLeftMouseDown(const Point deltaPos)

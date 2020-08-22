@@ -15,6 +15,7 @@ public:
 	const String MENU_SCREEN = "MENU_SCREEN";
 	const String INSPECTOR_SCREEN = "INSPECTOR_SCREEN";
 	const String HIERARCHY_SCREEN = "HIERARCHY_SCREEN";
+	const String PLAYBACK_SCREEN = "PLAYBACK_SCREEN";
 };
 
 
