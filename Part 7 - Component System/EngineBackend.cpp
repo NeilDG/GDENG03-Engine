@@ -22,6 +22,21 @@ void EngineBackend::setMode(EditorMode mode)
 	this->editorMode = mode;
 }
 
+void EngineBackend::startFrameStep()
+{
+	this->frameStepping = true;
+}
+
+void EngineBackend::endFrameStep()
+{
+	this->frameStepping = false;
+}
+
+bool EngineBackend::insideFrameStep()
+{
+	return this->frameStepping;
+}
+
 EngineBackend::EditorMode EngineBackend::getMode()
 {
 	return this->editorMode;

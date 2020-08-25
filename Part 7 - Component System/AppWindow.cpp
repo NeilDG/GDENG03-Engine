@@ -79,11 +79,25 @@ void AppWindow::onUpdate()
 
 	deviceContext->setViewportSize(width, height);
 
-	if (EngineBackend::getInstance()->getMode() == EngineBackend::EditorMode::PLAY) {
+	//update proper
+	EngineBackend* backend = EngineBackend::getInstance();
+	if (backend->getMode() == EngineBackend::EditorMode::PLAY) {
 		BaseComponentSystem::getInstance()->getPhysicsSystem()->updateAllComponents();
+		GameObjectManager::getInstance()->updateAll();
+	}
+	else if (backend->getMode() == EngineBackend::EditorMode::EDITOR) {
+		GameObjectManager::getInstance()->updateAll();
+		
+	}
+	else if (backend->getMode() == EngineBackend::EditorMode::PAUSED) {
+		if (backend->insideFrameStep()) {
+			BaseComponentSystem::getInstance()->getPhysicsSystem()->updateAllComponents();
+			GameObjectManager::getInstance()->updateAll();
+			backend->endFrameStep();
+		}
 	}
 
-	GameObjectManager::getInstance()->updateAll();
+	//default updates on systems
 	GameObjectManager::getInstance()->renderAll(width, height);
 	SceneCameraHandler::getInstance()->update();
 	UIManager::getInstance()->drawAllUI();

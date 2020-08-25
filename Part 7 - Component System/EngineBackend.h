@@ -15,6 +15,9 @@ public:
 	};
 
 	void setMode(EditorMode mode);
+	void startFrameStep();
+	void endFrameStep();
+	bool insideFrameStep();
 	EditorMode getMode();
 
 private:
@@ -26,5 +29,7 @@ private:
 	static EngineBackend* sharedInstance;
 
 	EditorMode editorMode = EditorMode::EDITOR;
+
+	bool frameStepping = false;
 };
 

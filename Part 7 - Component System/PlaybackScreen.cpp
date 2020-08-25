@@ -19,7 +19,6 @@ void PlaybackScreen::drawUI()
 {
 	EngineBackend* backend = EngineBackend::getInstance();
 
-	ImGui::ShowDemoWindow();
 	ImGui::Begin("Scene Play Options", 0, ImGuiWindowFlags_NoResize);
 	ImGui::SetWindowSize(ImVec2(205, 75));
 	ImGui::SameLine();
@@ -29,14 +28,20 @@ void PlaybackScreen::drawUI()
 		if (ImGui::Button("Play")) { EngineBackend::getInstance()->setMode(EngineBackend::PLAY); }
 	}
 
-	else if (backend->getMode() == EngineBackend::PLAY) {
+	else if (backend->getMode() != EngineBackend::EDITOR) {
 		if (ImGui::Button("Stop")) { EngineBackend::getInstance()->setMode(EngineBackend::EDITOR); }
 	}
 
 	ImGui::SameLine();
-	if (ImGui::Button("Pause")) {}
+
+	if (backend->getMode() == EngineBackend::PLAY) {
+		if (ImGui::Button("Pause")) { EngineBackend::getInstance()->setMode(EngineBackend::PAUSED); }
+	}
+	else if (backend->getMode() == EngineBackend::PAUSED) {
+		if (ImGui::Button("Resume")) { EngineBackend::getInstance()->setMode(EngineBackend::PLAY); }
+	}
 
 	ImGui::SameLine();
-	if (ImGui::Button("Frame Step")) {}
+	if (backend->getMode() == EngineBackend::PAUSED && ImGui::Button("Frame Step")) { EngineBackend::getInstance()->startFrameStep(); }
 	ImGui::End();
 }
