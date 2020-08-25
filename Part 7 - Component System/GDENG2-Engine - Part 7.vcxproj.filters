@@ -28,9 +28,6 @@
     <Filter Include="GameEngine\Shaders">
       <UniqueIdentifier>{f347d058-63be-42f4-bbdb-8b39dc45924e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\FrameUpdate">
-      <UniqueIdentifier>{b7cf0047-7a28-45d2-94b5-e1198579de9c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\GraphicsEngine\VertexShader">
       <UniqueIdentifier>{277ad3ef-3974-404d-85b4-7bbd1bc9e7ab}</UniqueIdentifier>
     </Filter>
@@ -73,6 +70,9 @@
     <Filter Include="ComponentSystem">
       <UniqueIdentifier>{deaa4605-3015-4ecc-a445-e6b98dd5a31b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameEngine\Backend">
+      <UniqueIdentifier>{b7cf0047-7a28-45d2-94b5-e1198579de9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -100,7 +100,7 @@
       <Filter>GameEngine\GraphicsEngine\VertexBuffer</Filter>
     </ClCompile>
     <ClCompile Include="EngineTime.cpp">
-      <Filter>GameEngine\FrameUpdate</Filter>
+      <Filter>GameEngine\Backend</Filter>
     </ClCompile>
     <ClCompile Include="VertexShader.cpp">
       <Filter>GameEngine\GraphicsEngine\VertexShader</Filter>
@@ -228,6 +228,12 @@
     <ClCompile Include="PhysicsPlane.cpp">
       <Filter>GameEngine\Primitive</Filter>
     </ClCompile>
+    <ClCompile Include="PlaybackScreen.cpp">
+      <Filter>Editor\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineBackend.cpp">
+      <Filter>GameEngine\Backend</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -252,7 +258,7 @@
       <Filter>GameEngine\GraphicsEngine\VertexBuffer</Filter>
     </ClInclude>
     <ClInclude Include="EngineTime.h">
-      <Filter>GameEngine\FrameUpdate</Filter>
+      <Filter>GameEngine\Backend</Filter>
     </ClInclude>
     <ClInclude Include="VertexShader.h">
       <Filter>GameEngine\GraphicsEngine\VertexShader</Filter>
@@ -388,6 +394,12 @@
     </ClInclude>
     <ClInclude Include="PhysicsPlane.h">
       <Filter>GameEngine\Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaybackScreen.h">
+      <Filter>Editor\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineBackend.h">
+      <Filter>GameEngine\Backend</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

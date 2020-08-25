@@ -70,7 +70,7 @@ public:
 
 	void updateLocalMatrix(); //updates local matrix based from latest position, rotation, and scale.
 	void setLocalMatrix(float matrix[16]);
-	float* getLocalMatrix();
+	float* getRawMatrix();
 	float* getPhysicsLocalMatrix(); //scale is set to 1.0
 
 protected:
