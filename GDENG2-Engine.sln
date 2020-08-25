@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GDENG2-Engine - Part 6", "P
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GDENG2-Engine - Part 7", "Part 7 - Component System\GDENG2-Engine - Part 7.vcxproj", "{18CCEA41-BE55-4C07-9C3C-900029BFFD0A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GDENG2-Engine - Part 8", "Part 8 - Engine States\GDENG2-Engine - Part 8.vcxproj", "{85CDD055-1146-4BCC-AD72-EA1745D603B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -81,6 +83,14 @@ Global
 		{18CCEA41-BE55-4C07-9C3C-900029BFFD0A}.Release|x64.Build.0 = Release|x64
 		{18CCEA41-BE55-4C07-9C3C-900029BFFD0A}.Release|x86.ActiveCfg = Release|Win32
 		{18CCEA41-BE55-4C07-9C3C-900029BFFD0A}.Release|x86.Build.0 = Release|Win32
+		{85CDD055-1146-4BCC-AD72-EA1745D603B9}.Debug|x64.ActiveCfg = Debug|x64
+		{85CDD055-1146-4BCC-AD72-EA1745D603B9}.Debug|x64.Build.0 = Debug|x64
+		{85CDD055-1146-4BCC-AD72-EA1745D603B9}.Debug|x86.ActiveCfg = Debug|Win32
+		{85CDD055-1146-4BCC-AD72-EA1745D603B9}.Debug|x86.Build.0 = Debug|Win32
+		{85CDD055-1146-4BCC-AD72-EA1745D603B9}.Release|x64.ActiveCfg = Release|x64
+		{85CDD055-1146-4BCC-AD72-EA1745D603B9}.Release|x64.Build.0 = Release|x64
+		{85CDD055-1146-4BCC-AD72-EA1745D603B9}.Release|x86.ActiveCfg = Release|Win32
+		{85CDD055-1146-4BCC-AD72-EA1745D603B9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,11 +6,13 @@
 #include "AComponent.h"
 #include "reactphysics3d/reactphysics3d.h"
 
+
 using namespace reactphysics3d;
 
 class GameObjectManager;
 class VertexShader;
 class PixelShader;
+class EditorAction;
 class AGameObject
 {
 public:
@@ -71,13 +73,16 @@ public:
 	void updateLocalMatrix(); //updates local matrix based from latest position, rotation, and scale.
 	void setLocalMatrix(float matrix[16]);
 	float* getRawMatrix();
+	Matrix4x4 getLocalMatrix();
 	float* getPhysicsLocalMatrix(); //scale is set to 1.0
+
+	virtual void saveEditState();
+	virtual void restoreEditState();
 
 protected:
 	String name;
 	Vector3D localPosition;
 	Vector3D localScale;
-	//Vector3D localRotation;
 	AQuaternion orientation;
 	Matrix4x4 localMatrix;
 
@@ -85,8 +90,12 @@ protected:
 
 	bool overrideMatrix = false;
 
+	virtual void awake();
+
 private:
 	bool enabled = true;
+
+	EditorAction* lastEditState = NULL; //used for storing the state of this object prior to play mode.
 
 };
 

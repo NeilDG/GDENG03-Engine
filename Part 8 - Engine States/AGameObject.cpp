@@ -1,5 +1,5 @@
 #include "AGameObject.h"
-
+#include "EditorAction.h"
 
 AGameObject::AGameObject(String name)
 {
@@ -260,6 +260,11 @@ float* AGameObject::getRawMatrix()
 	return matrix4x4;
 }
 
+Matrix4x4 AGameObject::getLocalMatrix()
+{
+	return this->localMatrix;
+}
+
 float* AGameObject::getPhysicsLocalMatrix()
 {
 	Matrix4x4 allMatrix; allMatrix.setIdentity();
@@ -279,4 +284,30 @@ float* AGameObject::getPhysicsLocalMatrix()
 	allMatrix = allMatrix.multiplyTo(translationMatrix);
 	
 	return allMatrix.getMatrix();
+}
+
+void AGameObject::saveEditState()
+{
+	if (this->lastEditState == NULL) {
+		this->lastEditState = new EditorAction(this);
+	}
+}
+
+void AGameObject::restoreEditState()
+{
+	if (this->lastEditState != NULL) {
+		this->localPosition = this->lastEditState->getStorePos();
+		this->localScale = this->lastEditState->getStoredScale();
+		this->orientation = this->lastEditState->getStoredOrientation();
+		this->localMatrix = this->lastEditState->getStoredMatrix();
+
+		this->lastEditState = NULL;
+	}
+	else {
+		std::cout << "Edit state is null. Cannot restore. \n";
+	}
+}
+
+void AGameObject::awake()
+{
 }
