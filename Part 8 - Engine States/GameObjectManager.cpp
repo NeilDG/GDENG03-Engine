@@ -9,6 +9,8 @@
 #include "GraphicsEngine.h"
 #include "PhysicsCube.h"
 #include "PhysicsPlane.h"
+#include "EditorAction.h"
+#include "Vector3D.h"
 
 GameObjectManager* GameObjectManager::sharedInstance = NULL;
 
@@ -178,6 +180,19 @@ void GameObjectManager::restoreEditStates()
 {
 	for (int i = 0; i < this->gameObjectList.size(); i++) {
 		this->gameObjectList[i]->restoreEditState();
+	}
+}
+
+void GameObjectManager::applyEditorAction(EditorAction* action)
+{
+	AGameObject* object = this->findObjectByName(action->getOwnerName());
+	if (object != NULL) {
+		//re-apply state
+		object->setLocalMatrix(action->getStoredMatrix().getMatrix());
+		object->setPosition(action->getStorePos());
+		object->setRotation(action->getStoredOrientation().x, action->getStoredOrientation().y, action->getStoredOrientation().z);
+		object->setScale(action->getStoredScale());
+
 	}
 }
 

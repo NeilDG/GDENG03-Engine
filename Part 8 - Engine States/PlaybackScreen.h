@@ -11,7 +11,5 @@ private:
 
 	bool played = false;
 	bool paused = false;
-
-	float colors[3] = { 0.0f, 0.0f, 0.0f };
 };
 

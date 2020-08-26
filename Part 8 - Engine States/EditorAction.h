@@ -11,12 +11,14 @@ public:
 	EditorAction(AGameObject* gameObject);
 	~EditorAction();
 
+	AGameObject::String getOwnerName();
 	Vector3D getStorePos();
 	Vector3D getStoredScale();
 	AGameObject::AQuaternion getStoredOrientation();
 	Matrix4x4 getStoredMatrix();
 
 private:
+	AGameObject::String objectName;
 	Vector3D localPosition;
 	Vector3D localScale;
 	AGameObject::AQuaternion orientation;

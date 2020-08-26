@@ -5,6 +5,8 @@
 #include "InspectorScreen.h"
 #include "HierarchyScreen.h"
 #include "PlaybackScreen.h"
+#include "ActionScreen.h"
+
 
 UIManager* UIManager::sharedInstance = NULL;
 
@@ -75,6 +77,10 @@ UIManager::UIManager(HWND windowHandle)
 	PlaybackScreen* playbackScreen = new PlaybackScreen();
 	this->uiTable[uiNames.PLAYBACK_SCREEN] = playbackScreen;
 	this->uiList.push_back(playbackScreen);
+
+	ActionScreen* actionScreen = new ActionScreen();
+	this->uiTable[uiNames.ACTION_SCREEN] = actionScreen;
+	this->uiList.push_back(actionScreen);
 }
 
 UIManager::~UIManager()
