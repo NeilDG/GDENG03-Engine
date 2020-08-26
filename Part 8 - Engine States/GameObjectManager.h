@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include "AGameObject.h"
 
+class EditorAction;
 class GameObjectManager
 {
 public:
@@ -39,6 +40,7 @@ public:
 	AGameObject* getSelectedObject();
 	void saveEditStates();
 	void restoreEditStates();
+	void applyEditorAction(EditorAction* action);
 
 private:
 	GameObjectManager();

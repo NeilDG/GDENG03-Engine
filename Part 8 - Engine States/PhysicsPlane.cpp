@@ -79,4 +79,9 @@ PhysicsPlane::PhysicsPlane(String name, bool skipInit): Cube(name)
 
 PhysicsPlane::~PhysicsPlane()
 {
+	PhysicsComponent* component = (PhysicsComponent*)this->findComponentOfType(AComponent::ComponentType::Physics, "PhysicsComponent");
+	this->detachComponent(component);
+	delete component;
+
+	Cube::~Cube();
 }

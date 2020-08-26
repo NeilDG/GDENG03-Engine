@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClCompile Include="AComponent.cpp" />
     <ClCompile Include="ActionHistory.cpp" />
+    <ClCompile Include="ActionScreen.cpp" />
     <ClCompile Include="AGameObject.cpp" />
     <ClCompile Include="AppWindow.cpp" />
     <ClCompile Include="AUIScreen.cpp" />
@@ -212,6 +213,7 @@
   <ItemGroup>
     <ClInclude Include="AComponent.h" />
     <ClInclude Include="ActionHistory.h" />
+    <ClInclude Include="ActionScreen.h" />
     <ClInclude Include="AGameObject.h" />
     <ClInclude Include="AppWindow.h" />
     <ClInclude Include="AUIScreen.h" />

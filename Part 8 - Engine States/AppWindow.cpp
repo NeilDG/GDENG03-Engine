@@ -20,6 +20,7 @@
 #include "BaseComponentSystem.h"
 #include "PhysicsSystem.h"
 #include "EngineBackend.h"
+#include "ActionHistory.h"
 
 static float f = 0.0f;
 static int counter = 0;
@@ -121,6 +122,7 @@ void AppWindow::onDestroy()
 	ShaderLibrary::destroy();
 	TextureManager::destroy();
 	BaseComponentSystem::destroy();
+	ActionHistory::destroy();
 
 	// IMGUI Cleanup
 	ImGui_ImplDX11_Shutdown();
@@ -150,6 +152,7 @@ void AppWindow::initializeEngine()
 	GameObjectManager::initialize();
 	SceneCameraHandler::initialize();
 	BaseComponentSystem::initialize();
+	ActionHistory::initialize();
 }
 
 void AppWindow::createInterface()
@@ -159,15 +162,41 @@ void AppWindow::createInterface()
 
 void AppWindow::onKeyDown(int key)
 {
-	if (key == 'W') {
-		std::cout << "Key W pressed down! \n";
+	int CTRL_Y = 89;
+	int CTRL_Z = 90;
+
+	std::cout << "Key pressed: " << key << "\n";
+
+	if (key == CTRL_Z) {
+		
+	}
+	else if (key == CTRL_Y) {
+		
 	}
 }
 
 void AppWindow::onKeyUp(int key)
 {
-	if (key == 'W') {
-		std::cout << "Key W pressed up! \n";
+	int CTRL_Y = 89;
+	int CTRL_Z = 90;
+	int KEY_DELETE = 46;
+
+	if (key == CTRL_Z) {
+		if (ActionHistory::getInstance()->hasRemainingUndoActions()) {
+			GameObjectManager::getInstance()->applyEditorAction(ActionHistory::getInstance()->undoAction());
+		}
+	}
+	else if (key == CTRL_Y) {
+		if (ActionHistory::getInstance()->hasRemainingRedoActions()) {
+			GameObjectManager::getInstance()->applyEditorAction(ActionHistory::getInstance()->redoAction());
+		}
+	}
+	else if (key == KEY_DELETE) {
+		AGameObject* selectedObject = GameObjectManager::getInstance()->getSelectedObject();
+		if (selectedObject != NULL) {
+			GameObjectManager::getInstance()->deleteObject(selectedObject);
+			GameObjectManager::getInstance()->setSelectedObject(NULL);
+		}
 	}
 }
 
@@ -187,13 +216,13 @@ void AppWindow::onLeftMouseUp(const Point deltaPos)
 
 void AppWindow::onRightMouseDown(const Point deltaPos)
 {
-	std::cout << "Right mouse down! \n";
+	//std::cout << "Right mouse down! \n";
 	this->shouldRotate = true;
 }
 
 void AppWindow::onRightMouseUp(const Point deltaPos)
 {
-	std::cout << "Right mouse up! \n";
+	//std::cout << "Right mouse up! \n";
 	this->shouldRotate = false;
 }
 

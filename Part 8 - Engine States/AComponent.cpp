@@ -1,4 +1,5 @@
 #include "AComponent.h"
+#include <iostream>
 
 AComponent::AComponent(String name, ComponentType type, AGameObject* owner)
 {
@@ -22,7 +23,6 @@ void AComponent::detachOwner()
 {
     //if object owner gets detached. then component must also be deleted.
     this->owner = NULL;
-    delete this;
 }
 
 AGameObject* AComponent::getOwner()
@@ -37,6 +37,9 @@ AComponent::ComponentType AComponent::getType()
 
 AComponent::String AComponent::getName()
 {
+    if (this == NULL) {
+        std::cout << "THIS IS NULL FOR SOME REASON?!?!?!?! \n";
+    }
     return this->name;
 }
 

@@ -14,8 +14,10 @@ public:
 	static void destroy();
 
 	void recordAction(AGameObject* gameObject);
-	bool hasRemainingActions();
+	bool hasRemainingUndoActions();
+	bool hasRemainingRedoActions();
 	EditorAction* undoAction();
+	EditorAction* redoAction();
 	void clear();
 
 private:
@@ -27,5 +29,6 @@ private:
 	static ActionHistory* sharedInstance;
 
 	ActionStack actionsPerformed;
+	ActionStack actionsCancelled;
 };
 

@@ -17,6 +17,8 @@ void PhysicsCube::awake()
 
 PhysicsCube::~PhysicsCube()
 {
+	this->detachComponent(this->componentAttached);
+	delete this->componentAttached;
 	Cube::~Cube();
 }
 

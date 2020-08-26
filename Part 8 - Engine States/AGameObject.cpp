@@ -90,33 +90,7 @@ void AGameObject::setRotation(float x, float y, float z, float w)
 Vector3D AGameObject::getLocalRotation()
 {
 	return Vector3D(this->orientation.x, this->orientation.y, this->orientation.z);
-	//return this->localRotation;
 }
-
-/*void AGameObject::setEulerAnglesRotation(float x, float y, float z)
-{
-	this->eulerAngles = Vector3D(x, y, z);
-	Quaternion quaternion = Quaternion::fromEulerAngles(x, y, z);
-	this->localRotation = Vector3D(quaternion.getVectorV().x, quaternion.getVectorV().y, quaternion.getVectorV().z);
-}
-
-Vector3D AGameObject::getEulerAngles()
-{
-	return this->eulerAngles;
-}
-
-void AGameObject::storeRotMatrix(Matrix3x3 matrix3x3)
-{
-	float matrix4x4[4][4];
-	
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			matrix4x4[i][j] = matrix3x3[i][j];
-		}
-	}
-	
-	this->rotationMatrix.setMatrix(matrix4x4);
-}*/
 
 bool AGameObject::isEnabled()
 {

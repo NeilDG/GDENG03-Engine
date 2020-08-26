@@ -240,6 +240,9 @@
     <ClCompile Include="ActionHistory.cpp">
       <Filter>GameEngine\Backend</Filter>
     </ClCompile>
+    <ClCompile Include="ActionScreen.cpp">
+      <Filter>Editor\Screens</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -412,6 +415,9 @@
     </ClInclude>
     <ClInclude Include="ActionHistory.h">
       <Filter>GameEngine\Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="ActionScreen.h">
+      <Filter>Editor\Screens</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
