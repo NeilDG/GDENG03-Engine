@@ -38,8 +38,8 @@ void IndexBuffer::load(void* vertexList, UINT listSize)
 void IndexBuffer::release()
 {
 	if (this != NULL) {
-		this->buffer->Release();
-		delete this;
+		//this->buffer->Release();
+		//delete this;
 	}
 }
 

@@ -165,6 +165,8 @@ void AppWindow::onKeyDown(int key)
 	int CTRL_Y = 89;
 	int CTRL_Z = 90;
 
+	std::cout << "Key pressed: " << key << "\n";
+
 	if (key == CTRL_Z) {
 		
 	}
@@ -177,6 +179,7 @@ void AppWindow::onKeyUp(int key)
 {
 	int CTRL_Y = 89;
 	int CTRL_Z = 90;
+	int KEY_DELETE = 46;
 
 	if (key == CTRL_Z) {
 		if (ActionHistory::getInstance()->hasRemainingUndoActions()) {
@@ -186,6 +189,13 @@ void AppWindow::onKeyUp(int key)
 	else if (key == CTRL_Y) {
 		if (ActionHistory::getInstance()->hasRemainingRedoActions()) {
 			GameObjectManager::getInstance()->applyEditorAction(ActionHistory::getInstance()->redoAction());
+		}
+	}
+	else if (key == KEY_DELETE) {
+		AGameObject* selectedObject = GameObjectManager::getInstance()->getSelectedObject();
+		if (selectedObject != NULL) {
+			GameObjectManager::getInstance()->deleteObject(selectedObject);
+			GameObjectManager::getInstance()->setSelectedObject(NULL);
 		}
 	}
 }

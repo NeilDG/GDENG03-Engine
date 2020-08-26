@@ -8,7 +8,6 @@ public:
 	PhysicsComponent(String name, AGameObject* owner);
 	~PhysicsComponent();
 	void perform(float deltaTime) override;
-
 	RigidBody* getRigidBody();
 
 private:

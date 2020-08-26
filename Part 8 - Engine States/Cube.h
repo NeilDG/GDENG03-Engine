@@ -8,7 +8,7 @@ class Cube :    public AGameObject
 {
 public:
 	Cube(String name, bool skipInit = false);
-	~Cube();
+	~Cube() override;
 
 	void update(float deltaTime) override;
 	virtual void draw(int width, int height) override;

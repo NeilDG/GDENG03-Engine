@@ -68,7 +68,8 @@ void VertexBuffer::release()
 	if (this != NULL) {
 		this->inputLayout->Release();
 		this->buffer->Release();
-		delete this;
+		//delete this->inputLayout;
+		//delete this;
 	}
 }
 
