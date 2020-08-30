@@ -68,55 +68,8 @@ void AppWindow::onUpdate()
 		this->cubeList[i]->update(EngineTime::getDeltaTime());
 		this->cubeList[i]->draw(width, height, this->vertexShader, this->pixelShader);
 	}
-	
-}
 
-void AppWindow::updateQuads()
-{
-	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
-	DeviceContext* deviceContext = graphEngine->getImmediateContext();
-
-	RECT windowRect = this->getClientWindowRect();
-	int width = windowRect.right - windowRect.left;
-	int height = windowRect.bottom - windowRect.top;
-
-	CBData cbData = {};
-	cbData.time = this->ticks * 10.0f;
-
-	if (this->deltaPos > 1.0f) {
-		this->deltaPos = 0.0f;
-	}
-	else {
-		this->deltaPos += EngineTime::getDeltaTime() * 0.1f;
-	}
-
-	cbData.worldMatrix.setTranslation(Vector3D::lerp(Vector3D(-1.5f, -1.5f, 0), Vector3D(1.5f, 1.5f, 0), deltaPos));
-	Matrix4x4 scaleMatrix; scaleMatrix.setScale(Vector3D::lerp(Vector3D(0.5f, 0.5f, 0.5f), Vector3D(1.0f, 1.0f, 1.0f), (sin(deltaPos * 20.0f) + 1.0f) / 2.0f));
-	cbData.worldMatrix = cbData.worldMatrix.multiplyTo(scaleMatrix);
-
-	//cbData.worldMatrix.setScale(Vector3D(1.0f, 1.0f, 1.0f));
-	Matrix4x4 zMatrix; zMatrix.setIdentity();
-	zMatrix.setRotationZ(deltaPos * 10.0f);
-
-	Matrix4x4 xMatrix; xMatrix.setIdentity();
-	xMatrix.setRotationX(deltaPos * 10.0f);
-
-	Matrix4x4 yMatrix; yMatrix.setIdentity();
-	yMatrix.setRotationY(deltaPos * 10.0f);
-
-	cbData.worldMatrix = cbData.worldMatrix.multiplyTo(xMatrix.multiplyTo(yMatrix.multiplyTo(zMatrix)));
-	cbData.viewMatrix.setIdentity();
-	cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
-
-	this->constantBuffer->update(deviceContext, &cbData);
-	deviceContext->setConstantBuffer(this->vertexShader, this->constantBuffer);
-	deviceContext->setConstantBuffer(this->pixelShader, this->constantBuffer);
-
-	deviceContext->setVertexBuffer(this->secondBuffer);
-	deviceContext->setIndexBuffer(this->indexBuffer);
-
-	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
-	this->swapChain->present(true);
+	graphEngine->getSwapChain()->present(true);
 }
 
 void AppWindow::onDestroy()
@@ -201,9 +154,14 @@ void AppWindow::createGraphicsWindow()
 	this->cubeList.push_back(cubeObject);
 
 	cubeObject = new Cube("Cube2", shaderByteCode, sizeShader);
-	cubeObject->setAnimSpeed(25.0f);
+	cubeObject->setAnimSpeed(5.0f);
 	this->cubeList.push_back(cubeObject);
 
+	cubeObject = new Cube("Cube3", shaderByteCode, sizeShader);
+	cubeObject->setAnimSpeed(1.0f);
+	this->cubeList.push_back(cubeObject);
+
+	
 	graphEngine->releaseCompiledShader(); //this must be called after each stage.
 
 	//pixel shading stage

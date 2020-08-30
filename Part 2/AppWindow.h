@@ -17,7 +17,6 @@ public:
 	virtual void onDestroy() override;
 
 	void createGraphicsWindow();
-	void updateQuads();
 
 private:
 	AppWindow();

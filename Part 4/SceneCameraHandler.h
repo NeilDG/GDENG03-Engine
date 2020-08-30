@@ -8,7 +8,7 @@ public:
 	static void initialize();
 	static void destroy();
 
-	void update(); //TODO: Game object manager should perform update of all game objects
+	void update();
 
 	Matrix4x4 getSceneCameraViewMatrix();
 

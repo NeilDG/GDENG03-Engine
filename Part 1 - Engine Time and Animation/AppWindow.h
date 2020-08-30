@@ -30,6 +30,9 @@ private:
 	PixelShader* pixelShader;
 
 	float ticks = 0.0f;
+	float speedFactor = 0.1f;
+	bool increasing = false;
+
 	float CHANGE_DELAY = 1.0f;
 	bool displayAlt = false;
 

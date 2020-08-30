@@ -21,6 +21,7 @@
 #include "PhysicsSystem.h"
 #include "EngineBackend.h"
 #include "ActionHistory.h"
+#include "Plane.h"
 
 static float f = 0.0f;
 static int counter = 0;

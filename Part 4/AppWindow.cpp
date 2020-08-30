@@ -152,8 +152,8 @@ void AppWindow::createGraphicsWindow()
 	this->vertexShader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
 
 	for (int i = 0; i < 10; i++) {
-		float x = MathUtils::randomFloat(-0.75, 0.75f);
-		float y = MathUtils::randomFloat(-0.75, 0.75f);
+		float x = MathUtils::randomFloat(-4.00f, 4.00f);
+		float y = MathUtils::randomFloat(-4.00f, 4.00f);
 
 		Cube* cubeObject = new Cube("Cube", shaderByteCode, sizeShader);
 		cubeObject->setAnimSpeed(MathUtils::randomFloat(-3.75f, 3.75f));
