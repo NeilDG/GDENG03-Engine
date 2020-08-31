@@ -72,7 +72,6 @@ void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* 
 {
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
 	DeviceContext* deviceContext = graphEngine->getImmediateContext();
-
 	CBData cbData = {};
 	//cbData.time = this->ticks * this->speed;
 
@@ -109,7 +108,7 @@ void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* 
 	deviceContext->setIndexBuffer(this->indexBuffer);
 
 	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
-	graphEngine->getSwapChain()->present(true);
+	
 }
 
 void Cube::setAnimSpeed(float speed)

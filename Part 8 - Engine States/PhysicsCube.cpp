@@ -25,6 +25,7 @@ PhysicsCube::~PhysicsCube()
 void PhysicsCube::update(float deltaTime)
 {
 	Cube::update(deltaTime);
+	//std::cout << "My object is updating: " << this->name << "\n";
 }
 
 void PhysicsCube::draw(int width, int height)

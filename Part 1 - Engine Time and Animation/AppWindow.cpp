@@ -41,7 +41,21 @@ void AppWindow::onCreate()
 
 void AppWindow::onUpdate()
 {
-	this->ticks += EngineTime::getDeltaTime();
+	this->ticks += EngineTime::getDeltaTime() * 1.0f;
+	
+	if (this->speedFactor > 10.0f) {
+		this->increasing = false;
+	}
+	else if (this->speedFactor < 0.1f) {
+		this->increasing = true;
+	}
+
+	if (this->increasing) {
+		this->speedFactor += EngineTime::getDeltaTime();
+	}
+	else {
+		this->speedFactor -= EngineTime::getDeltaTime();
+	}
 	
 	/*if (this->ticks > this->CHANGE_DELAY) {
 		this->ticks = 0.0f;
@@ -128,8 +142,8 @@ void AppWindow::createGraphicsWindow()
 		//X, Y, Z
 		{-0.5f,-0.5f,0.0f,    -0.32f,-0.11f,0.0f,   0,0,0,  0,1,0 }, // POS1
 		{-0.5f,0.5f,0.0f,     -0.11f,0.78f,0.0f,    1,1,0,  1,1,0 }, // POS2
-		{ 0.5f,-0.5f,0.0f,     0.75f,-0.73f,0.0f,   0,0,1,  1,0,0 },// POS2
-		{ 0.5f,0.5f,0.0f,      0.88f,0.77f,0.0f,    1,1,1,  0,0,1 }
+		{ 0.5f,-0.5f,0.0f,     0.0f,-0.73f,0.0f,   0,0,1,  1,0,0 },// POS2
+		{ 0.0f,0.0f,0.0f,      0.88f,0.77f,0.0f,    1,1,1,  0,0,1 }
 	};
 
 	this->vertexBuffer = GraphicsEngine::getInstance()->createVertexBuffer();

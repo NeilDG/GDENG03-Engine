@@ -25,6 +25,8 @@ private:
 	float ticks = 0.0f;
 	float mouseDown = false;
 
+	Vector3D forwardDirection;
+	Vector3D backwardDirection;
 	//float forwardDirection = 0.0f;
 	//Matrix4x4 worldCameraMatrix;
 };
