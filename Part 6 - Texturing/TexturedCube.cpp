@@ -106,9 +106,9 @@ TexturedCube::TexturedCube(String name): Cube(name, true)
 	this->constantBuffer->load(&cbData, sizeof(CBData));
 
 	//set vertex shader and pixel shader for the object
-	DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
+	/*DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
 	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME), 
-		ShaderLibrary::getInstance()->getPixelShader(shaderNames.TEXTURED_PIXEL_SHADER_NAME));
+		ShaderLibrary::getInstance()->getPixelShader(shaderNames.TEXTURED_PIXEL_SHADER_NAME));*/
 
 }
 
@@ -120,11 +120,12 @@ void TexturedCube::draw(int width, int height)
 {
 	ShaderNames shaderNames;
 	DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
-	Texture* woodTex = (Texture*)TextureManager::getInstance()->createTextureFromFile(L"D:/Users/delgallegon/Documents/GithubProjects/GDENG2-Engine/Part 6/Assets/Textures/wood.jpg");
+	Texture* woodTex = (Texture*)TextureManager::getInstance()->createTextureFromFile(L"D:/Users/delgallegon/Documents/GithubProjects/GDENG2-Engine/Part 6 - Texturing/Assets/Textures/wood.jpg");
 	
 	//set vertex shader and pixel shader for the object
 	deviceContext->setTexture(woodTex);
-	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.TEXTURED_PIXEL_SHADER_NAME));
+	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME), 
+		ShaderLibrary::getInstance()->getPixelShader(shaderNames.TEXTURED_PIXEL_SHADER_NAME));
 
 	CBData cbData = {};
 
