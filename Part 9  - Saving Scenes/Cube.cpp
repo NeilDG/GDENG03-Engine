@@ -6,7 +6,7 @@
 #include "ShaderLibrary.h"
 
 
-Cube::Cube(String name, bool skipInit):AGameObject(name)
+Cube::Cube(String name, bool skipInit):AGameObject(name, AGameObject::PrimitiveType::CUBE)
 {
 	if (skipInit) {
 		return;

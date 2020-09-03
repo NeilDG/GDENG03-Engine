@@ -89,12 +89,12 @@ void MenuScreen::drawUI()
 void MenuScreen::OnCreateCubeClicked()
 {
 	//initialize vertex for object
-	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::CUBE);
+	GameObjectManager::getInstance()->createObject(AGameObject::PrimitiveType::CUBE);
 }
 
 void MenuScreen::OnCreateTexturedCubeClicked()
 {
-	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::TEXTURED_CUBE);
+	GameObjectManager::getInstance()->createObject(AGameObject::PrimitiveType::TEXTURED_CUBE);
 }
 
 void MenuScreen::OnCreateSphereClicked()
@@ -105,7 +105,7 @@ void MenuScreen::OnCreateSphereClicked()
 void MenuScreen::OnCreatePlaneClicked()
 {
 	//initialize vertex for object
-	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::PLANE);
+	GameObjectManager::getInstance()->createObject(AGameObject::PrimitiveType::PLANE);
 }
 
 void MenuScreen::OnRigidBodyComponentClicked()
@@ -116,11 +116,11 @@ void MenuScreen::OnRigidBodyComponentClicked()
 void MenuScreen::OnPhysicsCubeClicked()
 {
 	for (int i = 0; i < 20; i++) {
-		GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::PHYSICS_CUBE);
+		GameObjectManager::getInstance()->createObject(AGameObject::PrimitiveType::PHYSICS_CUBE);
 	}
 }
 
 void MenuScreen::OnPhysicsPlaneClicked()
 {
-	GameObjectManager::getInstance()->createObject(GameObjectManager::PrimitiveType::PHYSICS_PLANE);
+	GameObjectManager::getInstance()->createObject(AGameObject::PrimitiveType::PHYSICS_PLANE);
 }

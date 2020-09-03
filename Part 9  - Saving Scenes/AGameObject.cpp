@@ -1,9 +1,10 @@
 #include "AGameObject.h"
 #include "EditorAction.h"
 
-AGameObject::AGameObject(String name)
+AGameObject::AGameObject(String name, PrimitiveType type)
 {
 	this->name = name;
+	this->objectType = type;
 	//this->localRotation = Vector3D::zeros();
 	this->localPosition = Vector3D::zeros();
 	this->localScale = Vector3D::ones();
@@ -16,6 +17,11 @@ AGameObject::~AGameObject()
 		this->componentList[i]->detachOwner();
 	}
 	this->componentList.clear();
+}
+
+AGameObject::PrimitiveType AGameObject::getObjectType()
+{
+	return this->objectType;
 }
 
 void AGameObject::update(float deltaTime)

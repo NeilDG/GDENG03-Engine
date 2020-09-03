@@ -6,6 +6,7 @@
 
 TexturedCube::TexturedCube(String name): Cube(name, true)
 {
+	this->objectType = PrimitiveType::TEXTURED_CUBE;
 	ShaderNames shaderNames;
 	void* shaderByteCode = NULL;
 	size_t sizeShader = 0;

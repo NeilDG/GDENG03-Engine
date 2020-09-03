@@ -92,41 +92,41 @@ void GameObjectManager::addObject(AGameObject* gameObject)
 	gameObject->awake();
 }
 
-void GameObjectManager::createObject(PrimitiveType type)
+void GameObjectManager::createObject(AGameObject::PrimitiveType type)
 {
-	if (type == PrimitiveType::CUBE) {
+	if (type == AGameObject::PrimitiveType::CUBE) {
 		Cube* cube = new Cube("Cube");
 		cube->setPosition(0.0f, 0.0f, 0.0f);
 		cube->setScale(1.0f, 1.0f, 1.0f);
 		this->addObject(cube);
 	}
 
-	else if (type == PrimitiveType::PLANE) {
+	else if (type == AGameObject::PrimitiveType::PLANE) {
 		Plane* plane = new Plane("Plane");
 		this->addObject(plane);
 	}
 
-	else if (type == PrimitiveType::TEXTURED_CUBE) {
+	else if (type == AGameObject::PrimitiveType::TEXTURED_CUBE) {
 		TexturedCube* cube = new TexturedCube("Cube_Textured");
 		cube->setPosition(0.0f, 0.0f, 0.0f);
 		cube->setScale(1.0f, 1.0f, 1.0f);
 		this->addObject(cube);
 	}
 
-	else if (type == PrimitiveType::PHYSICS_CUBE) {
+	else if (type == AGameObject::PrimitiveType::PHYSICS_CUBE) {
 		PhysicsCube* cube = new PhysicsCube("Cube_Physics");
 		this->addObject(cube);
 	}
 
-	else if (type == PrimitiveType::PHYSICS_PLANE) {
+	else if (type == AGameObject::PrimitiveType::PHYSICS_PLANE) {
 		PhysicsPlane* plane = new PhysicsPlane("Plane_Physics");
 		this->addObject(plane);
 	}
 }
 
-void GameObjectManager::createObjectFromFile(String name, PrimitiveType type, Vector3D position, Vector3D rotation, Vector3D scale)
+void GameObjectManager::createObjectFromFile(String name, AGameObject::PrimitiveType type, Vector3D position, Vector3D rotation, Vector3D scale)
 {
-	if (type == PrimitiveType::CUBE) {
+	if (type == AGameObject::PrimitiveType::CUBE) {
 		Cube* cube = new Cube(name);
 		cube->setPosition(position);
 		cube->setRotation(rotation);
@@ -134,7 +134,7 @@ void GameObjectManager::createObjectFromFile(String name, PrimitiveType type, Ve
 		this->addObject(cube);
 	}
 
-	else if (type == PrimitiveType::PLANE) {
+	else if (type == AGameObject::PrimitiveType::PLANE) {
 		Plane* plane = new Plane(name);
 		plane->setPosition(position);
 		plane->setRotation(rotation);
@@ -142,7 +142,7 @@ void GameObjectManager::createObjectFromFile(String name, PrimitiveType type, Ve
 		this->addObject(plane);
 	}
 
-	else if (type == PrimitiveType::TEXTURED_CUBE) {
+	else if (type == AGameObject::PrimitiveType::TEXTURED_CUBE) {
 		TexturedCube* cube = new TexturedCube(name);
 		cube->setPosition(position);
 		cube->setRotation(rotation);
@@ -150,7 +150,7 @@ void GameObjectManager::createObjectFromFile(String name, PrimitiveType type, Ve
 		this->addObject(cube);
 	}
 
-	else if (type == PrimitiveType::PHYSICS_CUBE) {
+	else if (type == AGameObject::PrimitiveType::PHYSICS_CUBE) {
 		PhysicsCube* cube = new PhysicsCube(name);
 		cube->setPosition(position);
 		cube->setRotation(rotation);
@@ -158,7 +158,7 @@ void GameObjectManager::createObjectFromFile(String name, PrimitiveType type, Ve
 		this->addObject(cube);
 	}
 
-	else if (type == PrimitiveType::PHYSICS_PLANE) {
+	else if (type == AGameObject::PrimitiveType::PHYSICS_PLANE) {
 		PhysicsPlane* plane = new PhysicsPlane(name);
 		plane->setPosition(position);
 		plane->setRotation(rotation);

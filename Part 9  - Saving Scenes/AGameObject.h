@@ -16,6 +16,16 @@ class EditorAction;
 class AGameObject
 {
 public:
+	enum PrimitiveType {
+		CAMERA,
+		TEXTURED_CUBE,
+		CUBE,
+		PLANE,
+		SPHERE,
+		PHYSICS_CUBE,
+		PHYSICS_PLANE
+	};
+
 	struct AQuaternion {
 		float w = 0.0f;
 		float x = 0.0f;
@@ -35,8 +45,10 @@ public:
 		float time;
 	};
 
-	AGameObject(String name);
+	AGameObject(String name, PrimitiveType type);
 	virtual ~AGameObject();
+
+	PrimitiveType getObjectType();
 
 	virtual void update(float deltaTime);
 	virtual void draw(int width, int height);
@@ -85,6 +97,7 @@ protected:
 	Vector3D localScale;
 	AQuaternion orientation;
 	Matrix4x4 localMatrix;
+	PrimitiveType objectType;
 
 	ComponentList componentList;
 

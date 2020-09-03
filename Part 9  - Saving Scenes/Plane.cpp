@@ -4,6 +4,7 @@
 
 Plane::Plane(String name): Cube(name)
 {
+	this->objectType = PrimitiveType::PHYSICS_PLANE;
 	ShaderNames shaderNames;
 	void* shaderByteCode = NULL;
 	size_t sizeShader = 0;

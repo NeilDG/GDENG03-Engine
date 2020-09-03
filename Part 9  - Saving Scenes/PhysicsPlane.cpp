@@ -7,6 +7,7 @@
 
 PhysicsPlane::PhysicsPlane(String name, bool skipInit): Cube(name)
 {
+	this->objectType = PrimitiveType::PHYSICS_CUBE;
 	ShaderNames shaderNames;
 	void* shaderByteCode = NULL;
 	size_t sizeShader = 0;

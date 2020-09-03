@@ -13,15 +13,6 @@ public:
 	typedef std::vector<AGameObject*> List;
 	typedef std::unordered_map<String, AGameObject*> HashTable;
 
-	enum PrimitiveType {
-		TEXTURED_CUBE,
-		CUBE,
-		PLANE,
-		SPHERE,
-		PHYSICS_CUBE,
-		PHYSICS_PLANE
-	};
-
 	static GameObjectManager* getInstance();
 	static void initialize();
 	static void destroy();
@@ -32,8 +23,8 @@ public:
 	void updateAll();
 	void renderAll(int viewportWidth, int viewportHeight);
 	void addObject(AGameObject* gameObject);
-	void createObject(PrimitiveType type);
-	void createObjectFromFile(String name, PrimitiveType type, Vector3D position, Vector3D rotation, Vector3D scale);
+	void createObject(AGameObject::PrimitiveType type);
+	void createObjectFromFile(String name, AGameObject::PrimitiveType type, Vector3D position, Vector3D rotation, Vector3D scale);
 	void deleteObject(AGameObject* gameObject);
 	void deleteObjectByName(String name);
 	void setSelectedObject(String name);

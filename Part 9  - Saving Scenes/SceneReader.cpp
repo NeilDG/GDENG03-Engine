@@ -28,6 +28,7 @@ void SceneReader::readFromFile()
 	String readLine;
 
 	String objectName;
+	AGameObject::PrimitiveType objectType;
 	Vector3D position;
 	Vector3D rotation;
 	Vector3D scale;
@@ -38,20 +39,25 @@ void SceneReader::readFromFile()
 		}
 		else if (index == 1) {
 			std::vector stringSplit = StringUtils::split(readLine, ' ');
-			position = Vector3D(std::stof(stringSplit[1]), std::stof(stringSplit[1]), std::stof(stringSplit[2]));
+			objectType = (AGameObject::PrimitiveType) std::stoi(stringSplit[1]);
 			index++;
 		}
 		else if (index == 2) {
 			std::vector stringSplit = StringUtils::split(readLine, ' ');
-			rotation = Vector3D(std::stof(stringSplit[1]), std::stof(stringSplit[1]), std::stof(stringSplit[2]));
+			position = Vector3D(std::stof(stringSplit[1]), std::stof(stringSplit[2]), std::stof(stringSplit[3]));
 			index++;
 		}
 		else if (index == 3) {
 			std::vector stringSplit = StringUtils::split(readLine, ' ');
-			scale = Vector3D(std::stof(stringSplit[1]), std::stof(stringSplit[1]), std::stof(stringSplit[2]));
+			rotation = Vector3D(std::stof(stringSplit[1]), std::stof(stringSplit[2]), std::stof(stringSplit[3]));
+			index++;
+		}
+		else if (index == 4) {
+			std::vector stringSplit = StringUtils::split(readLine, ' ');
+			scale = Vector3D(std::stof(stringSplit[1]), std::stof(stringSplit[2]), std::stof(stringSplit[3]));
 			index = 0;
 
-			GameObjectManager::getInstance()->createObjectFromFile(objectName, GameObjectManager::PrimitiveType::PHYSICS_CUBE, position, rotation, scale);
+			GameObjectManager::getInstance()->createObjectFromFile(objectName, objectType, position, rotation, scale);
 		}
 	}
 }

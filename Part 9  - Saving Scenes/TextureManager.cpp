@@ -37,7 +37,8 @@ TextureManager::TextureManager():AResourceManager()
 
 TextureManager::~TextureManager()
 {
-    AResourceManager::~AResourceManager();
+	this->resourceMap.clear();
+    //AResourceManager::~AResourceManager();
 }
 
 Resource* TextureManager::convertToResource(const wchar_t* filePath)

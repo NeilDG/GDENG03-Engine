@@ -1,84 +1,20 @@
-Plane_Physics
-Position: 0 -5 0
+Cube
+Type: 2
+Position: 0 7 0
 Rotation: 0 0 0
-Scale: 32 0.2 32
-Cube_Physics
-Position: 0 5.21245 0
+Scale: 16 1 1
+Cube (1)
+Type: 2
+Position: 0 0 0
 Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (1)
-Position: 0 5 0
+Scale: 2 2 1
+Cube (2)
+Type: 2
+Position: 0 0 -1
+Rotation: 190 0 0
+Scale: 0.2 4 4
+Cube_Textured
+Type: 1
+Position: 0 2 0
 Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (2)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (3)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (4)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (5)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (6)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (7)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (8)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (9)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (10)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (11)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (12)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (13)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (14)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (15)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (16)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (17)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (18)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
-Cube_Physics (19)
-Position: 0 5 0
-Rotation: 0 0 0
-Scale: 1 1 1
+Scale: 25 0.1 25
