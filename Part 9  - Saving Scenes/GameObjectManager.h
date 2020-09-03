@@ -33,6 +33,7 @@ public:
 	void renderAll(int viewportWidth, int viewportHeight);
 	void addObject(AGameObject* gameObject);
 	void createObject(PrimitiveType type);
+	void createObjectFromFile(String name, PrimitiveType type, Vector3D position, Vector3D rotation, Vector3D scale);
 	void deleteObject(AGameObject* gameObject);
 	void deleteObjectByName(String name);
 	void setSelectedObject(String name);

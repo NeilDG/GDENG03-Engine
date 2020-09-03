@@ -124,6 +124,49 @@ void GameObjectManager::createObject(PrimitiveType type)
 	}
 }
 
+void GameObjectManager::createObjectFromFile(String name, PrimitiveType type, Vector3D position, Vector3D rotation, Vector3D scale)
+{
+	if (type == PrimitiveType::CUBE) {
+		Cube* cube = new Cube(name);
+		cube->setPosition(position);
+		cube->setRotation(rotation);
+		cube->setScale(scale);
+		this->addObject(cube);
+	}
+
+	else if (type == PrimitiveType::PLANE) {
+		Plane* plane = new Plane(name);
+		plane->setPosition(position);
+		plane->setRotation(rotation);
+		plane->setScale(scale);
+		this->addObject(plane);
+	}
+
+	else if (type == PrimitiveType::TEXTURED_CUBE) {
+		TexturedCube* cube = new TexturedCube(name);
+		cube->setPosition(position);
+		cube->setRotation(rotation);
+		cube->setScale(scale);
+		this->addObject(cube);
+	}
+
+	else if (type == PrimitiveType::PHYSICS_CUBE) {
+		PhysicsCube* cube = new PhysicsCube(name);
+		cube->setPosition(position);
+		cube->setRotation(rotation);
+		cube->setScale(scale);
+		this->addObject(cube);
+	}
+
+	else if (type == PrimitiveType::PHYSICS_PLANE) {
+		PhysicsPlane* plane = new PhysicsPlane(name);
+		plane->setPosition(position);
+		plane->setRotation(rotation);
+		plane->setScale(scale);
+		this->addObject(plane);
+	}
+}
+
 void GameObjectManager::deleteObject(AGameObject* gameObject)
 {
 	this->gameObjectMap.erase(gameObject->getName());

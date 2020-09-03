@@ -7,7 +7,8 @@
 #include "GraphicsEngine.h"
 #include "VertexShader.h"
 #include "ShaderLibrary.h"
-
+#include "SceneWriter.h"
+#include "SceneReader.h"
 
 MenuScreen::MenuScreen(): AUIScreen("MenuScreen")
 {
@@ -15,7 +16,7 @@ MenuScreen::MenuScreen(): AUIScreen("MenuScreen")
 	this->openSceneDialog->SetTitle("Open Scene");
 	this->openSceneDialog->SetTypeFilters({ ".iet"});
 
-	this->saveSceneDialog = new ImGui::FileBrowser(ImGuiFileBrowserFlags_SelectDirectory);
+	this->saveSceneDialog = new ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename);
 	this->saveSceneDialog->SetTitle("Save Scene");
 	this->saveSceneDialog->SetTypeFilters({ ".iet" });
 }
@@ -69,9 +70,19 @@ void MenuScreen::drawUI()
 
 	if (this->saveSceneDialog->HasSelected())
 	{
-		std::cout << "Selected filename " << this->saveSceneDialog->GetSelected().string() << std::endl;
+		SceneWriter writer = SceneWriter(this->saveSceneDialog->GetSelected().string());
+		writer.writeToFile();
+
 		this->saveSceneDialog->ClearSelected();
 		this->saveSceneDialog->Close();
+	}
+	
+	else if (this->openSceneDialog->HasSelected()) {
+		SceneReader reader = SceneReader(this->openSceneDialog->GetSelected().string());
+		reader.readFromFile();
+
+		this->openSceneDialog->ClearSelected();
+		this->openSceneDialog->Close();
 	}
 }
 

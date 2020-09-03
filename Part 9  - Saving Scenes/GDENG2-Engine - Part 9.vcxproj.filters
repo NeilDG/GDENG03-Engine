@@ -73,6 +73,9 @@
     <Filter Include="GameEngine\Backend">
       <UniqueIdentifier>{b7cf0047-7a28-45d2-94b5-e1198579de9c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameEngine\SceneManagement">
+      <UniqueIdentifier>{4dfd855a-c496-4a1a-bfbd-0bbf15e53d42}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -242,6 +245,15 @@
     </ClCompile>
     <ClCompile Include="ActionScreen.cpp">
       <Filter>Editor\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneWriter.cpp">
+      <Filter>GameEngine\SceneManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="StringUtils.cpp">
+      <Filter>GameEngine\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneReader.cpp">
+      <Filter>GameEngine\SceneManagement</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -421,6 +433,15 @@
     </ClInclude>
     <ClInclude Include="imfilebrowser.h">
       <Filter>IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneWriter.h">
+      <Filter>GameEngine\SceneManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="StringUtils.h">
+      <Filter>GameEngine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneReader.h">
+      <Filter>GameEngine\SceneManagement</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
