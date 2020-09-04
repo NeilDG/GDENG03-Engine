@@ -7,6 +7,7 @@
 #include "PlaybackScreen.h"
 #include "ActionScreen.h"
 #include "ConsoleScreen.h"
+#include "Debug.h"
 
 UIManager* UIManager::sharedInstance = NULL;
 
@@ -85,6 +86,7 @@ UIManager::UIManager(HWND windowHandle)
 	ConsoleScreen* consoleScreen = new ConsoleScreen();
 	this->uiTable[uiNames.CONSOLE_SCREEN] = consoleScreen;
 	this->uiList.push_back(consoleScreen);
+	Debug::assignConsole(consoleScreen);
 }
 
 UIManager::~UIManager()

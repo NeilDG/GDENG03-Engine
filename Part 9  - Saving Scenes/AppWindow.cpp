@@ -22,6 +22,8 @@
 #include "EngineBackend.h"
 #include "ActionHistory.h"
 #include "Plane.h"
+#include "Debug.h"
+#include <sstream>
 
 static float f = 0.0f;
 static int counter = 0;
@@ -124,6 +126,7 @@ void AppWindow::onDestroy()
 	TextureManager::destroy();
 	BaseComponentSystem::destroy();
 	ActionHistory::destroy();
+	Debug::destroy();
 
 	// IMGUI Cleanup
 	ImGui_ImplDX11_Shutdown();
@@ -135,6 +138,7 @@ void AppWindow::onDestroy()
 
 void AppWindow::initializeEngine()
 {
+	Debug::initialize();
 	EngineBackend::initialize();
 	GraphicsEngine::initialize();
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
@@ -166,7 +170,9 @@ void AppWindow::onKeyDown(int key)
 	int CTRL_Y = 89;
 	int CTRL_Z = 90;
 
-	std::cout << "Key pressed: " << key << "\n";
+	std::stringstream buffer;
+	buffer << "Key pressed: " << key << '\n';
+	Debug::Log(buffer.str());
 
 	if (key == CTRL_Z) {
 		

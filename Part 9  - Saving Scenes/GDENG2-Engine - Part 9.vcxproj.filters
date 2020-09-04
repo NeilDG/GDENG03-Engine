@@ -255,7 +255,12 @@
     <ClCompile Include="ProfilerScreen.cpp">
       <Filter>Editor\Screens</Filter>
     </ClCompile>
-    <ClCompile Include="ConsoleScreen.cpp" />
+    <ClCompile Include="Debug.cpp">
+      <Filter>GameEngine\Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleScreen.cpp">
+      <Filter>Editor\Screens</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -444,7 +449,12 @@
     <ClInclude Include="ProfilerScreen.h">
       <Filter>Editor\Screens</Filter>
     </ClInclude>
-    <ClInclude Include="ConsoleScreen.h" />
+    <ClInclude Include="Debug.h">
+      <Filter>GameEngine\Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleScreen.h">
+      <Filter>Editor\Screens</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">

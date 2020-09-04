@@ -5,6 +5,8 @@
 #include "imgui_impl_win32.h"
 class ConsoleScreen :    public AUIScreen
 {
+public:
+	void appendText(String text);
 private:
 	ConsoleScreen();
 	~ConsoleScreen();
@@ -13,5 +15,6 @@ private:
 	friend class UIManager;
 
 	ImGuiTextBuffer* textLog;
+	int lineCount = 0;
 };
 

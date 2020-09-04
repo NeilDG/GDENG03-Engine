@@ -1,5 +1,7 @@
 #include "PixelShader.h"
 #include <iostream>
+#include <sstream>
+#include "Debug.h"
 
 PixelShader::PixelShader()
 {
@@ -27,7 +29,9 @@ void PixelShader::init(void* shaderByteCode, size_t byteCodeSize)
 	HRESULT result = directXDevice->CreatePixelShader(shaderByteCode, byteCodeSize, NULL, &this->pixelShader);
 
 	if (SUCCEEDED(result)) {
-		std::cout << "Created runtime pixel shader successfully. \n";
+		std::stringstream buffer;
+		buffer << "Created runtime pixel shader successfully. \n";
+		Debug::Log(buffer.str());
 	}
 	else {
 		std::cout << "An error occured during creating of runtime pixel shader. \n";

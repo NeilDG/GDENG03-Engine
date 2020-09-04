@@ -164,6 +164,7 @@
     <ClCompile Include="ConsoleScreen.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="DeviceContext.cpp" />
     <ClCompile Include="EditorAction.cpp" />
     <ClCompile Include="EngineBackend.cpp" />
@@ -226,6 +227,7 @@
     <ClInclude Include="ConsoleScreen.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="Debug.h" />
     <ClInclude Include="DeviceContext.h" />
     <ClInclude Include="EditorAction.h" />
     <ClInclude Include="EngineBackend.h" />
