@@ -55,9 +55,6 @@
     <Filter Include="Editor">
       <UniqueIdentifier>{42d084f9-c1f6-4604-8f47-8205fa2219ac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Editor\Screens">
-      <UniqueIdentifier>{c14fd873-2001-4db4-b017-b3d9ccee8ef0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Hierarchy">
       <UniqueIdentifier>{0cbcd5de-6420-4799-89d3-360cc5705056}</UniqueIdentifier>
     </Filter>
@@ -75,6 +72,9 @@
     </Filter>
     <Filter Include="GameEngine\SceneManagement">
       <UniqueIdentifier>{4dfd855a-c496-4a1a-bfbd-0bbf15e53d42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Screens">
+      <UniqueIdentifier>{ab178af3-ea27-4a24-a511-d42163bf3c42}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -168,20 +168,8 @@
     <ClCompile Include="AUIScreen.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
-    <ClCompile Include="ProfilerScreen.cpp">
-      <Filter>Editor\Screens</Filter>
-    </ClCompile>
-    <ClCompile Include="MenuScreen.cpp">
-      <Filter>Editor\Screens</Filter>
-    </ClCompile>
     <ClCompile Include="GameObjectManager.cpp">
       <Filter>Hierarchy</Filter>
-    </ClCompile>
-    <ClCompile Include="InspectorScreen.cpp">
-      <Filter>Editor\Screens</Filter>
-    </ClCompile>
-    <ClCompile Include="HierarchyScreen.cpp">
-      <Filter>Editor\Screens</Filter>
     </ClCompile>
     <ClCompile Include="Plane.cpp">
       <Filter>GameEngine\Primitive</Filter>
@@ -231,9 +219,6 @@
     <ClCompile Include="PhysicsPlane.cpp">
       <Filter>GameEngine\Primitive</Filter>
     </ClCompile>
-    <ClCompile Include="PlaybackScreen.cpp">
-      <Filter>Editor\Screens</Filter>
-    </ClCompile>
     <ClCompile Include="EngineBackend.cpp">
       <Filter>GameEngine\Backend</Filter>
     </ClCompile>
@@ -242,9 +227,6 @@
     </ClCompile>
     <ClCompile Include="ActionHistory.cpp">
       <Filter>GameEngine\Backend</Filter>
-    </ClCompile>
-    <ClCompile Include="ActionScreen.cpp">
-      <Filter>Editor\Screens</Filter>
     </ClCompile>
     <ClCompile Include="SceneWriter.cpp">
       <Filter>GameEngine\SceneManagement</Filter>
@@ -255,6 +237,25 @@
     <ClCompile Include="SceneReader.cpp">
       <Filter>GameEngine\SceneManagement</Filter>
     </ClCompile>
+    <ClCompile Include="ActionScreen.cpp">
+      <Filter>Editor\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="HierarchyScreen.cpp">
+      <Filter>Editor\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="InspectorScreen.cpp">
+      <Filter>Editor\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuScreen.cpp">
+      <Filter>Editor\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaybackScreen.cpp">
+      <Filter>Editor\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfilerScreen.cpp">
+      <Filter>Editor\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -353,20 +354,8 @@
     <ClInclude Include="AUIScreen.h">
       <Filter>Editor</Filter>
     </ClInclude>
-    <ClInclude Include="ProfilerScreen.h">
-      <Filter>Editor\Screens</Filter>
-    </ClInclude>
-    <ClInclude Include="MenuScreen.h">
-      <Filter>Editor\Screens</Filter>
-    </ClInclude>
     <ClInclude Include="GameObjectManager.h">
       <Filter>Hierarchy</Filter>
-    </ClInclude>
-    <ClInclude Include="InspectorScreen.h">
-      <Filter>Editor\Screens</Filter>
-    </ClInclude>
-    <ClInclude Include="HierarchyScreen.h">
-      <Filter>Editor\Screens</Filter>
     </ClInclude>
     <ClInclude Include="Plane.h">
       <Filter>GameEngine\Primitive</Filter>
@@ -416,9 +405,6 @@
     <ClInclude Include="PhysicsPlane.h">
       <Filter>GameEngine\Primitive</Filter>
     </ClInclude>
-    <ClInclude Include="PlaybackScreen.h">
-      <Filter>Editor\Screens</Filter>
-    </ClInclude>
     <ClInclude Include="EngineBackend.h">
       <Filter>GameEngine\Backend</Filter>
     </ClInclude>
@@ -427,9 +413,6 @@
     </ClInclude>
     <ClInclude Include="ActionHistory.h">
       <Filter>GameEngine\Backend</Filter>
-    </ClInclude>
-    <ClInclude Include="ActionScreen.h">
-      <Filter>Editor\Screens</Filter>
     </ClInclude>
     <ClInclude Include="imfilebrowser.h">
       <Filter>IMGUI</Filter>
@@ -443,6 +426,25 @@
     <ClInclude Include="SceneReader.h">
       <Filter>GameEngine\SceneManagement</Filter>
     </ClInclude>
+    <ClInclude Include="ActionScreen.h">
+      <Filter>Editor\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="HierarchyScreen.h">
+      <Filter>Editor\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="InspectorScreen.h">
+      <Filter>Editor\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuScreen.h">
+      <Filter>Editor\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaybackScreen.h">
+      <Filter>Editor\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="ProfilerScreen.h">
+      <Filter>Editor\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleScreen.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
