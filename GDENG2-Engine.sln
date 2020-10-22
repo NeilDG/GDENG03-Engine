@@ -19,6 +19,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GDENG2-Engine - Part 3", "P
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GDENG2-Engine - Part 4", "Part 4 - Input System and Camera\GDENG2-Engine - Part 4.vcxproj", "{5A12CBF2-4924-40B9-9F9E-FB7DDBEB2FA1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GDENG2-Engine - Part 9", "Part 9  - Saving Scenes\GDENG2-Engine - Part 9.vcxproj", "{05299EC1-7B7E-4687-80B8-3045745F1B72}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GDENG2-Engine - Part 9", "Part 10  - Managing Component System\GDENG2-Engine - Part 10.vcxproj", "{DC2E5DE0-4D28-4520-B2A8-BC9CDA4B6EFC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -91,6 +95,22 @@ Global
 		{5A12CBF2-4924-40B9-9F9E-FB7DDBEB2FA1}.Release|x64.Build.0 = Release|x64
 		{5A12CBF2-4924-40B9-9F9E-FB7DDBEB2FA1}.Release|x86.ActiveCfg = Release|Win32
 		{5A12CBF2-4924-40B9-9F9E-FB7DDBEB2FA1}.Release|x86.Build.0 = Release|Win32
+		{05299EC1-7B7E-4687-80B8-3045745F1B72}.Debug|x64.ActiveCfg = Debug|x64
+		{05299EC1-7B7E-4687-80B8-3045745F1B72}.Debug|x64.Build.0 = Debug|x64
+		{05299EC1-7B7E-4687-80B8-3045745F1B72}.Debug|x86.ActiveCfg = Debug|Win32
+		{05299EC1-7B7E-4687-80B8-3045745F1B72}.Debug|x86.Build.0 = Debug|Win32
+		{05299EC1-7B7E-4687-80B8-3045745F1B72}.Release|x64.ActiveCfg = Release|x64
+		{05299EC1-7B7E-4687-80B8-3045745F1B72}.Release|x64.Build.0 = Release|x64
+		{05299EC1-7B7E-4687-80B8-3045745F1B72}.Release|x86.ActiveCfg = Release|Win32
+		{05299EC1-7B7E-4687-80B8-3045745F1B72}.Release|x86.Build.0 = Release|Win32
+		{DC2E5DE0-4D28-4520-B2A8-BC9CDA4B6EFC}.Debug|x64.ActiveCfg = Debug|x64
+		{DC2E5DE0-4D28-4520-B2A8-BC9CDA4B6EFC}.Debug|x64.Build.0 = Debug|x64
+		{DC2E5DE0-4D28-4520-B2A8-BC9CDA4B6EFC}.Debug|x86.ActiveCfg = Debug|Win32
+		{DC2E5DE0-4D28-4520-B2A8-BC9CDA4B6EFC}.Debug|x86.Build.0 = Debug|Win32
+		{DC2E5DE0-4D28-4520-B2A8-BC9CDA4B6EFC}.Release|x64.ActiveCfg = Release|x64
+		{DC2E5DE0-4D28-4520-B2A8-BC9CDA4B6EFC}.Release|x64.Build.0 = Release|x64
+		{DC2E5DE0-4D28-4520-B2A8-BC9CDA4B6EFC}.Release|x86.ActiveCfg = Release|Win32
+		{DC2E5DE0-4D28-4520-B2A8-BC9CDA4B6EFC}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
