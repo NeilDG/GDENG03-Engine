@@ -4,6 +4,10 @@
 class AGameObject;
 class InspectorScreen :    public AUIScreen
 {
+
+public:
+	void SendResult();
+	
 private:
 	InspectorScreen();
 	~InspectorScreen();

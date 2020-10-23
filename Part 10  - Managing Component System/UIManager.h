@@ -18,6 +18,7 @@ public:
 	const String PLAYBACK_SCREEN = "PLAYBACK_SCREEN";
 	const String ACTION_SCREEN = "ACTION_SCREEN";
 	const String CONSOLE_SCREEN = "CONSOLE_SCREEN";
+	const String MATERIAL_SCREEN = "MATERIAL_SCREEN";
 };
 
 
@@ -33,6 +34,8 @@ public:
 	static void destroy();
 
 	void drawAllUI();
+	void setEnabled(String uiName, bool flag);
+	AUIScreen* findUIByName(String uiName);
 
 	static const int WINDOW_WIDTH = 1920;
 	static const int WINDOW_HEIGHT = 1200;

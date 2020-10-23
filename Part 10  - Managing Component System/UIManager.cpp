@@ -8,6 +8,7 @@
 #include "ActionScreen.h"
 #include "ConsoleScreen.h"
 #include "Debug.h"
+#include "MaterialScreen.h"
 
 UIManager* UIManager::sharedInstance = NULL;
 
@@ -38,6 +39,26 @@ void UIManager::drawAllUI()
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+void UIManager::setEnabled(String uiName, bool flag)
+{
+	if(this->uiTable[uiName] != nullptr)
+	{
+		this->uiTable[uiName]->SetEnabled(flag);
+	}
+}
+
+AUIScreen* UIManager::findUIByName(String uiName)
+{
+	if(this->uiTable[uiName] != nullptr)
+	{
+		return this->uiTable[uiName];
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 UIManager::UIManager(HWND windowHandle)
@@ -87,6 +108,13 @@ UIManager::UIManager(HWND windowHandle)
 	this->uiTable[uiNames.CONSOLE_SCREEN] = consoleScreen;
 	this->uiList.push_back(consoleScreen);
 	Debug::assignConsole(consoleScreen);
+
+	//UIs that will show during runtime
+	MaterialScreen* materialScreen = new MaterialScreen();
+	this->uiTable[uiNames.MATERIAL_SCREEN] = materialScreen;
+	this->uiList.push_back(materialScreen);
+	materialScreen->SetEnabled(false);
+	
 }
 
 UIManager::~UIManager()

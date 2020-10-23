@@ -22,7 +22,7 @@ ConsoleScreen::~ConsoleScreen()
 void ConsoleScreen::drawUI()
 {
 	ImGui::Begin("Console", 0, ImGuiWindowFlags_NoResize);
-	ImGui::SetWindowSize(ImVec2(600, 300));
+	ImGui::SetWindowSize(ImVec2(1200, 300));
 	if (ImGui::Button("Clear")) { this->textLog->clear(); this->lineCount = 0; }
 	ImGui::TextUnformatted(this->textLog->begin(), this->textLog->end());
 	ImGui::End();
