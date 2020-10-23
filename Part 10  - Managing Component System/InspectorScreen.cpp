@@ -13,6 +13,7 @@ InspectorScreen::InspectorScreen() : AUIScreen("InspectorScreen")
 
 InspectorScreen::~InspectorScreen()
 {
+	
 }
 
 void InspectorScreen::drawUI()
@@ -67,13 +68,25 @@ void InspectorScreen::drawComponentsTab()
 {
 	int BUTTON_WIDTH = 225;
 	int BUTTON_HEIGHT = 20;
-	
+
+	ImGui::Text("Rigidbody: None");
 	if (ImGui::Button("Add Rigidbody", ImVec2(BUTTON_WIDTH, BUTTON_HEIGHT))) {
 		
 	}
 
+	ImGui::Text("Material: None");
 	if (ImGui::Button("Add Material", ImVec2(BUTTON_WIDTH, BUTTON_HEIGHT))) {
+		/*this->popupOpen = !this->popupOpen;
+		UINames uiNames;
+		UIManager::getInstance()->setEnabled(uiNames.MATERIAL_SCREEN, this->popupOpen);*/
+	}
 
+	UINames uiNames;
+	UIManager::getInstance()->setEnabled(uiNames.MATERIAL_SCREEN, true);
+	
+	if(this->popupOpen)
+	{
+		///ImGui::ShowDemoWindow();
 	}
 }
 

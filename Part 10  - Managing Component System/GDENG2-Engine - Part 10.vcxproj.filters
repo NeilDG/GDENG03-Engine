@@ -261,6 +261,9 @@
     <ClCompile Include="ConsoleScreen.cpp">
       <Filter>Editor\Screens</Filter>
     </ClCompile>
+    <ClCompile Include="MaterialScreen.cpp">
+      <Filter>Editor\Screens</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -453,6 +456,9 @@
       <Filter>GameEngine\Backend</Filter>
     </ClInclude>
     <ClInclude Include="ConsoleScreen.h">
+      <Filter>Editor\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialScreen.h">
       <Filter>Editor\Screens</Filter>
     </ClInclude>
   </ItemGroup>

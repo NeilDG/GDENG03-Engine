@@ -183,6 +183,7 @@
     <ClCompile Include="InspectorScreen.cpp" />
     <ClCompile Include="LogUtils.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MaterialScreen.cpp" />
     <ClCompile Include="MathUtils.cpp" />
     <ClCompile Include="Matrix4x4.cpp" />
     <ClCompile Include="MenuScreen.cpp" />
@@ -249,6 +250,7 @@
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="InspectorScreen.h" />
     <ClInclude Include="LogUtils.h" />
+    <ClInclude Include="MaterialScreen.h" />
     <ClInclude Include="MathUtils.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="MenuScreen.h" />
