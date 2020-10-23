@@ -2,6 +2,7 @@
 #include <iostream>
 #include <DirectXTex.h> //NOTE: Using x86 library for compatibility issues
 #include "GraphicsEngine.h"
+#include "LogUtils.h"
 
 Texture::Texture(const wchar_t* fullPath): AResource(fullPath)
 {
@@ -22,6 +23,7 @@ Texture::Texture(const wchar_t* fullPath): AResource(fullPath)
 		dxDevice->CreateShaderResourceView(this->myTexture, &desc, &this->shaderResView);
 	}
 	else {
+		LogUtils::PrintHRResult(res);
 		std::cout << "Texture not created successfully. \n";
 	}
 }
@@ -29,8 +31,12 @@ Texture::Texture(const wchar_t* fullPath): AResource(fullPath)
 Texture::~Texture()
 {
 	AResource::~AResource();
-	this->shaderResView->Release();
-	this->myTexture->Release();
+
+	if(this->shaderResView != nullptr)
+		this->shaderResView->Release();
+
+	if(this->myTexture != nullptr)
+		this->myTexture->Release();
 }
 
 AResource::String Texture::getPath()

@@ -49,6 +49,18 @@ void UIManager::setEnabled(String uiName, bool flag)
 	}
 }
 
+AUIScreen* UIManager::findUIByName(String uiName)
+{
+	if(this->uiTable[uiName] != nullptr)
+	{
+		return this->uiTable[uiName];
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
 UIManager::UIManager(HWND windowHandle)
 {
     //initialize IMGUI interface

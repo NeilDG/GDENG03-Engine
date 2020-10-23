@@ -35,6 +35,7 @@ public:
 
 	void drawAllUI();
 	void setEnabled(String uiName, bool flag);
+	AUIScreen* findUIByName(String uiName);
 
 	static const int WINDOW_WIDTH = 1920;
 	static const int WINDOW_HEIGHT = 1200;

@@ -5,12 +5,21 @@
 #include "TextureManager.h"
 #include "Texture.h"
 #include "Debug.h"
+#include "InspectorScreen.h"
+
+void MaterialScreen::linkInspectorScreen(InspectorScreen* inspectorScreen)
+{
+	this->inspectorScreen = inspectorScreen;
+}
 
 MaterialScreen::MaterialScreen(): AUIScreen("MaterialScreen")
 {
 	this->openSceneDialog = new ImGui::FileBrowser();
 	this->openSceneDialog->SetTitle("Open Scene");
 	this->openSceneDialog->SetTypeFilters({ ".jpg", ".png"});
+
+	const wchar_t* texturePath = L"D:/Users/delgallegon/Documents/GithubProjects/GDENG2-Engine/Part 10  - Managing Component System/Assets/Textures/no_texture.png";
+	this->displayTex = static_cast<Texture*>(TextureManager::getInstance()->createTextureFromFile(texturePath));
 }
 
 MaterialScreen::~MaterialScreen()
@@ -28,21 +37,35 @@ void MaterialScreen::drawUI()
 		ImGui::Begin("Materials Editor", 0, ImGuiWindowFlags_NoResize);
 		ImGui::SetWindowSize(ImVec2(WINDOW_WIDTH, WINDOW_HEIGHT));
 
-		//test texture
-		Texture* tex = (Texture*)TextureManager::getInstance()->createTextureFromFile(L"D:/Users/delgallegon/Documents/GithubProjects/GDENG2-Engine/Part 10  - Managing Component System/Assets/Textures/no_texture.png");
-		ID3D11ShaderResourceView* shaderResource = tex->getShaderResource();
 		ImGui::SetCursorPosX(50);
-		ImGui::Image((void*)shaderResource, ImVec2(300, 300));
+		ImGui::Image((void*)this->displayTex->getShaderResource(), ImVec2(300, 300));
 
 		if(ImGui::Button("Load Texture", ImVec2(WINDOW_WIDTH - 15, 25)))
 		{
 			this->openSceneDialog->Open();
 		}
 
+		if (ImGui::Button("Apply", ImVec2(WINDOW_WIDTH - 15, 25)))
+		{
+			this->SetEnabled(false);
+			this->inspectorScreen->SendResult();
+			this->inspectorScreen = nullptr;
+		}
+
 		this->openSceneDialog->Display();
 		if (this->openSceneDialog->HasSelected())
 		{
 			Debug::Log("Selected: " +this->openSceneDialog->GetSelected().string());
+			std::cout << "\n";
+
+			//convert to wchar format
+			String textureString = this->openSceneDialog->GetSelected().string();
+			std::wstring widestr = std::wstring(textureString.begin(), textureString.end());
+			const wchar_t* texturePath = widestr.c_str();
+			
+			delete this->displayTex;
+			this->displayTex = static_cast<Texture*>(TextureManager::getInstance()->createTextureFromFile(texturePath));
+			
 			this->openSceneDialog->ClearSelected();
 			this->openSceneDialog->Close();
 		}

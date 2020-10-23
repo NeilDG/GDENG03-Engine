@@ -6,6 +6,12 @@
 #include "UIManager.h"
 #include "AGameObject.h"
 #include "ActionHistory.h"
+#include "MaterialScreen.h"
+
+void InspectorScreen::SendResult()
+{
+	this->popupOpen = false;
+}
 
 InspectorScreen::InspectorScreen() : AUIScreen("InspectorScreen")
 {
@@ -76,13 +82,12 @@ void InspectorScreen::drawComponentsTab()
 
 	ImGui::Text("Material: None");
 	if (ImGui::Button("Add Material", ImVec2(BUTTON_WIDTH, BUTTON_HEIGHT))) {
-		/*this->popupOpen = !this->popupOpen;
+		this->popupOpen = !this->popupOpen;
 		UINames uiNames;
-		UIManager::getInstance()->setEnabled(uiNames.MATERIAL_SCREEN, this->popupOpen);*/
-	}
-
-	UINames uiNames;
-	UIManager::getInstance()->setEnabled(uiNames.MATERIAL_SCREEN, true);
+		UIManager::getInstance()->setEnabled(uiNames.MATERIAL_SCREEN, this->popupOpen);
+		MaterialScreen* materialScreen = static_cast<MaterialScreen*>(UIManager::getInstance()->findUIByName(uiNames.MATERIAL_SCREEN));
+		materialScreen->linkInspectorScreen(this);
+	}	
 	
 	if(this->popupOpen)
 	{
