@@ -264,6 +264,9 @@
     <ClCompile Include="MaterialScreen.cpp">
       <Filter>Editor\Screens</Filter>
     </ClCompile>
+    <ClCompile Include="ObjectRenderer.cpp">
+      <Filter>ComponentSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -460,6 +463,9 @@
     </ClInclude>
     <ClInclude Include="MaterialScreen.h">
       <Filter>Editor\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectRenderer.h">
+      <Filter>ComponentSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

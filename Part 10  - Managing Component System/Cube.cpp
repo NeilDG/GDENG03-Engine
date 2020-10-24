@@ -94,21 +94,6 @@ void Cube::draw(int width, int height)
 		cbData.worldMatrix = this->localMatrix;
 	}
 	else {
-		/*Matrix4x4 allMatrix; allMatrix.setIdentity();
-		Matrix4x4 translationMatrix; translationMatrix.setIdentity();  translationMatrix.setTranslation(this->getLocalPosition());
-		Matrix4x4 scaleMatrix; scaleMatrix.setScale(this->getLocalScale());
-		Vector3D rotation = this->getLocalRotation();
-		Matrix4x4 xMatrix; xMatrix.setRotationX(rotation.getX());
-		Matrix4x4 yMatrix; yMatrix.setRotationY(rotation.getY());
-		Matrix4x4 zMatrix; zMatrix.setRotationZ(rotation.getZ());
-
-		//Scale --> Rotate --> Transform as recommended order.
-		Matrix4x4 rotMatrix; rotMatrix.setIdentity();
-		rotMatrix = rotMatrix.multiplyTo(xMatrix.multiplyTo(yMatrix.multiplyTo(zMatrix)));
-
-		allMatrix = allMatrix.multiplyTo(scaleMatrix.multiplyTo(rotMatrix));
-		allMatrix = allMatrix.multiplyTo(translationMatrix);
-		cbData.worldMatrix = allMatrix;*/
 		this->updateLocalMatrix();
 		cbData.worldMatrix = this->localMatrix;
 	}

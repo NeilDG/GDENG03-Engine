@@ -17,7 +17,8 @@ private:
 	virtual void drawUI() override;
 	void updateTransformDisplays();
 	void FormatMatImage();
-	void drawComponentsTab();
+	void drawPhysicsTab();
+	void drawMaterialsTab();
 	friend class UIManager;
 
 	float positionDisplay[3] = {0.0f, 0.0f, 0.0f};
