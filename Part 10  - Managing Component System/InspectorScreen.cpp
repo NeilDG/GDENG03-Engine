@@ -7,11 +7,8 @@
 #include "AGameObject.h"
 #include "ActionHistory.h"
 #include "MaterialScreen.h"
-
-void InspectorScreen::SendResult()
-{
-	this->popupOpen = false;
-}
+#include "StringUtils.h"
+#include "TextureManager.h"
 
 InspectorScreen::InspectorScreen() : AUIScreen("InspectorScreen")
 {
@@ -70,6 +67,24 @@ void InspectorScreen::updateTransformDisplays()
 	this->scaleDisplay[2] = scale.getZ();
 }
 
+void InspectorScreen::SendResult(String materialPath)
+{
+	this->materialPath = materialPath;
+	std::vector<String> paths = StringUtils::split(this->materialPath, '\\');
+	this->materialName = paths[paths.size() - 1];
+	this->popupOpen = false;
+	this->FormatMatImage();
+}
+
+void InspectorScreen::FormatMatImage()
+{
+	//convert to wchar format
+	String textureString = this->materialPath;
+	std::wstring widestr = std::wstring(textureString.begin(), textureString.end());
+	const wchar_t* texturePath = widestr.c_str();
+
+	this->materialDisplay = static_cast<Texture*>(TextureManager::getInstance()->createTextureFromFile(texturePath));
+}
 void InspectorScreen::drawComponentsTab()
 {
 	int BUTTON_WIDTH = 225;
@@ -80,13 +95,21 @@ void InspectorScreen::drawComponentsTab()
 		
 	}
 
-	ImGui::Text("Material: None");
+	if(this->materialPath != DEFAULT_MATERIAL)
+	{
+		ImGui::SetCursorPosX(50);
+		ImGui::Image(static_cast<void*>(this->materialDisplay->getShaderResource()), ImVec2(150, 150));
+	}
+	
+	String displayText = "Material: " + this->materialName;
+	ImGui::Text(displayText.c_str());
 	if (ImGui::Button("Add Material", ImVec2(BUTTON_WIDTH, BUTTON_HEIGHT))) {
 		this->popupOpen = !this->popupOpen;
 		UINames uiNames;
-		UIManager::getInstance()->setEnabled(uiNames.MATERIAL_SCREEN, this->popupOpen);
 		MaterialScreen* materialScreen = static_cast<MaterialScreen*>(UIManager::getInstance()->findUIByName(uiNames.MATERIAL_SCREEN));
-		materialScreen->linkInspectorScreen(this);
+		String texturePath = "D:/Users/delgallegon/Documents/GithubProjects/GDENG2-Engine/Part 10  - Managing Component System/Assets/Textures/no_texture.png";
+		materialScreen->linkInspectorScreen(this, texturePath);
+		UIManager::getInstance()->setEnabled(uiNames.MATERIAL_SCREEN, this->popupOpen);
 	}	
 	
 	if(this->popupOpen)
