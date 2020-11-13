@@ -4,7 +4,7 @@ int main()
 {
 	AppWindow::initialize();
 	AppWindow* runningApp = (AppWindow*) AppWindow::getInstance();
-	runningApp->createGraphicsWindow();
+	runningApp->initializeEngine();
 
 	while (runningApp->isRunning()) {
 		runningApp->broadcast();

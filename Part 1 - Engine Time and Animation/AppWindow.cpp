@@ -3,6 +3,7 @@
 #include "VertexShader.h"
 #include "PixelShader.h"
 #include "ConstantBuffer.h"
+#include "MyManager.h"
 
 struct Vector3 {
 	float x, y, z;
@@ -75,7 +76,7 @@ void AppWindow::onUpdate()
 	deviceContext->setViewportSize(width, height);
 
 	CBData cbData = {};
-	cbData.time = this->ticks;
+	cbData.time = this->ticks * this->speedFactor;
 
 	std::cout << "CB time is: " << cbData.time << "\n";
 
@@ -96,6 +97,9 @@ void AppWindow::onUpdate()
 		this->swapChain->present(true);
 	}
 	//std::cout << "On update \n";
+
+	int x = MyManager::getInstance()->getX();
+	std::cout << "My X: " << x << std::endl;
 }
 
 void AppWindow::onDestroy()
@@ -109,7 +113,7 @@ void AppWindow::onDestroy()
 	std::cout << "On destroy \n";
 }
 
-void AppWindow::createGraphicsWindow()
+void AppWindow::initializeEngine()
 {
 	GraphicsEngine::initialize();
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
@@ -164,6 +168,8 @@ void AppWindow::createGraphicsWindow()
 	cbData.time = 0;
 	this->constantBuffer = GraphicsEngine::getInstance()->createConstantBuffer();
 	this->constantBuffer->load(&cbData, sizeof(CBData));
+
+	MyManager::initialize();
 }
 
 AppWindow::AppWindow():Window()

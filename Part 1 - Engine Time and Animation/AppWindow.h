@@ -12,7 +12,7 @@ public:
 	virtual void onUpdate() override;
 	virtual void onDestroy() override;
 
-	void createGraphicsWindow();
+	void initializeEngine();
 
 private:
 	AppWindow();
