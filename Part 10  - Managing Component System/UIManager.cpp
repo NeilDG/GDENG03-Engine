@@ -39,6 +39,7 @@ void UIManager::drawAllUI()
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	
 }
 
 void UIManager::setEnabled(String uiName, bool flag)

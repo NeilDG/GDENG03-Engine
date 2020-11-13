@@ -8,7 +8,8 @@ class MaterialScreen :    public AUIScreen
 {
 
 public:
-	void linkInspectorScreen(InspectorScreen* inspectorScreen);
+	void linkInspectorScreen(InspectorScreen* inspectorScreen, String materialPath);
+	
 private:
 	MaterialScreen();
 	~MaterialScreen();
@@ -19,6 +20,7 @@ private:
 	ImGui::FileBrowser* openSceneDialog;
 	InspectorScreen* inspectorScreen;
 
+	String materialPath;
 	Texture* displayTex;
 	
 };

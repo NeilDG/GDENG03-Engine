@@ -17,7 +17,7 @@ public:
 	virtual void onUpdate() override;
 	virtual void onDestroy() override;
 
-	void createGraphicsWindow();
+	void initializeEngine();
 	void createInterface();
 
 	virtual void onKeyDown(int key) override;

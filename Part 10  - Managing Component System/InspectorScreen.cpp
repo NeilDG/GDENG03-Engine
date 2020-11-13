@@ -7,11 +7,10 @@
 #include "AGameObject.h"
 #include "ActionHistory.h"
 #include "MaterialScreen.h"
-
-void InspectorScreen::SendResult()
-{
-	this->popupOpen = false;
-}
+#include "StringUtils.h"
+#include "TextureManager.h"
+#include "TexturedCube.h"
+#include "TextureRenderer.h"
 
 InspectorScreen::InspectorScreen() : AUIScreen("InspectorScreen")
 {
@@ -43,7 +42,8 @@ void InspectorScreen::drawUI()
 		if (ImGui::InputFloat3("Rotation", this->rotationDisplay, 4)) { this->onTransformUpdate(); }
 		if (ImGui::InputFloat3("Scale", this->scaleDisplay, 4)) { this->onTransformUpdate(); }
 
-		this->drawComponentsTab();
+		this->drawPhysicsTab();
+		this->drawMaterialsTab();
 		
 	}
 	else {
@@ -70,7 +70,23 @@ void InspectorScreen::updateTransformDisplays()
 	this->scaleDisplay[2] = scale.getZ();
 }
 
-void InspectorScreen::drawComponentsTab()
+void InspectorScreen::SendResult(String materialPath)
+{
+	TexturedCube* texturedObj = static_cast<TexturedCube*>(this->selectedObject);
+	texturedObj->getRenderer()->setMaterialPath(materialPath);
+	this->popupOpen = false;
+}
+
+void InspectorScreen::FormatMatImage()
+{
+	//convert to wchar format
+	String textureString = this->materialPath;
+	std::wstring widestr = std::wstring(textureString.begin(), textureString.end());
+	const wchar_t* texturePath = widestr.c_str();
+
+	this->materialDisplay = static_cast<Texture*>(TextureManager::getInstance()->createTextureFromFile(texturePath));
+}
+void InspectorScreen::drawPhysicsTab()
 {
 	int BUTTON_WIDTH = 225;
 	int BUTTON_HEIGHT = 20;
@@ -80,18 +96,34 @@ void InspectorScreen::drawComponentsTab()
 		
 	}
 
-	ImGui::Text("Material: None");
+}
+
+void InspectorScreen::drawMaterialsTab()
+{
+	int BUTTON_WIDTH = 225;
+	int BUTTON_HEIGHT = 20;
+
+	if(this->selectedObject->getObjectType() != AGameObject::TEXTURED_CUBE)
+	{
+		return;
+	}
+	
+	TexturedCube* texturedObj = static_cast<TexturedCube*>(this->selectedObject);
+	this->materialPath = texturedObj->getRenderer()->getMaterialPath();
+	this->FormatMatImage();
+	ImGui::SetCursorPosX(50);
+	ImGui::Image(static_cast<void*>(this->materialDisplay->getShaderResource()), ImVec2(150, 150));
+
+	std::vector<String> paths = StringUtils::split(this->materialPath, '\\');
+	this->materialName = paths[paths.size() - 1];
+	String displayText = "Material: " + this->materialName;
+	ImGui::Text(displayText.c_str());
 	if (ImGui::Button("Add Material", ImVec2(BUTTON_WIDTH, BUTTON_HEIGHT))) {
 		this->popupOpen = !this->popupOpen;
 		UINames uiNames;
-		UIManager::getInstance()->setEnabled(uiNames.MATERIAL_SCREEN, this->popupOpen);
 		MaterialScreen* materialScreen = static_cast<MaterialScreen*>(UIManager::getInstance()->findUIByName(uiNames.MATERIAL_SCREEN));
-		materialScreen->linkInspectorScreen(this);
-	}	
-	
-	if(this->popupOpen)
-	{
-		///ImGui::ShowDemoWindow();
+		materialScreen->linkInspectorScreen(this, this->materialPath);
+		UIManager::getInstance()->setEnabled(uiNames.MATERIAL_SCREEN, this->popupOpen);
 	}
 }
 

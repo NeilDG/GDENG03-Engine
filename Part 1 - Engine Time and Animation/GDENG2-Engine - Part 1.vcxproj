@@ -150,6 +150,7 @@
     <ClCompile Include="GraphicsEngine.cpp" />
     <ClCompile Include="LogUtils.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MyManager.cpp" />
     <ClCompile Include="PixelShader.cpp" />
     <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="EngineTime.h" />
     <ClInclude Include="GraphicsEngine.h" />
     <ClInclude Include="LogUtils.h" />
+    <ClInclude Include="MyManager.h" />
     <ClInclude Include="PixelShader.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="VertexBuffer.h" />

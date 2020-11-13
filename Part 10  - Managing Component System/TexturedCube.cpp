@@ -2,7 +2,7 @@
 #include "GraphicsEngine.h"
 #include "ShaderLibrary.h"
 #include "SceneCameraHandler.h"
-#include "TextureManager.h"
+#include "TextureRenderer.h"
 
 TexturedCube::TexturedCube(String name): Cube(name, true)
 {
@@ -111,22 +111,32 @@ TexturedCube::TexturedCube(String name): Cube(name, true)
 	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME), 
 		ShaderLibrary::getInstance()->getPixelShader(shaderNames.TEXTURED_PIXEL_SHADER_NAME));
 
+	TextureRenderer* defaultRenderer = new TextureRenderer();
+	defaultRenderer->setMaterialPath("D:\\Users\\delgallegon\\Documents\\GithubProjects\\GDENG2-Engine\\Part 7 - Component System\\Assets\\Textures\\wood.jpg");
+	this->attachRenderer(defaultRenderer);
 }
 
 TexturedCube::~TexturedCube()
 {
+	Cube::~Cube();
+}
+
+void TexturedCube::attachRenderer(TextureRenderer* renderer)
+{
+	this->renderer = renderer;
 }
 
 void TexturedCube::draw(int width, int height)
 {
 	ShaderNames shaderNames;
 	DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
-	Texture* woodTex = (Texture*)TextureManager::getInstance()->createTextureFromFile(L"D:/Users/delgallegon/Documents/GithubProjects/GDENG2-Engine/Part 7 - Component System/Assets/Textures/wood.jpg");
+
+	//Texture* woodTex = (Texture*)TextureManager::getInstance()->createTextureFromFile(L"D:/Users/delgallegon/Documents/GithubProjects/GDENG2-Engine/Part 7 - Component System/Assets/Textures/wood.jpg");
 	
 	//set vertex shader and pixel shader for the object
-	deviceContext->setTexture(woodTex);
-	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.TEXTURED_PIXEL_SHADER_NAME));
-
+	deviceContext->setTexture(this->renderer->getTexture());
+	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.TEXTURED_PIXEL_SHADER_NAME));	
+	
 	CBData cbData = {};
 
 	Matrix4x4 allMatrix; allMatrix.setIdentity();
@@ -157,4 +167,9 @@ void TexturedCube::draw(int width, int height)
 	deviceContext->setVertexBuffer(this->vertexBuffer);
 
 	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
+}
+
+TextureRenderer* TexturedCube::getRenderer() const
+{
+	return this->renderer;
 }

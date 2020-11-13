@@ -264,6 +264,15 @@
     <ClCompile Include="MaterialScreen.cpp">
       <Filter>Editor\Screens</Filter>
     </ClCompile>
+    <ClCompile Include="ABaseRenderer.cpp">
+      <Filter>ComponentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureRenderer.cpp">
+      <Filter>ComponentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicRenderer.cpp">
+      <Filter>ComponentSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -460,6 +469,15 @@
     </ClInclude>
     <ClInclude Include="MaterialScreen.h">
       <Filter>Editor\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="ABaseRenderer.h">
+      <Filter>ComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureRenderer.h">
+      <Filter>ComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicRenderer.h">
+      <Filter>ComponentSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

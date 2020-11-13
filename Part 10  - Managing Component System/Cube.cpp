@@ -4,7 +4,7 @@
 #include "SwapChain.h"
 #include "SceneCameraHandler.h"
 #include "ShaderLibrary.h"
-
+#include "BasicRenderer.h"
 
 Cube::Cube(String name, bool skipInit):AGameObject(name, AGameObject::PrimitiveType::CUBE)
 {
@@ -65,6 +65,9 @@ Cube::Cube(String name, bool skipInit):AGameObject(name, AGameObject::PrimitiveT
 	cbData.time = 0;
 	this->constantBuffer = GraphicsEngine::getInstance()->createConstantBuffer();
 	this->constantBuffer->load(&cbData, sizeof(CBData));
+
+	BasicRenderer* basicRenderer = new BasicRenderer();
+	this->attachRenderer(basicRenderer);
 }
 
 Cube::~Cube()
@@ -72,43 +75,29 @@ Cube::~Cube()
 	this->vertexBuffer->release();
 	this->indexBuffer->release();
 	AGameObject::~AGameObject();
+	delete this->renderer;
 }
 
 void Cube::update(float deltaTime)
 {
-	/*float inc = this->orientation.y;
-	inc += deltaTime * 0.5f;
-	this->orientation.y = inc;*/
+
 }
 
 void Cube::draw(int width, int height)
 {
 	//set vertex shader and pixel shader for the object
-	ShaderNames shaderNames;
-	DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
-	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.BASE_PIXEL_SHADER_NAME));
+	//ShaderNames shaderNames;
+	//DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
+	//deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.BASE_PIXEL_SHADER_NAME));
 
+	this->renderer->configureDeviceContext();
+	
 	CBData cbData = {};
 
 	if (this->overrideMatrix) {
 		cbData.worldMatrix = this->localMatrix;
 	}
 	else {
-		/*Matrix4x4 allMatrix; allMatrix.setIdentity();
-		Matrix4x4 translationMatrix; translationMatrix.setIdentity();  translationMatrix.setTranslation(this->getLocalPosition());
-		Matrix4x4 scaleMatrix; scaleMatrix.setScale(this->getLocalScale());
-		Vector3D rotation = this->getLocalRotation();
-		Matrix4x4 xMatrix; xMatrix.setRotationX(rotation.getX());
-		Matrix4x4 yMatrix; yMatrix.setRotationY(rotation.getY());
-		Matrix4x4 zMatrix; zMatrix.setRotationZ(rotation.getZ());
-
-		//Scale --> Rotate --> Transform as recommended order.
-		Matrix4x4 rotMatrix; rotMatrix.setIdentity();
-		rotMatrix = rotMatrix.multiplyTo(xMatrix.multiplyTo(yMatrix.multiplyTo(zMatrix)));
-
-		allMatrix = allMatrix.multiplyTo(scaleMatrix.multiplyTo(rotMatrix));
-		allMatrix = allMatrix.multiplyTo(translationMatrix);
-		cbData.worldMatrix = allMatrix;*/
 		this->updateLocalMatrix();
 		cbData.worldMatrix = this->localMatrix;
 	}
@@ -120,6 +109,7 @@ void Cube::draw(int width, int height)
 	//cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
 	cbData.projMatrix.setPerspectiveFovLH(2, aspectRatio, 0.1f, 1000.0f);
 
+	DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
 	this->constantBuffer->update(deviceContext, &cbData);
 	deviceContext->setConstantBuffer(this->constantBuffer);
 	deviceContext->setIndexBuffer(this->indexBuffer);
@@ -128,4 +118,14 @@ void Cube::draw(int width, int height)
 	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
 
 	//this->localMatrix = cbData.projMatrix;
+}
+
+void Cube::attachRenderer(BasicRenderer* renderer)
+{
+	this->renderer = renderer;
+}
+
+BasicRenderer* Cube::getRenderer() const
+{
+	return this->renderer;
 }

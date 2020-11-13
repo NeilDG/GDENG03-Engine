@@ -109,7 +109,7 @@ void AppWindow::onDestroy()
 	std::cout << "On destroy \n";
 }
 
-void AppWindow::createGraphicsWindow()
+void AppWindow::initializeEngine()
 {
 	GraphicsEngine::initialize();
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
