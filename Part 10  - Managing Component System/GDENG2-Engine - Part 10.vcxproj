@@ -153,6 +153,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ABaseRenderer.cpp" />
     <ClCompile Include="AComponent.cpp" />
     <ClCompile Include="ActionHistory.cpp" />
     <ClCompile Include="ActionScreen.cpp" />
@@ -160,6 +161,7 @@
     <ClCompile Include="AppWindow.cpp" />
     <ClCompile Include="AUIScreen.cpp" />
     <ClCompile Include="BaseComponentSystem.cpp" />
+    <ClCompile Include="BasicRenderer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ConsoleScreen.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
@@ -187,7 +189,7 @@
     <ClCompile Include="MathUtils.cpp" />
     <ClCompile Include="Matrix4x4.cpp" />
     <ClCompile Include="MenuScreen.cpp" />
-    <ClCompile Include="ObjectRenderer.cpp" />
+    <ClCompile Include="TextureRenderer.cpp" />
     <ClCompile Include="PhysicsComponent.cpp" />
     <ClCompile Include="PhysicsCube.cpp" />
     <ClCompile Include="PhysicsPlane.cpp" />
@@ -218,6 +220,7 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ABaseRenderer.h" />
     <ClInclude Include="AComponent.h" />
     <ClInclude Include="ActionHistory.h" />
     <ClInclude Include="ActionScreen.h" />
@@ -225,6 +228,7 @@
     <ClInclude Include="AppWindow.h" />
     <ClInclude Include="AUIScreen.h" />
     <ClInclude Include="BaseComponentSystem.h" />
+    <ClInclude Include="BasicRenderer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ConsoleScreen.h" />
     <ClInclude Include="ConstantBuffer.h" />
@@ -255,7 +259,7 @@
     <ClInclude Include="MathUtils.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="MenuScreen.h" />
-    <ClInclude Include="ObjectRenderer.h" />
+    <ClInclude Include="TextureRenderer.h" />
     <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="PhysicsCube.h" />
     <ClInclude Include="PhysicsPlane.h" />

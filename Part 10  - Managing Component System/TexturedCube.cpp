@@ -2,7 +2,7 @@
 #include "GraphicsEngine.h"
 #include "ShaderLibrary.h"
 #include "SceneCameraHandler.h"
-#include "ObjectRenderer.h"
+#include "TextureRenderer.h"
 
 TexturedCube::TexturedCube(String name): Cube(name, true)
 {
@@ -111,8 +111,8 @@ TexturedCube::TexturedCube(String name): Cube(name, true)
 	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME), 
 		ShaderLibrary::getInstance()->getPixelShader(shaderNames.TEXTURED_PIXEL_SHADER_NAME));
 
-	ObjectRenderer* defaultRenderer = new ObjectRenderer();
-	defaultRenderer->setRenderer("D:\\Users\\delgallegon\\Documents\\GithubProjects\\GDENG2-Engine\\Part 7 - Component System\\Assets\\Textures\\wood.jpg");
+	TextureRenderer* defaultRenderer = new TextureRenderer();
+	defaultRenderer->setMaterialPath("D:\\Users\\delgallegon\\Documents\\GithubProjects\\GDENG2-Engine\\Part 7 - Component System\\Assets\\Textures\\wood.jpg");
 	this->attachRenderer(defaultRenderer);
 }
 
@@ -121,7 +121,7 @@ TexturedCube::~TexturedCube()
 	Cube::~Cube();
 }
 
-void TexturedCube::attachRenderer(ObjectRenderer* renderer)
+void TexturedCube::attachRenderer(TextureRenderer* renderer)
 {
 	this->renderer = renderer;
 }
@@ -169,7 +169,7 @@ void TexturedCube::draw(int width, int height)
 	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
 }
 
-ObjectRenderer* TexturedCube::getRenderer() const
+TextureRenderer* TexturedCube::getRenderer() const
 {
 	return this->renderer;
 }

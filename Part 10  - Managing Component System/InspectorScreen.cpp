@@ -10,7 +10,7 @@
 #include "StringUtils.h"
 #include "TextureManager.h"
 #include "TexturedCube.h"
-#include "ObjectRenderer.h"
+#include "TextureRenderer.h"
 
 InspectorScreen::InspectorScreen() : AUIScreen("InspectorScreen")
 {
@@ -73,7 +73,7 @@ void InspectorScreen::updateTransformDisplays()
 void InspectorScreen::SendResult(String materialPath)
 {
 	TexturedCube* texturedObj = static_cast<TexturedCube*>(this->selectedObject);
-	texturedObj->getRenderer()->setRenderer(materialPath);
+	texturedObj->getRenderer()->setMaterialPath(materialPath);
 	this->popupOpen = false;
 }
 

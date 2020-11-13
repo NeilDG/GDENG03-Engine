@@ -2,22 +2,22 @@
 #include "Cube.h"
 #include "Vector2D.h"
 
-class ObjectRenderer;
+class TextureRenderer;
 class TexturedCube :    public Cube
 {
 public:
 	TexturedCube(String name);
 	~TexturedCube() override;
 
-	void attachRenderer(ObjectRenderer* renderer);
+	void attachRenderer(TextureRenderer* renderer);
 	void draw(int width, int height) override;
-	ObjectRenderer* getRenderer() const;
+	TextureRenderer* getRenderer() const;
 private:
 	struct Vertex {
 		Vector3D position;
 		Vector2D texCoord;
 	};
 
-	ObjectRenderer* renderer;
+	TextureRenderer* renderer;
 };
 
