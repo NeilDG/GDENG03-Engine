@@ -14,7 +14,7 @@ public:
 
 	void update(float deltaTime) override;
 	virtual void draw(int width, int height) override;
-	void attachRenderer(ABaseRenderer* renderer) override;
+	void setRenderer(ABaseRenderer* renderer) override;
 	ABaseRenderer* getRenderer() const override;
 	
 protected:
@@ -31,6 +31,6 @@ protected:
 	float ticks = 0.0f;
 
 private:
-	BasicRenderer* renderer;
+	ABaseRenderer* renderer;
 };
 

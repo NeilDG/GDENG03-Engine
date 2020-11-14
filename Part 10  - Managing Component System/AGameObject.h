@@ -92,7 +92,7 @@ public:
 	virtual void saveEditState();
 	virtual void restoreEditState();
 
-	virtual void attachRenderer(ABaseRenderer* renderer);
+	virtual void setRenderer(ABaseRenderer* renderer);
 	virtual ABaseRenderer* getRenderer() const;
 
 protected:

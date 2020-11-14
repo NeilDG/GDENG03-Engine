@@ -10,7 +10,7 @@ public:
 	~TexturedCube() override;
 
 	void draw(int width, int height) override;
-	void attachRenderer(ABaseRenderer* renderer) override;
+	void setRenderer(ABaseRenderer* renderer) override;
 	ABaseRenderer* getRenderer() const override;
 private:
 	struct Vertex {

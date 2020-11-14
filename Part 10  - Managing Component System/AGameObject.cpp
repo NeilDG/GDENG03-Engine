@@ -288,7 +288,7 @@ void AGameObject::restoreEditState()
 	}
 }
 
-void AGameObject::attachRenderer(ABaseRenderer* renderer)
+void AGameObject::setRenderer(ABaseRenderer* renderer)
 {
 }
 

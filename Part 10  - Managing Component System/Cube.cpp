@@ -67,7 +67,7 @@ Cube::Cube(String name, bool skipInit):AGameObject(name, AGameObject::PrimitiveT
 	this->constantBuffer->load(&cbData, sizeof(CBData));
 
 	BasicRenderer* basicRenderer = new BasicRenderer();
-	this->attachRenderer(basicRenderer);
+	this->setRenderer(basicRenderer);
 }
 
 Cube::~Cube()
@@ -79,7 +79,7 @@ Cube::~Cube()
 }
 
 void Cube::update(float deltaTime)
-{
+{ 
 
 }
 
@@ -116,13 +116,17 @@ void Cube::draw(int width, int height)
 	deviceContext->setVertexBuffer(this->vertexBuffer);
 
 	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
-
-	//this->localMatrix = cbData.projMatrix;
 }
 
-void Cube::attachRenderer(ABaseRenderer* renderer)
+void Cube::setRenderer(ABaseRenderer* renderer)
 {
-	this->renderer = static_cast<BasicRenderer*> (renderer);
+	//delete old renderer
+	if(this->renderer != nullptr)
+	{
+		delete this->renderer;
+	}
+	
+	this->renderer = renderer;
 }
 
 ABaseRenderer* Cube::getRenderer() const

@@ -36,6 +36,9 @@ Texture* TextureRenderer::getTexture() const
 
 void TextureRenderer::configureDeviceContext() const
 {
+	ShaderNames shaderNames;
 	DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
-	
+	deviceContext->setTexture(this->getTexture());
+	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.TEXTURED_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.TEXTURED_PIXEL_SHADER_NAME));
+
 }
