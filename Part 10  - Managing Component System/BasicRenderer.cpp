@@ -3,7 +3,7 @@
 #include "GraphicsEngine.h"
 #include "ShaderLibrary.h"
 
-BasicRenderer::BasicRenderer() : ABaseRenderer(BasicRenderer::TEXTURE)
+BasicRenderer::BasicRenderer() : ABaseRenderer(BasicRenderer::DEFAULT)
 {
 	
 }

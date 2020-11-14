@@ -118,12 +118,8 @@ TexturedCube::TexturedCube(String name): Cube(name, true)
 
 TexturedCube::~TexturedCube()
 {
+	delete this->renderer;
 	Cube::~Cube();
-}
-
-void TexturedCube::attachRenderer(TextureRenderer* renderer)
-{
-	this->renderer = renderer;
 }
 
 void TexturedCube::draw(int width, int height)
@@ -169,7 +165,12 @@ void TexturedCube::draw(int width, int height)
 	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
 }
 
-TextureRenderer* TexturedCube::getRenderer() const
+void TexturedCube::attachRenderer(ABaseRenderer* renderer)
 {
-	return this->renderer;
+	this->renderer = static_cast<TextureRenderer*> (renderer);
+}
+
+ABaseRenderer* TexturedCube::getRenderer() const
+{
+	return static_cast<ABaseRenderer*>(this->renderer);
 }

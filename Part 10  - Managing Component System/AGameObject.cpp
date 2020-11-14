@@ -288,6 +288,18 @@ void AGameObject::restoreEditState()
 	}
 }
 
-void AGameObject::awake()
+void AGameObject::attachRenderer(ABaseRenderer* renderer)
 {
 }
+
+ABaseRenderer* AGameObject::getRenderer() const
+{
+	return nullptr;
+}
+
+void AGameObject::awake()
+{
+	
+}
+
+

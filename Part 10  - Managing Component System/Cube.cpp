@@ -74,8 +74,8 @@ Cube::~Cube()
 {
 	this->vertexBuffer->release();
 	this->indexBuffer->release();
-	AGameObject::~AGameObject();
 	delete this->renderer;
+	AGameObject::~AGameObject();
 }
 
 void Cube::update(float deltaTime)
@@ -120,12 +120,12 @@ void Cube::draw(int width, int height)
 	//this->localMatrix = cbData.projMatrix;
 }
 
-void Cube::attachRenderer(BasicRenderer* renderer)
+void Cube::attachRenderer(ABaseRenderer* renderer)
 {
-	this->renderer = renderer;
+	this->renderer = static_cast<BasicRenderer*> (renderer);
 }
 
-BasicRenderer* Cube::getRenderer() const
+ABaseRenderer* Cube::getRenderer() const
 {
-	return this->renderer;
+	return static_cast<ABaseRenderer*>(this->renderer);
 }

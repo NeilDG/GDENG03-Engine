@@ -4,6 +4,7 @@
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 
+class ABaseRenderer;
 class BasicRenderer;
 class Cube :    public AGameObject
 {
@@ -13,10 +14,9 @@ public:
 
 	void update(float deltaTime) override;
 	virtual void draw(int width, int height) override;
-
-	void attachRenderer(BasicRenderer* renderer);
-	BasicRenderer* getRenderer() const;
-
+	void attachRenderer(ABaseRenderer* renderer) override;
+	ABaseRenderer* getRenderer() const override;
+	
 protected:
 
 	struct Vertex {

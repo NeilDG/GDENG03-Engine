@@ -13,6 +13,7 @@ class GameObjectManager;
 class VertexShader;
 class PixelShader;
 class EditorAction;
+class ABaseRenderer;
 class AGameObject
 {
 public:
@@ -91,6 +92,9 @@ public:
 	virtual void saveEditState();
 	virtual void restoreEditState();
 
+	virtual void attachRenderer(ABaseRenderer* renderer);
+	virtual ABaseRenderer* getRenderer() const;
+
 protected:
 	String name;
 	Vector3D localPosition;
@@ -98,9 +102,8 @@ protected:
 	AQuaternion orientation;
 	Matrix4x4 localMatrix;
 	PrimitiveType objectType;
-
 	ComponentList componentList;
-
+	
 	bool overrideMatrix = false;
 
 	virtual void awake();

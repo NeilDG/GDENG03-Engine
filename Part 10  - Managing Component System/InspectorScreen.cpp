@@ -36,7 +36,8 @@ void InspectorScreen::drawUI()
 		ImGui::SameLine();
 		if (ImGui::Button("Delete")) { 
 			GameObjectManager::getInstance()->deleteObject(this->selectedObject);
-			GameObjectManager::getInstance()->setSelectedObject(NULL);
+			GameObjectManager::getInstance()->setSelectedObject(nullptr);
+			this->selectedObject = nullptr;
 		}
 		if (ImGui::InputFloat3("Position", this->positionDisplay, 4)) { this->onTransformUpdate(); }
 		if (ImGui::InputFloat3("Rotation", this->rotationDisplay, 4)) { this->onTransformUpdate(); }
@@ -72,8 +73,7 @@ void InspectorScreen::updateTransformDisplays()
 
 void InspectorScreen::SendResult(String materialPath)
 {
-	TexturedCube* texturedObj = static_cast<TexturedCube*>(this->selectedObject);
-	texturedObj->getRenderer()->setMaterialPath(materialPath);
+	this->selectedObject->getRenderer()->setMaterialPath(materialPath);
 	this->popupOpen = false;
 }
 
@@ -103,27 +103,38 @@ void InspectorScreen::drawMaterialsTab()
 	int BUTTON_WIDTH = 225;
 	int BUTTON_HEIGHT = 20;
 
-	if(this->selectedObject->getObjectType() != AGameObject::TEXTURED_CUBE)
-	{
-		return;
-	}
+	if (this->selectedObject == nullptr) return;
 	
-	TexturedCube* texturedObj = static_cast<TexturedCube*>(this->selectedObject);
-	this->materialPath = texturedObj->getRenderer()->getMaterialPath();
-	this->FormatMatImage();
-	ImGui::SetCursorPosX(50);
-	ImGui::Image(static_cast<void*>(this->materialDisplay->getShaderResource()), ImVec2(150, 150));
+	if (this->selectedObject->getRenderer()->getRendererType() == ABaseRenderer::TEXTURE)
+	{
+		this->materialPath = this->selectedObject->getRenderer()->getMaterialPath();
+		this->FormatMatImage();
+		ImGui::SetCursorPosX(50);
+		ImGui::Image(static_cast<void*>(this->materialDisplay->getShaderResource()), ImVec2(150, 150));
 
-	std::vector<String> paths = StringUtils::split(this->materialPath, '\\');
-	this->materialName = paths[paths.size() - 1];
-	String displayText = "Material: " + this->materialName;
-	ImGui::Text(displayText.c_str());
-	if (ImGui::Button("Add Material", ImVec2(BUTTON_WIDTH, BUTTON_HEIGHT))) {
-		this->popupOpen = !this->popupOpen;
-		UINames uiNames;
-		MaterialScreen* materialScreen = static_cast<MaterialScreen*>(UIManager::getInstance()->findUIByName(uiNames.MATERIAL_SCREEN));
-		materialScreen->linkInspectorScreen(this, this->materialPath);
-		UIManager::getInstance()->setEnabled(uiNames.MATERIAL_SCREEN, this->popupOpen);
+		std::vector<String> paths = StringUtils::split(this->materialPath, '\\');
+		this->materialName = paths[paths.size() - 1];
+		String displayText = "Material: " + this->materialName;
+		ImGui::Text(displayText.c_str());
+		if (ImGui::Button("Add Material", ImVec2(BUTTON_WIDTH, BUTTON_HEIGHT))) {
+			this->popupOpen = !this->popupOpen;
+			UINames uiNames;
+			MaterialScreen* materialScreen = static_cast<MaterialScreen*>(UIManager::getInstance()->findUIByName(uiNames.MATERIAL_SCREEN));
+			materialScreen->linkInspectorScreen(this, this->materialPath);
+			UIManager::getInstance()->setEnabled(uiNames.MATERIAL_SCREEN, this->popupOpen);
+		}
+	}
+	else
+	{
+		String displayText = "Basic material only. Press 'Add Material' to add one.";
+		ImGui::TextWrapped(displayText.c_str());
+		if (ImGui::Button("Add Material", ImVec2(BUTTON_WIDTH, BUTTON_HEIGHT))) {
+			this->popupOpen = !this->popupOpen;
+			UINames uiNames;
+			MaterialScreen* materialScreen = static_cast<MaterialScreen*>(UIManager::getInstance()->findUIByName(uiNames.MATERIAL_SCREEN));
+			materialScreen->linkInspectorScreen(this, this->materialPath);
+			UIManager::getInstance()->setEnabled(uiNames.MATERIAL_SCREEN, this->popupOpen);
+		}
 	}
 }
 

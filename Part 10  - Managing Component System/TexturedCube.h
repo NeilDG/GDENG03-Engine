@@ -9,9 +9,9 @@ public:
 	TexturedCube(String name);
 	~TexturedCube() override;
 
-	void attachRenderer(TextureRenderer* renderer);
 	void draw(int width, int height) override;
-	TextureRenderer* getRenderer() const;
+	void attachRenderer(ABaseRenderer* renderer) override;
+	ABaseRenderer* getRenderer() const override;
 private:
 	struct Vertex {
 		Vector3D position;
