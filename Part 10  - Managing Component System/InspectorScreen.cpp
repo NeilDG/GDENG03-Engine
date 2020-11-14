@@ -74,7 +74,6 @@ void InspectorScreen::updateTransformDisplays()
 void InspectorScreen::SendResult(String materialPath)
 {
 	//create a new renderer of type texture
-	//TODO:Cube and TexturedCube are treated differently. Let game object manager handle changing of object type.
 	TextureRenderer* renderer = new TextureRenderer();
 	renderer->setMaterialPath(materialPath);
 	this->selectedObject->setRenderer(renderer);

@@ -29,6 +29,7 @@ public:
 	void deleteObjectByName(String name);
 	void setSelectedObject(String name);
 	void setSelectedObject(AGameObject* gameObject);
+	void changeObject(AGameObject* gameObject, AGameObject::PrimitiveType type); //changes an object type. will destroy and create a new object of the specified type
 	AGameObject* getSelectedObject();
 	void saveEditStates();
 	void restoreEditStates();

@@ -207,6 +207,59 @@ void GameObjectManager::setSelectedObject(AGameObject* gameObject)
 	this->selectedObject = gameObject;
 }
 
+void GameObjectManager::changeObject(AGameObject* gameObject, AGameObject::PrimitiveType type)
+{
+	Vector3D position = gameObject->getLocalPosition();
+	Vector3D rotation = gameObject->getLocalRotation();
+	Vector3D scale = gameObject->getLocalScale();
+	this->deleteObject(gameObject);
+	
+	if (type == AGameObject::PrimitiveType::CUBE) {
+		Cube* cube = new Cube(gameObject->name);
+		cube->setPosition(position.getX(), position.getY(), position.getZ());
+		cube->setScale(scale.getX(), scale.getY(), scale.getZ());
+		cube->setRotation(rotation.getX(), rotation.getY(), rotation.getZ());
+		this->addObject(cube);
+		this->setSelectedObject(cube);
+	}
+
+	else if (type == AGameObject::PrimitiveType::PLANE) {
+		Plane* plane = new Plane(gameObject->name);
+		plane->setPosition(position.getX(), position.getY(), position.getZ());
+		plane->setScale(scale.getX(), scale.getY(), scale.getZ());
+		plane->setRotation(rotation.getX(), rotation.getY(), rotation.getZ());
+		this->addObject(plane);
+		this->setSelectedObject(plane);
+	}
+
+	else if (type == AGameObject::PrimitiveType::TEXTURED_CUBE) {
+		TexturedCube* cube = new TexturedCube(gameObject->name);
+		cube->setPosition(position.getX(), position.getY(), position.getZ());
+		cube->setScale(scale.getX(), scale.getY(), scale.getZ());
+		cube->setRotation(rotation.getX(), rotation.getY(), rotation.getZ());
+		this->addObject(cube);
+		this->setSelectedObject(cube);
+	}
+
+	else if (type == AGameObject::PrimitiveType::PHYSICS_CUBE) {
+		PhysicsCube* cube = new PhysicsCube(gameObject->name);
+		cube->setPosition(position.getX(), position.getY(), position.getZ());
+		cube->setScale(scale.getX(), scale.getY(), scale.getZ());
+		cube->setRotation(rotation.getX(), rotation.getY(), rotation.getZ());
+		this->addObject(cube);
+		this->setSelectedObject(cube);
+	}
+
+	else if (type == AGameObject::PrimitiveType::PHYSICS_PLANE) {
+		PhysicsPlane* plane = new PhysicsPlane(gameObject->name);
+		plane->setPosition(position.getX(), position.getY(), position.getZ());
+		plane->setScale(scale.getX(), scale.getY(), scale.getZ());
+		plane->setRotation(rotation.getX(), rotation.getY(), rotation.getZ());
+		this->addObject(plane);
+		this->setSelectedObject(plane);
+	}
+}
+
 AGameObject* GameObjectManager::getSelectedObject()
 {
 	return this->selectedObject;
