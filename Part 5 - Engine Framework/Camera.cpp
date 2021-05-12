@@ -89,6 +89,7 @@ void Camera::onMouseMove(const Point deltaPos)
 
 void Camera::onLeftMouseDown(const Point deltaPos)
 {
+	
 }
 
 void Camera::onLeftMouseUp(const Point deltaPos)

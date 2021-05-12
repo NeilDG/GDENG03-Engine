@@ -112,7 +112,7 @@ void AppWindow::initializeEngine()
 	for (int i = 0; i < 100; i++) {
 		float x = MathUtils::randomFloat(-0.75, 0.75f);
 		float y = MathUtils::randomFloat(-0.75, 0.75f);
-
+		 
 		Cube* cubeObject = new Cube("Cube", shaderByteCode, sizeShader);
 		cubeObject->setAnimSpeed(MathUtils::randomFloat(-3.75f, 3.75f));
 		cubeObject->setPosition(Vector3D(x, y, 0.0f));

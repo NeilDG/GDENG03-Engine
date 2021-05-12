@@ -1,0 +1,25 @@
+Plane
+Type: 6
+Position: 0 0 0
+Rotation: 190 0 0
+Scale: 8 8 0.1
+Cube
+Type: 2
+Position: 0 4 0
+Rotation: 0 0 0
+Scale: 1 1 1
+Plane (1)
+Type: 6
+Position: 4 0 0
+Rotation: 0 0 0
+Scale: 8 8 0.1
+Cube_Textured
+Type: 1
+Position: -4 0 0
+Rotation: 0 0 0
+Scale: 2 2 2
+Cube (1)
+Type: 2
+Position: 10 0 0
+Rotation: 0 0 0
+Scale: 3 3 1.5

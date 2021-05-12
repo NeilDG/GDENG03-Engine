@@ -29,9 +29,11 @@ void UIManager::drawAllUI()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	for (int i = 0; i < this->uiList.size(); i++) {
+	/*for (int i = 0; i < this->uiList.size(); i++) {
 		this->uiList[i]->drawUI();
-	}
+	}*/
+
+	ImGui::ShowDemoWindow();
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

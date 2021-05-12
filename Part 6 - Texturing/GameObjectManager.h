@@ -16,7 +16,7 @@ public:
 		TEXTURED_CUBE,
 		CUBE,
 		PLANE,
-		SPHERE
+		SPHERE,
 	};
 
 	static GameObjectManager* getInstance();

@@ -24,7 +24,7 @@ void UIManager::destroy()
 }
 
 void UIManager::drawAllUI()
-{
+{	
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
