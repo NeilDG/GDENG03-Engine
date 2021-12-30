@@ -273,6 +273,9 @@
     <ClCompile Include="BasicRenderer.cpp">
       <Filter>ComponentSystem</Filter>
     </ClCompile>
+    <ClCompile Include="CSALGCM_Sample.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
