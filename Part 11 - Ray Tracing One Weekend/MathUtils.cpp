@@ -12,3 +12,14 @@ float MathUtils::degreesToRadians(float degrees)
 {
 	return degrees * PI / 180.0f;
 }
+
+float MathUtils::randomFloat()
+{
+	return rand() / (RAND_MAX + 1.0f);
+}
+
+float MathUtils::randomFloat(float min, float max)
+{
+	return min + (max - min) * randomFloat();
+}
+

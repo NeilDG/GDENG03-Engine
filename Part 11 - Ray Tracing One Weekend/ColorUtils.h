@@ -8,6 +8,7 @@ class ColorUtils
 	typedef std::ofstream FileStream;
 
 	public:
-		static void writeColor(FileStream& outFile, Color pixelColor);
+		static float clamp(float x, float min, float max);
+		static void writeColor(FileStream& outFile, Color pixelColor, int samplesPerPixel);
 };
 

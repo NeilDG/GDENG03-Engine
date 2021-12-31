@@ -4,6 +4,8 @@
 #include "HittableList.h"
 #include "MathUtils.h"
 #include "Sphere.h"
+#include "Camera.h"
+
 
 Color rayColor(const Ray r, const HittableList world)
 {
@@ -23,6 +25,7 @@ int main()
     const float aspectRatio = 16.0f / 9.0f;
     const int imageWidth = 400;
     const int imageHeight = static_cast<int>(imageWidth / aspectRatio);
+    const int samplesPerPixel = 1000;
 
 	//World
     HittableList world;
@@ -30,32 +33,27 @@ int main()
     world.add(make_shared<Sphere>(Point3D(0.0f, -100.5f, -1.0f), 100.0f));
 	
 	//Camera
-    float viewportHeight = 2.0f;
-    float viewportWidth = aspectRatio * viewportHeight;
-    float focalLength = 1.0f;
+    Camera cam;
 
-    Point3D origin = Point3D(0.0f, 0.0f, 0.0f);
-    Vector3D horizontal = Vector3D(viewportWidth, 0.0f, 0.0f);
-    Vector3D vertical = Vector3D(0.0f, viewportHeight, 0.0f);
-    Vector3D lowerLeft = origin - horizontal / 2.0f - vertical / 2.0f - Vector3D(0.0f, 0.0f, focalLength);
-
+    // Render
     typedef std::ofstream FileStream;
     FileStream imageFile;
     imageFile.open("D:/Documents/GithubProjects/GDENG2-Engine/Part 11 - Ray Tracing One Weekend/ImageRender.ppm");
-	
-    // Render
     imageFile << "P3\n" << imageWidth << ' ' << imageHeight << "\n255\n";
     for (int j = imageHeight - 1; j >= 0; j--) {
         std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
         for (int i = 0; i < imageWidth; i++) {
-        	
-            auto u = double(i) / (imageWidth - 1);
-            auto v = double(j) / (imageHeight - 1);
 
-            Ray r(origin, lowerLeft + horizontal * u + vertical * v - origin);
+            Color pixels(0.0f, 0.0f, 0.0f);
+        	for (int s = 0; s < samplesPerPixel; s++)
+        	{
+                float u = (float(i) + MathUtils::randomFloat()) / (imageWidth - 1);
+                float v = (float(j) + MathUtils::randomFloat()) / (imageHeight - 1);
 
-            Color pixels = rayColor(r, world);
-            ColorUtils::writeColor(imageFile, pixels);
+                Ray r = cam.getRay(u, v);
+                pixels = pixels + rayColor(r, world);
+        	}   
+            ColorUtils::writeColor(imageFile, pixels, samplesPerPixel);
         }
     }
 
