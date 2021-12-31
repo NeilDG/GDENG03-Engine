@@ -1,12 +1,13 @@
 #pragma once
 #include <fstream>
+#include "Vector3D.h"
 
-class Vector3D;
+
 class ColorUtils
 {
 	typedef std::ofstream FileStream;
 
 	public:
-		static void writeColor(FileStream& outFile, Vector3D pixelColor);
+		static void writeColor(FileStream& outFile, Color pixelColor);
 };
 

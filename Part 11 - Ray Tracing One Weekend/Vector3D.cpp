@@ -1,4 +1,5 @@
 #include "Vector3D.h"
+#include <cmath>
 
 Vector3D::Vector3D()
 {
@@ -34,24 +35,64 @@ float Vector3D::getZ() const
 	return this->z;
 }
 
-Vector3D Vector3D::operator*(float num)
+Vector3D Vector3D::operator*(const float num) const
 {
 	return Vector3D(this->x * num, this->y * num, this->z * num);
 }
 
-Vector3D Vector3D::operator*(Vector3D vec)
+Vector3D Vector3D::operator*(const Vector3D vec) const
 {
 	return Vector3D(this->x * vec.x, this->y * vec.y, this->z * vec.z);
 }
 
-Vector3D Vector3D::operator-(Vector3D vec)
+Vector3D Vector3D::operator+(const Vector3D vec) const
+{
+	return Vector3D(this->x + vec.x, this->y + vec.y, this->z + vec.z);
+}
+
+Vector3D Vector3D::operator+(float num) const
+{
+	return Vector3D(this->x + num, this->y + num, this->z + num);
+}
+
+Vector3D Vector3D::operator-(float num) const
+{
+	return Vector3D(this->x - num, this->y - num, this->z - num);
+}
+
+Vector3D Vector3D::operator-() const
+{
+	return Vector3D(-this->x, - this->y, -this->z);
+}
+
+Vector3D Vector3D::operator-(const Vector3D vec) const
 {
 	return Vector3D(this->x - vec.x, this->y - vec.y, this->z - vec.z);
 }
 
-Vector3D Vector3D::dot(const Vector3D u, const Vector3D v)
+Vector3D Vector3D::operator/(const Vector3D vec) const
 {
-	return Vector3D(u.x * v.x, u.y * v.y, u.z * v.z);
+	return Vector3D(this->x / vec.x, this->y / vec.y, this->z / vec.z);
+}
+
+Vector3D Vector3D::operator/(const float num) const
+{
+	return Vector3D(this->x / num, this->y / num, this->z / num);
+}
+
+float Vector3D::length() const
+{
+	return sqrt(this->lengthSquared());
+}
+
+float Vector3D::lengthSquared() const
+{
+	return this->x * this->x + this->y * this->y + this->z * this->z;
+}
+
+float Vector3D::dot(const Vector3D u, const Vector3D v)
+{
+	return u.x * v.x + u.y * v.y + u.z * v.z;
 }
 
 Vector3D Vector3D::cross(const Vector3D u, const Vector3D v)
@@ -63,12 +104,7 @@ Vector3D Vector3D::cross(const Vector3D u, const Vector3D v)
 
 Vector3D Vector3D::unitVector(const Vector3D v)
 {
-	return Vector3D(v.x / 3.0f, v.y / 3.0f, v.z / 3.0f);
-}
-
-Vector3D Vector3D::operator+(Vector3D vec)
-{
-	return Vector3D(this->x + vec.x, this->y + vec.y, this->z + vec.z);
+	return v / v.length();
 }
 
 Vector3D Vector3D::lerp(const Vector3D start, const Vector3D end, float delta)

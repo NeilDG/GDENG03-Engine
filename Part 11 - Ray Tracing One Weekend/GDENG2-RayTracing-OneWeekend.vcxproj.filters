@@ -8,6 +8,18 @@
     <ClCompile Include="Vector3D.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="Ray.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="HittableList.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="MathUtils.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -16,12 +28,30 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{6dad0184-37d3-4dee-b6e2-555b79c3e95a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{33233a06-5b8f-48e8-b87a-40d347f5345f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ColorUtils.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Vector3D.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="AHittable.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="HittableList.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="MathUtils.h">
       <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
