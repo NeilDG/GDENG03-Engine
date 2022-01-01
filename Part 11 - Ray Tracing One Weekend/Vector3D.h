@@ -31,12 +31,17 @@ public:
 	static float dot(const Vector3D u, const Vector3D v);
 	static Vector3D cross(const Vector3D u, const Vector3D v);
 	static Vector3D unitVector(const Vector3D v);
+	static Vector3D random();
+	static Vector3D random(float min, float max);
+	static Vector3D randomInHemisphere(const Vector3D normal);
 	
 
 private: 
 	float x = 0.0f;
 	float y = 0.0f;
 	float z = 0.0f;
+
+	static Vector3D randomInUnitSphere();
 };
 
 using Point3D = Vector3D;

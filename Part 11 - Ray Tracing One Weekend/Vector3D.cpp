@@ -1,5 +1,6 @@
 #include "Vector3D.h"
 #include <cmath>
+#include "MathUtils.h"
 
 Vector3D::Vector3D()
 {
@@ -105,6 +106,46 @@ Vector3D Vector3D::cross(const Vector3D u, const Vector3D v)
 Vector3D Vector3D::unitVector(const Vector3D v)
 {
 	return v / v.length();
+}
+
+Vector3D Vector3D::random()
+{
+	float x = MathUtils::randomFloat();
+	float y = MathUtils::randomFloat();
+	float z = MathUtils::randomFloat();
+	return Vector3D(x, y, z);
+}
+
+Vector3D Vector3D::random(float min, float max)
+{
+	float x = MathUtils::randomFloat(min, max);
+	float y = MathUtils::randomFloat(min, max);
+	float z = MathUtils::randomFloat(min, max);
+
+	return Vector3D(x, y, z);
+}
+
+Vector3D Vector3D::randomInUnitSphere()
+{
+	while(true)
+	{
+		Vector3D p = Vector3D::random(-1.0f, 1.0f);
+		if (p.lengthSquared() >= 1.0f) continue;
+		return p;
+	}
+}
+
+Vector3D Vector3D::randomInHemisphere(const Vector3D normal)
+{
+	Vector3D inUnitSphere = randomInUnitSphere();
+	if(dot(inUnitSphere, normal) > 0.0f)
+	{
+		return inUnitSphere;
+	}
+	else
+	{
+		return -inUnitSphere;
+	}
 }
 
 Vector3D Vector3D::lerp(const Vector3D start, const Vector3D end, float delta)

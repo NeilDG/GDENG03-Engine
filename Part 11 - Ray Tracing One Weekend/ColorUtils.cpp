@@ -13,10 +13,11 @@ void ColorUtils::writeColor(FileStream& outFile, Color pixelColor, int samplesPe
     float g = pixelColor.getY();
     float b = pixelColor.getZ();
 
+	//gamma correction
     float scale = 1.0f / samplesPerPixel;
-    r *= scale;
-    g *= scale;
-    b *= scale;
+    r = sqrt(scale * r);
+    g = sqrt(scale * g);
+    b = sqrt(scale * b);
 	
     // Write the translated [0,255] value of each color component.
     outFile << static_cast<int>(256 * clamp(r, 0.0, 0.999f)) << ' '

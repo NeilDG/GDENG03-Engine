@@ -7,11 +7,19 @@
 #include "Camera.h"
 
 
-Color rayColor(const Ray r, const HittableList world)
+Color rayColor(const Ray r, const HittableList world, int bounces)
 {
     HitRecord rec;
-    if (world.hit(r, 0.0f, MathUtils::infinity(), rec)) {
-        return (rec.normal + Color(1.0f, 1.0f, 1.0f)) * 0.5f;
+
+	//If the ray bounce limit is exceeded, no more light needs to be gathered
+	if(bounces <= 0)
+	{
+        return Color(0.0f, 0.0f, 0.0f);
+	}
+	
+    if (world.hit(r, 0.001f, MathUtils::infinity(), rec)) {
+        Point3D target = rec.p + rec.normal + Vector3D::randomInHemisphere(rec.normal);
+        return rayColor(Ray(rec.p, target - rec.p), world, bounces - 1) * 0.5f;
     }
 	
     Vector3D unitDir = Vector3D::unitVector(r.getDirection());
@@ -25,7 +33,8 @@ int main()
     const float aspectRatio = 16.0f / 9.0f;
     const int imageWidth = 400;
     const int imageHeight = static_cast<int>(imageWidth / aspectRatio);
-    const int samplesPerPixel = 1000;
+    const int raySamplesPerPixel = 100;
+    const int bounces = 100;
 
 	//World
     HittableList world;
@@ -45,15 +54,15 @@ int main()
         for (int i = 0; i < imageWidth; i++) {
 
             Color pixels(0.0f, 0.0f, 0.0f);
-        	for (int s = 0; s < samplesPerPixel; s++)
+        	for (int s = 0; s < raySamplesPerPixel; s++)
         	{
                 float u = (float(i) + MathUtils::randomFloat()) / (imageWidth - 1);
                 float v = (float(j) + MathUtils::randomFloat()) / (imageHeight - 1);
 
                 Ray r = cam.getRay(u, v);
-                pixels = pixels + rayColor(r, world);
+                pixels = pixels + rayColor(r, world, bounces);
         	}   
-            ColorUtils::writeColor(imageFile, pixels, samplesPerPixel);
+            ColorUtils::writeColor(imageFile, pixels, raySamplesPerPixel);
         }
     }
 
