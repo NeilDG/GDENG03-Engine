@@ -91,6 +91,12 @@ float Vector3D::lengthSquared() const
 	return this->x * this->x + this->y * this->y + this->z * this->z;
 }
 
+bool Vector3D::nearZero() const
+{
+	float s = 1e-8;
+	return(fabs(this->x) < s && fabs(this->y) < s && fabs(this->z) < s);
+}
+
 float Vector3D::dot(const Vector3D u, const Vector3D v)
 {
 	return u.x * v.x + u.y * v.y + u.z * v.z;
@@ -125,6 +131,11 @@ Vector3D Vector3D::random(float min, float max)
 	return Vector3D(x, y, z);
 }
 
+Vector3D Vector3D::randomUnitVector()
+{
+	return unitVector(randomInUnitSphere());
+}
+
 Vector3D Vector3D::randomInUnitSphere()
 {
 	while(true)
@@ -146,6 +157,19 @@ Vector3D Vector3D::randomInHemisphere(const Vector3D normal)
 	{
 		return -inUnitSphere;
 	}
+}
+
+Vector3D Vector3D::reflect(const Vector3D v, const Vector3D n)
+{
+	return v - n * 2 * dot(v, n);
+}
+
+Vector3D Vector3D::refract(const Vector3D uv, const Vector3D n, float etaiOverEtat)
+{
+	float cosTheta = fmin(dot(-uv, n), 1.0f);
+	Vector3D rPerpendicular = (uv + n * cosTheta) * etaiOverEtat;
+	Vector3D rParallel = n * -sqrt(fabs(1.0f - rPerpendicular.lengthSquared()));
+	return rPerpendicular + rParallel;
 }
 
 Vector3D Vector3D::lerp(const Vector3D start, const Vector3D end, float delta)

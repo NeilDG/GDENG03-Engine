@@ -1,6 +1,8 @@
 #pragma once
 #include "Ray.h"
+#include <memory>
 
+class AMaterial;
 class HitRecord
 {
 public:
@@ -8,6 +10,7 @@ public:
 	Vector3D normal;
 	float t;
 	bool isFrontFace;
+	std::shared_ptr<AMaterial> refMaterial;
 
 	inline void setFaceNormal(const Ray r, const Vector3D outwardNormal)
 	{
