@@ -49,15 +49,16 @@ int main()
     HittableList world;
 
     std::shared_ptr<DiffuseMaterial> groundMat = make_shared<DiffuseMaterial>(Color(0.8f, 0.8f, 0.0f));
-    std::shared_ptr<DiffuseMaterial> centerCircleMat = make_shared<DiffuseMaterial>(Color(0.7f, 0.3f, 0.3f));
+    std::shared_ptr<DiffuseMaterial> centerCircleMat = make_shared<DiffuseMaterial>(Color(0.1f, 0.2f, 0.5f));
     // std::shared_ptr<MetalMaterial> leftCircleMat = make_shared<MetalMaterial>(Color(0.8f, 0.8f, 0.8f), 0.01f);
     // std::shared_ptr<MetalMaterial> rightCircleMat = make_shared<MetalMaterial>(Color(0.8f, 0.6f, 0.2f), 1.0f);
     std::shared_ptr<DielectricMaterial> leftCircleMat = make_shared<DielectricMaterial>(1.5f);
-    std::shared_ptr<DielectricMaterial> rightCircleMat = make_shared<DielectricMaterial>(1.5f);
+    std::shared_ptr<MetalMaterial> rightCircleMat = make_shared<MetalMaterial>(Color(0.8f, 0.6f, 0.2f), 0.0f);
 	
     world.add(make_shared<Sphere>(Point3D(0.0f, -100.5f, -1.0f), 100.0f, groundMat));
     world.add(make_shared<Sphere>(Point3D(0.0f, 0.0f, -1.0f), 0.5f, centerCircleMat));
     world.add(make_shared<Sphere>(Point3D(-1.0f, 0.0f, -1.0f), 0.5f, leftCircleMat));
+    world.add(make_shared<Sphere>(Point3D(-1.0f, 0.0f, -1.0f), -0.4f, leftCircleMat));
     world.add(make_shared<Sphere>(Point3D(1.0f, 0.0f, -1.0f), 0.5f, rightCircleMat));
     //world.add(make_shared<Sphere>(Point3D(1.0f, 0.25f, -1.5f), 1.25f, matExtra1));
 	
