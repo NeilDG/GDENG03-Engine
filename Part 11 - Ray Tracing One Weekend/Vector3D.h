@@ -37,6 +37,7 @@ public:
 	static Vector3D randomUnitVector();
 	static Vector3D randomInHemisphere(const Vector3D normal);
 	static Vector3D randomInUnitSphere();
+	static Vector3D randomInUnitDisk();
 	
 	static Vector3D reflect(const Vector3D v, const Vector3D n);
 	static Vector3D refract(const Vector3D uv, const Vector3D n, float etaiOverEtat);

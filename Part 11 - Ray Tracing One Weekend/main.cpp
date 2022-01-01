@@ -36,34 +36,81 @@ Color rayColor(const Ray r, const HittableList world, int bounces)
     return Color(1.0f, 1.0f, 1.0f) * (1.0f - t) + Color(0.5f, 0.7f, 1.0f) * t;
 }
 
+HittableList generateRandomScene()
+{
+    HittableList world;
+    std::shared_ptr<DiffuseMaterial> groundMat = make_shared<DiffuseMaterial>(Color(0.5f, 0.5f, 0.5f));
+    world.add(make_shared<Sphere>(Point3D(0.0f, -1000.0f, 0.0f), 1000.0f, groundMat));
+
+	for(int a = -11; a< 11; a++)
+	{
+		for(int b= -11; b < 11; b++)
+		{
+            float matVal = MathUtils::randomFloat();
+            Point3D center(a + 0.9f * MathUtils::randomFloat(), 0.2, b + 0.9 * MathUtils::randomFloat());
+
+			if((center - Point3D(4.0, 0.2f, 0.0f)).length() > 0.9f)
+			{
+                shared_ptr<AMaterial> refMaterial;
+
+				if(matVal < 0.8)
+				{
+                    Color albedo = static_cast<Color> (Vector3D::random() * Vector3D::random());
+                    refMaterial = make_shared<DiffuseMaterial>(albedo);
+                    world.add(make_shared<Sphere>(center, 0.2f, refMaterial));
+				}
+                else if(matVal < 0.95)
+                {
+                    Color albedo = static_cast<Color> (Vector3D::random() * Vector3D::random());
+                    float fuzziness = MathUtils::randomFloat(0.0f, 0.5f);
+                    refMaterial = make_shared<MetalMaterial>(albedo, fuzziness);
+                    world.add(make_shared<Sphere>(center, 0.2f, refMaterial));
+                }
+                else
+                {
+                    refMaterial = make_shared<DielectricMaterial>(1.5f);
+                    world.add(make_shared<Sphere>(center, 0.2f, refMaterial));
+                }
+			}
+		}
+	}
+	
+    return world;
+}
+
 int main()
 {
     // Image
-    const float aspectRatio = 16.0f / 9.0f;
-    const int imageWidth = 400;
+    const float aspectRatio = 3.0f / 2.0f;
+    const int imageWidth = 1200;
     const int imageHeight = static_cast<int>(imageWidth / aspectRatio);
     const int raySamplesPerPixel = 100;
-    const int bounces = 100;
+    const int bounces = 1;
 
 	//World
     HittableList world;
 
     std::shared_ptr<DiffuseMaterial> groundMat = make_shared<DiffuseMaterial>(Color(0.8f, 0.8f, 0.0f));
-    std::shared_ptr<DiffuseMaterial> centerCircleMat = make_shared<DiffuseMaterial>(Color(0.1f, 0.2f, 0.5f));
-    // std::shared_ptr<MetalMaterial> leftCircleMat = make_shared<MetalMaterial>(Color(0.8f, 0.8f, 0.8f), 0.01f);
-    // std::shared_ptr<MetalMaterial> rightCircleMat = make_shared<MetalMaterial>(Color(0.8f, 0.6f, 0.2f), 1.0f);
+    std::shared_ptr<DiffuseMaterial> centerCircleMat = make_shared<DiffuseMaterial>(Color(0.4f, 0.2f, 0.1f));
     std::shared_ptr<DielectricMaterial> leftCircleMat = make_shared<DielectricMaterial>(1.5f);
-    std::shared_ptr<MetalMaterial> rightCircleMat = make_shared<MetalMaterial>(Color(0.8f, 0.6f, 0.2f), 0.0f);
+    std::shared_ptr<MetalMaterial> rightCircleMat = make_shared<MetalMaterial>(Color(0.7f, 0.6f, 0.5f), 0.0f);
+
+    world = generateRandomScene();
 	
-    world.add(make_shared<Sphere>(Point3D(0.0f, -100.5f, -1.0f), 100.0f, groundMat));
-    world.add(make_shared<Sphere>(Point3D(0.0f, 0.0f, -1.0f), 0.5f, centerCircleMat));
-    world.add(make_shared<Sphere>(Point3D(-1.0f, 0.0f, -1.0f), 0.5f, leftCircleMat));
-    world.add(make_shared<Sphere>(Point3D(-1.0f, 0.0f, -1.0f), -0.4f, leftCircleMat));
-    world.add(make_shared<Sphere>(Point3D(1.0f, 0.0f, -1.0f), 0.5f, rightCircleMat));
-    //world.add(make_shared<Sphere>(Point3D(1.0f, 0.25f, -1.5f), 1.25f, matExtra1));
+    world.add(make_shared<Sphere>(Point3D(-4.0f, 1.0f, 0.0f), 1.0f, centerCircleMat));
+    world.add(make_shared<Sphere>(Point3D(0.0f, 1.0f, 0.0f), 1.0f, leftCircleMat));
+    world.add(make_shared<Sphere>(Point3D(0.0f, 1.0f, 0.0f), -0.9f, leftCircleMat));
+    world.add(make_shared<Sphere>(Point3D(4.0f, 1.0f, 0.0f), 1.0f, rightCircleMat));
 	
 	//Camera
-    Camera cam;
+    Point3D lookFrom(13.0f, 2.0f, 3.0f);
+    Point3D lookAt(0.0f, 0.0f, 0.0f);
+    Vector3D vUp(0.0f, 1.0f, 0.0f);
+    float distToFocus = (lookFrom - lookAt).length();
+    float aperture = 0.1f;
+	
+    Camera cam(lookFrom, lookAt, vUp, 20, aspectRatio, aperture, distToFocus); //far view
+    //Camera cam(Point3D(-2.0f, 2.0f, 1.0f), Point3D(0.0f, 0.0f, -1.0f), Vector3D(0.0f, 1.0f, 0.0f), 20, aspectRatio); //zoom view
 
     // Render
     typedef std::ofstream FileStream;

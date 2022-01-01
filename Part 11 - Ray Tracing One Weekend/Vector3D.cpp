@@ -146,6 +146,16 @@ Vector3D Vector3D::randomInUnitSphere()
 	}
 }
 
+Vector3D Vector3D::randomInUnitDisk()
+{
+	while(true)
+	{
+		Vector3D p = Vector3D(MathUtils::randomFloat(-1.0f, 1.0f), MathUtils::randomFloat(-1.0f, 1.0f), 0.0f);
+		if (p.lengthSquared() >= 1.0f) continue;
+		return p;
+	}
+}
+
 Vector3D Vector3D::randomInHemisphere(const Vector3D normal)
 {
 	Vector3D inUnitSphere = randomInUnitSphere();
