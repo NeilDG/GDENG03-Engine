@@ -84,8 +84,8 @@ int main()
     const float aspectRatio = 3.0f / 2.0f;
     const int imageWidth = 1200;
     const int imageHeight = static_cast<int>(imageWidth / aspectRatio);
-    const int raySamplesPerPixel = 100;
-    const int bounces = 1;
+    const int raySamplesPerPixel = 50;
+    const int bounces = 25;
 
 	//World
     HittableList world;
