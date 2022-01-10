@@ -1,0 +1,20 @@
+Cube
+Type: 2
+Position: 0 7 0
+Rotation: 0 0 0
+Scale: 16 1 1
+Cube (1)
+Type: 2
+Position: 0 9 0
+Rotation: 0 0 0
+Scale: 4 4 4
+Cube (2)
+Type: 2
+Position: 0 0 -1
+Rotation: 190 0 0
+Scale: 0.2 4 4
+Cube (3)
+Type: 2
+Position: 0 7 0
+Rotation: 0 0 0
+Scale: 16 1 1

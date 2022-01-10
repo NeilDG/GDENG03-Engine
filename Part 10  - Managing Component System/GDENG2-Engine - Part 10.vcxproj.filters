@@ -276,6 +276,9 @@
     <ClCompile Include="CSALGCM_Sample.cpp">
       <Filter>App</Filter>
     </ClCompile>
+    <ClCompile Include="imgui_tables.cpp">
+      <Filter>IMGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -496,5 +499,10 @@
     <FxCompile Include="TexturedPixelShader.hlsl">
       <Filter>GameEngine\Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="imgui.ini">
+      <Filter>IMGUI</Filter>
+    </None>
   </ItemGroup>
 </Project>

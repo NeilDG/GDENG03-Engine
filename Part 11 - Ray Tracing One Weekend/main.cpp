@@ -84,8 +84,8 @@ int main()
     const float aspectRatio = 3.0f / 2.0f;
     const int imageWidth = 1200;
     const int imageHeight = static_cast<int>(imageWidth / aspectRatio);
-    const int raySamplesPerPixel = 50;
-    const int bounces = 25;
+    const int raySamplesPerPixel = 100;
+    const int bounces = 50;
 
 	//World
     HittableList world;
@@ -93,7 +93,7 @@ int main()
     std::shared_ptr<DiffuseMaterial> groundMat = make_shared<DiffuseMaterial>(Color(0.8f, 0.8f, 0.0f));
     std::shared_ptr<DiffuseMaterial> centerCircleMat = make_shared<DiffuseMaterial>(Color(0.4f, 0.2f, 0.1f));
     std::shared_ptr<DielectricMaterial> leftCircleMat = make_shared<DielectricMaterial>(1.5f);
-    std::shared_ptr<MetalMaterial> rightCircleMat = make_shared<MetalMaterial>(Color(0.7f, 0.6f, 0.5f), 0.0f);
+    std::shared_ptr<MetalMaterial> rightCircleMat = make_shared<MetalMaterial>(Color(0.7f, 0.9f, 0.9f), 0.0f);
 
     world = generateRandomScene();
 	
