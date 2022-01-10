@@ -44,7 +44,7 @@ public:
 		//unsigned int time; //size of only 4 bytes. this won't align in GPU device because device requires 16 bytes.
 		float time;
 	};
-
+	
 	AGameObject(String name, PrimitiveType type);
 	virtual ~AGameObject();
 

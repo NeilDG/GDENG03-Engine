@@ -11,6 +11,8 @@ public:
 	void update(); //TODO: Game object manager should perform update of all game objects
 
 	Matrix4x4 getSceneCameraViewMatrix();
+	Matrix4x4 getSceneCameraProjectionMatrix();
+	Matrix4x4 getSceneCameraLocationMatrix();
 
 private:
 	SceneCameraHandler();

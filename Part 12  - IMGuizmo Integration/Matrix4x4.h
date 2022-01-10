@@ -29,6 +29,7 @@ public:
 
 	void debugPrint();
 	float* getMatrix();
+	float* getMatrix16();
 	
 private:
 	void matrixInitialize();

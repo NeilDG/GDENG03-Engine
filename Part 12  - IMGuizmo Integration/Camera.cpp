@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include "InputSystem.h"
 #include "ImGuizmo.h"
+#include "UIManager.h"
 
 Camera::Camera(String name): AGameObject(name, PrimitiveType::CAMERA)
 {
@@ -66,6 +67,18 @@ void Camera::update(float deltaTime)
 Matrix4x4 Camera::getViewMatrix()
 {
 	return this->localMatrix;
+}
+
+Matrix4x4 Camera::getProjectionMatrix()
+{
+	//TODO: This is recomputed everytime it is called
+	Matrix4x4 projectionMatrix;
+	int width = UIManager::WINDOW_WIDTH;
+	int height = UIManager::WINDOW_HEIGHT;
+	float aspectRatio = (float)width / (float)height;
+	projectionMatrix.setPerspectiveFovLH(2, aspectRatio, 0.1f, 1000.0f);
+
+	return projectionMatrix;
 }
 
 void Camera::onKeyDown(int key)

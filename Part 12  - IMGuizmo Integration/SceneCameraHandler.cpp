@@ -28,6 +28,16 @@ Matrix4x4 SceneCameraHandler::getSceneCameraViewMatrix()
     return this->sceneCamera->getViewMatrix();
 }
 
+Matrix4x4 SceneCameraHandler::getSceneCameraProjectionMatrix()
+{
+    return this->sceneCamera->getProjectionMatrix();
+}
+
+Matrix4x4 SceneCameraHandler::getSceneCameraLocationMatrix()
+{
+    return this->sceneCamera->getLocalMatrix();
+}
+
 SceneCameraHandler::SceneCameraHandler()
 {
     this->sceneCamera = new Camera("SceneCamera");

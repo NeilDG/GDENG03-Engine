@@ -10,6 +10,7 @@
 #include "Debug.h"
 #include "MaterialScreen.h"
 #include "ImGuizmo.h"
+#include "SceneCameraHandler.h"
 
 UIManager* UIManager::sharedInstance = NULL;
 
@@ -40,6 +41,15 @@ void UIManager::drawAllUI()
 		this->uiList[i]->drawUI();
 	}
 
+	Matrix4x4 viewMatrix = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
+	Matrix4x4 projectionMatrix = SceneCameraHandler::getInstance()->getSceneCameraProjectionMatrix();
+	Matrix4x4 locationMatrix = SceneCameraHandler::getInstance()->getSceneCameraLocationMatrix();
+	
+	float* viewMatrix16 = viewMatrix.getMatrix16();
+	float* projectionMatrix16 = projectionMatrix.getMatrix16();
+	float* locationMatrix16 = locationMatrix.getMatrix16();
+
+	ImGuizmo::DrawGrid(viewMatrix16, projectionMatrix16, locationMatrix16, 1000.0f);
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	

@@ -10,6 +10,7 @@ public:
 
 	void update(float deltaTime) override;
 	Matrix4x4 getViewMatrix();
+	Matrix4x4 getProjectionMatrix();
 
 	virtual void onKeyDown(int key) override;
 	virtual void onKeyUp(int key) override;
