@@ -20,11 +20,20 @@ public:
 	virtual void onRightMouseDown(const Point deltaPos) override;
 	virtual void onRightMouseUp(const Point deltaPos) override;
 
+
 private:
 	void updateViewMatrix();
 
+	const float FOV_DEGREES_DEFAULT = 60.0f;
+	const float ZNEAR_DEFAULT = 0.1f;
+	const float ZFAR_DEFAULT = 1000.0f;
+	
 	float ticks = 0.0f;
 	float mouseDown = false;
+
+	float fovDegrees;
+	float zNear;
+	float zFar;
 
 	//float forwardDirection = 0.0f;
 	//Matrix4x4 worldCameraMatrix;

@@ -102,12 +102,14 @@ void Cube::draw(int width, int height)
 		cbData.worldMatrix = this->localMatrix;
 	}
 	
-	Matrix4x4 cameraMatrix = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
-	cbData.viewMatrix = cameraMatrix;
+	Matrix4x4 cameraViewMatrix = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
+	cbData.viewMatrix = cameraViewMatrix;
 
-	float aspectRatio = (float)width / (float)height;
-	//cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
-	cbData.projMatrix.setPerspectiveFovLH(2, aspectRatio, 0.1f, 1000.0f);
+	// float aspectRatio = (float)width / (float)height;
+	// //cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
+	// cbData.projMatrix.setPerspectiveFovLH(2, aspectRatio, 0.1f, 1000.0f);
+	Matrix4x4 cameraProjectionMatrix = SceneCameraHandler::getInstance()->getSceneCameraProjectionMatrix();
+	cbData.projMatrix = cameraProjectionMatrix;
 
 	DeviceContext* deviceContext = GraphicsEngine::getInstance()->getImmediateContext();
 	this->constantBuffer->update(deviceContext, &cbData);

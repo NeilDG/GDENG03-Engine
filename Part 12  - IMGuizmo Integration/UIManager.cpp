@@ -48,8 +48,15 @@ void UIManager::drawAllUI()
 	float* viewMatrix16 = viewMatrix.getMatrix16();
 	float* projectionMatrix16 = projectionMatrix.getMatrix16();
 	float* locationMatrix16 = locationMatrix.getMatrix16();
+	Matrix4x4 identity; identity.setIdentity();
+	float* identityMatrix16 = identity.getMatrix16();
 
-	ImGuizmo::DrawGrid(viewMatrix16, projectionMatrix16, locationMatrix16, 1000.0f);
+	ImGuizmo::SetImGuiContext(ImGui::GetCurrentContext());
+	ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
+	ImGuizmo::DrawGrid(viewMatrix16, projectionMatrix16, locationMatrix16, 100.0f);
+	ImGuizmo::DrawCubes(viewMatrix16, projectionMatrix16, locationMatrix16, 1);
+	ImGuizmo::Manipulate(viewMatrix16, projectionMatrix16, ImGuizmo::ROTATE, ImGuizmo::LOCAL, identityMatrix16);
+	
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	

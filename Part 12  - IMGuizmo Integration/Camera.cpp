@@ -5,6 +5,10 @@
 
 Camera::Camera(String name): AGameObject(name, PrimitiveType::CAMERA)
 {
+	this->fovDegrees = FOV_DEGREES_DEFAULT;
+	this->zNear = ZNEAR_DEFAULT;
+	this->zFar = ZFAR_DEFAULT;
+	
 	this->setPosition(0.0f, 0.0f, -4.0f);
 	//this->worldCameraMatrix.setTranslation(this->getLocalPosition());
 	this->updateViewMatrix();
@@ -55,13 +59,6 @@ void Camera::update(float deltaTime)
 		this->setPosition(x, y, z);
 		this->updateViewMatrix();
 	}
-	
-	/*float cameraView[16] =
-	{ 1.f, 0.f, 0.f, 0.f,
-	  0.f, 1.f, 0.f, 0.f,
-	  0.f, 0.f, 1.f, 0.f,
-	  0.f, 0.f, 0.f, 1.f };
-	ImGuizmo::DrawGrid(cameraView, cameraView, cameraView, 100.0f);*/
 }
 
 Matrix4x4 Camera::getViewMatrix()
@@ -71,12 +68,13 @@ Matrix4x4 Camera::getViewMatrix()
 
 Matrix4x4 Camera::getProjectionMatrix()
 {
-	//TODO: This is recomputed everytime it is called
-	Matrix4x4 projectionMatrix;
 	int width = UIManager::WINDOW_WIDTH;
 	int height = UIManager::WINDOW_HEIGHT;
 	float aspectRatio = (float)width / (float)height;
-	projectionMatrix.setPerspectiveFovLH(2, aspectRatio, 0.1f, 1000.0f);
+	float fov = this->fovDegrees * 3.141592f / 180.0f;
+
+	Matrix4x4 projectionMatrix;
+	projectionMatrix.setPerspectiveFovLH(fov, aspectRatio, this->zNear, this->zFar);
 
 	return projectionMatrix;
 }

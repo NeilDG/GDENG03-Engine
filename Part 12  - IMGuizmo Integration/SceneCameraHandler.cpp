@@ -23,17 +23,17 @@ void SceneCameraHandler::update()
     this->sceneCamera->update(EngineTime::getDeltaTime());
 }
 
-Matrix4x4 SceneCameraHandler::getSceneCameraViewMatrix()
+Matrix4x4 SceneCameraHandler::getSceneCameraViewMatrix() const
 {
     return this->sceneCamera->getViewMatrix();
 }
 
-Matrix4x4 SceneCameraHandler::getSceneCameraProjectionMatrix()
+Matrix4x4 SceneCameraHandler::getSceneCameraProjectionMatrix() const
 {
     return this->sceneCamera->getProjectionMatrix();
 }
 
-Matrix4x4 SceneCameraHandler::getSceneCameraLocationMatrix()
+Matrix4x4 SceneCameraHandler::getSceneCameraLocationMatrix() const
 {
     return this->sceneCamera->getLocalMatrix();
 }

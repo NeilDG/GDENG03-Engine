@@ -100,7 +100,7 @@ void AppWindow::onUpdate()
 			backend->endFrameStep();
 		}
 	}
-
+	
 	//default updates on systems
 	GameObjectManager::getInstance()->renderAll(width, height);
 	SceneCameraHandler::getInstance()->update();
