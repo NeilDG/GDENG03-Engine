@@ -29,6 +29,11 @@ void Matrix4x4::setMatrix(float matrix[4][4])
 	::memcpy(this->matrix, matrix, sizeof(float) * 16);
 }
 
+void Matrix4x4::setMatrix(float matrix[16])
+{
+	::memcpy(this->matrix, matrix, sizeof(float) * 16);
+}
+
 void Matrix4x4::setTranslation(const Vector3D translation)
 {
 	this->setIdentity();

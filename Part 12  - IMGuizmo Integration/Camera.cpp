@@ -36,7 +36,7 @@ void Camera::update(float deltaTime)
 		}
 		
 		this->setPosition(x, y, z);
-		this->updateViewMatrix();
+		//this->updateViewMatrix();
 	}
 	else if (InputSystem::getInstance()->isKeyDown('S')) {
 		if (this->mouseDown) {
@@ -46,18 +46,20 @@ void Camera::update(float deltaTime)
 			z -= deltaTime * moveSpeed;
 		}
 		this->setPosition(x, y, z);
-		this->updateViewMatrix();
+		//this->updateViewMatrix();
 	}
 	else if (InputSystem::getInstance()->isKeyDown('A')) {
 		x += deltaTime * moveSpeed;
 		this->setPosition(x, y, z);
-		this->updateViewMatrix();
+		//this->updateViewMatrix();
 	}
 	else if (InputSystem::getInstance()->isKeyDown('D')) {
 		x -= deltaTime * moveSpeed;
 		this->setPosition(x, y, z);
-		this->updateViewMatrix();
+		//this->updateViewMatrix();
 	}
+
+	this->updateViewMatrix();
 }
 
 Matrix4x4 Camera::getViewMatrix()
@@ -99,7 +101,7 @@ void Camera::onMouseMove(const Point deltaPos)
 		y += deltaPos.getX() * speed;
 
 		this->setRotation(x, y, z);
-		this->updateViewMatrix();
+		//this->updateViewMatrix();
 
 		std::cout << " Local rot: " << this->getLocalRotation().getX() << " " << this->getLocalRotation().getY() << " " << this->getLocalRotation().getZ() << "\n";
 	}

@@ -173,9 +173,11 @@
     <ClCompile Include="EngineBackend.cpp" />
     <ClCompile Include="EngineTime.cpp" />
     <ClCompile Include="GameObjectManager.cpp" />
+    <ClCompile Include="GizmoLayer.cpp" />
     <ClCompile Include="GraphicsEngine.cpp" />
     <ClCompile Include="HierarchyScreen.cpp" />
     <ClCompile Include="imgui.cpp" />
+    <ClCompile Include="imGuIZMOquat.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
     <ClCompile Include="imgui_impl_dx11.cpp" />
@@ -241,11 +243,13 @@
     <ClInclude Include="EngineBackend.h" />
     <ClInclude Include="EngineTime.h" />
     <ClInclude Include="GameObjectManager.h" />
+    <ClInclude Include="GizmoLayer.h" />
     <ClInclude Include="GraphicsEngine.h" />
     <ClInclude Include="HierarchyScreen.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imfilebrowser.h" />
     <ClInclude Include="imgui.h" />
+    <ClInclude Include="imGuIZMOquat.h" />
     <ClInclude Include="imgui_impl_dx11.h" />
     <ClInclude Include="imgui_impl_win32.h" />
     <ClInclude Include="imgui_internal.h" />
@@ -289,6 +293,10 @@
     <ClInclude Include="Vector4D.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VertexShader.h" />
+    <ClInclude Include="vgConfig.h" />
+    <ClInclude Include="vGizmo.h" />
+    <ClInclude Include="vGizmoMath.h" />
+    <ClInclude Include="vgMath.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>

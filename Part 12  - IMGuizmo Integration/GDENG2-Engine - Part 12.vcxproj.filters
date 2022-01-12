@@ -76,6 +76,12 @@
     <Filter Include="Editor\Screens">
       <UniqueIdentifier>{ab178af3-ea27-4a24-a511-d42163bf3c42}</UniqueIdentifier>
     </Filter>
+    <Filter Include="IMGuizmo">
+      <UniqueIdentifier>{f465e699-7cf9-4dd4-a793-c46081ed64bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Layers">
+      <UniqueIdentifier>{890a0bad-a55d-4fc2-9506-0223ea1a16a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -278,6 +284,12 @@
     </ClCompile>
     <ClCompile Include="imgui_tables.cpp">
       <Filter>IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="imGuIZMOquat.cpp">
+      <Filter>IMGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="GizmoLayer.cpp">
+      <Filter>Editor\Layers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -484,6 +496,24 @@
     </ClInclude>
     <ClInclude Include="BasicRenderer.h">
       <Filter>ComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="imGuIZMOquat.h">
+      <Filter>IMGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="vgConfig.h">
+      <Filter>IMGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="vGizmo.h">
+      <Filter>IMGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="vGizmoMath.h">
+      <Filter>IMGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="vgMath.h">
+      <Filter>IMGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="GizmoLayer.h">
+      <Filter>Editor\Layers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

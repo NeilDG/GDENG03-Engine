@@ -10,6 +10,8 @@
 #include "Debug.h"
 #include "MaterialScreen.h"
 #include "SceneCameraHandler.h"
+#include "GizmoLayer.h"
+
 
 UIManager* UIManager::sharedInstance = NULL;
 
@@ -36,16 +38,6 @@ void UIManager::drawAllUI()
 	for (int i = 0; i < this->uiList.size(); i++) {
 		this->uiList[i]->drawUI();
 	}
-
-	Matrix4x4 viewMatrix = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
-	Matrix4x4 projectionMatrix = SceneCameraHandler::getInstance()->getSceneCameraProjectionMatrix();
-	Matrix4x4 locationMatrix = SceneCameraHandler::getInstance()->getSceneCameraLocationMatrix();
-	
-	float* viewMatrix16 = viewMatrix.getMatrix16();
-	float* projectionMatrix16 = projectionMatrix.getMatrix16();
-	float* locationMatrix16 = locationMatrix.getMatrix16();
-	Matrix4x4 identity; identity.setIdentity();
-	float* identityMatrix16 = identity.getMatrix16();
 	
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -90,6 +82,7 @@ UIManager::UIManager(HWND windowHandle)
 	ImGui_ImplDX11_Init(GraphicsEngine::getInstance()->getDirectXDevice(), GraphicsEngine::getInstance()->getImmediateContext()->getContext());
 
     //populate UI table
+	//UIs that will show during runtime
 	UINames uiNames;
 	ProfilerScreen* profilerScreen = new ProfilerScreen();
 	this->uiTable[uiNames.PROFILER_SCREEN] = profilerScreen;
@@ -119,12 +112,16 @@ UIManager::UIManager(HWND windowHandle)
 	this->uiTable[uiNames.CONSOLE_SCREEN] = consoleScreen;
 	this->uiList.push_back(consoleScreen);
 	Debug::assignConsole(consoleScreen);
-
-	//UIs that will show during runtime
+	
 	MaterialScreen* materialScreen = new MaterialScreen();
 	this->uiTable[uiNames.MATERIAL_SCREEN] = materialScreen;
 	this->uiList.push_back(materialScreen);
 	materialScreen->SetEnabled(false);
+
+	//gizmo layer - similar to Unity/Unreal Engine gizmos
+	GizmoLayer* gizmoLayer = new GizmoLayer();
+	this->uiTable[uiNames.GIZMO_LAYER] = gizmoLayer;
+	this->uiList.push_back(gizmoLayer);
 	
 }
 
