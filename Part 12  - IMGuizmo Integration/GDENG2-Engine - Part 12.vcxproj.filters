@@ -76,9 +76,6 @@
     <Filter Include="Editor\Screens">
       <UniqueIdentifier>{ab178af3-ea27-4a24-a511-d42163bf3c42}</UniqueIdentifier>
     </Filter>
-    <Filter Include="IMGuizmo">
-      <UniqueIdentifier>{7a12b566-a181-4310-aee0-b1254aab8ebb}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -281,21 +278,6 @@
     </ClCompile>
     <ClCompile Include="imgui_tables.cpp">
       <Filter>IMGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor.cpp">
-      <Filter>IMGuizmo</Filter>
-    </ClCompile>
-    <ClCompile Include="ImCurveEdit.cpp">
-      <Filter>IMGuizmo</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGradient.cpp">
-      <Filter>IMGuizmo</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuizmo.cpp">
-      <Filter>IMGuizmo</Filter>
-    </ClCompile>
-    <ClCompile Include="ImSequencer.cpp">
-      <Filter>IMGuizmo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -502,24 +484,6 @@
     </ClInclude>
     <ClInclude Include="BasicRenderer.h">
       <Filter>ComponentSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor.h">
-      <Filter>IMGuizmo</Filter>
-    </ClInclude>
-    <ClInclude Include="ImCurveEdit.h">
-      <Filter>IMGuizmo</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGradient.h">
-      <Filter>IMGuizmo</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGuizmo.h">
-      <Filter>IMGuizmo</Filter>
-    </ClInclude>
-    <ClInclude Include="ImSequencer.h">
-      <Filter>IMGuizmo</Filter>
-    </ClInclude>
-    <ClInclude Include="ImZoomSlider.h">
-      <Filter>IMGuizmo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

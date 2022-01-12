@@ -1,6 +1,5 @@
 #include "Camera.h"
 #include "InputSystem.h"
-#include "ImGuizmo.h"
 #include "UIManager.h"
 
 Camera::Camera(String name): AGameObject(name, PrimitiveType::CAMERA)

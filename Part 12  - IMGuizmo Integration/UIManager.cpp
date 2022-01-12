@@ -9,7 +9,6 @@
 #include "ConsoleScreen.h"
 #include "Debug.h"
 #include "MaterialScreen.h"
-#include "ImGuizmo.h"
 #include "SceneCameraHandler.h"
 
 UIManager* UIManager::sharedInstance = NULL;
@@ -34,9 +33,6 @@ void UIManager::drawAllUI()
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	ImGuizmo::BeginFrame();
-	ImGuizmo::Enable(true);
-
 	for (int i = 0; i < this->uiList.size(); i++) {
 		this->uiList[i]->drawUI();
 	}
@@ -50,12 +46,6 @@ void UIManager::drawAllUI()
 	float* locationMatrix16 = locationMatrix.getMatrix16();
 	Matrix4x4 identity; identity.setIdentity();
 	float* identityMatrix16 = identity.getMatrix16();
-
-	ImGuizmo::SetImGuiContext(ImGui::GetCurrentContext());
-	ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
-	ImGuizmo::DrawGrid(viewMatrix16, projectionMatrix16, locationMatrix16, 100.0f);
-	ImGuizmo::DrawCubes(viewMatrix16, projectionMatrix16, locationMatrix16, 1);
-	ImGuizmo::Manipulate(viewMatrix16, projectionMatrix16, ImGuizmo::ROTATE, ImGuizmo::LOCAL, identityMatrix16);
 	
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
