@@ -4,6 +4,8 @@
 #include "Matrix4x4.h"
 #include "SceneCameraHandler.h"
 #include "vgMath.h"
+#include "ImGuizmo.h"
+#include "UIManager.h"
 
 GizmoLayer::GizmoLayer(): AUIScreen("GizmoLayer")
 {
@@ -22,11 +24,11 @@ void GizmoLayer::drawUI()
 	Matrix4x4 locationMatrix = SceneCameraHandler::getInstance()->getSceneCameraLocationMatrix();
 
 	ImGui::Begin("Gizmos", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
-	float* viewMatrix16 = viewMatrix.getMatrix16();
-	float* projectionMatrix16 = projectionMatrix.getMatrix16();
-	float* locationMatrix16 = locationMatrix.getMatrix16();
+	float* viewMatrix16 = viewMatrix.getMatrix();
+	float* projectionMatrix16 = projectionMatrix.getMatrix();
+	float* locationMatrix16 = locationMatrix.getMatrix();
 	Matrix4x4 identity; identity.setIdentity();
-	float* identityMatrix16 = identity.getMatrix16();
+	float* identityMatrix16 = identity.getMatrix();
 
 	Vector3D cameraRot = SceneCameraHandler::getInstance()->getCameraRotationXYZ();
 	quat rot(1.0f, cameraRot.getX(), cameraRot.getY(), cameraRot.getZ());
@@ -47,6 +49,18 @@ void GizmoLayer::drawUI()
 	SceneCameraHandler::getInstance()->setCameraLocation(translation.x, translation.y, translation.z);
 	
 	ImGui::End();
+	
+	//TODO: This is just a test for draw grid. Must fix render ordering.
+	ImGuizmo::SetDrawlist();
+	ImGuizmo::SetImGuiContext(ImGui::GetCurrentContext());
+	ImGuizmo::BeginFrame();
+    ImGuiIO& io = ImGui::GetIO();
+    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+	ImGuizmo::DrawGrid(viewMatrix16, projectionMatrix16, identityMatrix16, 100);
+	//ImGuizmo::DrawCubes(viewMatrix16, projectionMatrix16, identityMatrix16, 6);
+	Manipulate(viewMatrix16, projectionMatrix16, ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, identityMatrix16);
+
+	//ImGui::End();
 }
 
 

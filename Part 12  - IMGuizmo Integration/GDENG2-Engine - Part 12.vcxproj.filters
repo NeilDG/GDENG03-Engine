@@ -291,6 +291,9 @@
     <ClCompile Include="GizmoLayer.cpp">
       <Filter>Editor\Layers</Filter>
     </ClCompile>
+    <ClCompile Include="ImGuizmo.cpp">
+      <Filter>IMGuizmo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -514,6 +517,9 @@
     </ClInclude>
     <ClInclude Include="GizmoLayer.h">
       <Filter>Editor\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuizmo.h">
+      <Filter>IMGuizmo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
