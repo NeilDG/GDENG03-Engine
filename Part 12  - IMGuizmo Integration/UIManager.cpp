@@ -32,16 +32,9 @@ void UIManager::destroy()
 
 void UIManager::drawAllUI()
 {
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
 	for (int i = 0; i < this->uiList.size(); i++) {
 		this->uiList[i]->drawUI();
 	}
-	
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	
 }
 
 void UIManager::setEnabled(String uiName, bool flag)
@@ -119,9 +112,9 @@ UIManager::UIManager(HWND windowHandle)
 	materialScreen->SetEnabled(false);
 
 	//gizmo layer - similar to Unity/Unreal Engine gizmos
-	GizmoLayer* gizmoLayer = new GizmoLayer();
-	this->uiTable[uiNames.GIZMO_LAYER] = gizmoLayer;
-	this->uiList.push_back(gizmoLayer);
+	// GizmoLayer* gizmoLayer = new GizmoLayer();
+	// this->uiTable[uiNames.GIZMO_LAYER] = gizmoLayer;
+	// this->uiList.push_back(gizmoLayer);
 	
 }
 

@@ -68,7 +68,7 @@ void SceneCameraHandler::setCameraLocation(float x, float y, float z)
     };
     matrixCompatible.setMatrix(mat16);
 
-    this->sceneCamera->setLocalMatrix(mat16);
+    this->sceneCamera->recomputeMatrix(mat16);
 }*/
 
 SceneCameraHandler::SceneCameraHandler()

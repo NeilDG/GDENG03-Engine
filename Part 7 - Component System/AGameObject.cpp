@@ -224,7 +224,7 @@ void AGameObject::updateLocalMatrix()
 	this->localMatrix = allMatrix;
 }
 
-void AGameObject::setLocalMatrix(float matrix[16])
+void AGameObject::recomputeMatrix(float matrix[16])
 {
 	float matrix4x4[4][4];
 	matrix4x4[0][0] = matrix[0];

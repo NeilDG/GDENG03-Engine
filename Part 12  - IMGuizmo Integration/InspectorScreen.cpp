@@ -45,7 +45,6 @@ void InspectorScreen::drawUI()
 
 		this->drawPhysicsTab();
 		this->drawMaterialsTab();
-		
 	}
 	else {
 		ImGui::Text("No object selected. Select an object first.");

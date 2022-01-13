@@ -26,7 +26,7 @@ PhysicsComponent::PhysicsComponent(String name, AGameObject* owner): AComponent(
 	float matrix[16];
 	transform.getOpenGLMatrix(matrix);
 
-	this->getOwner()->setLocalMatrix(matrix);
+	this->getOwner()->recomputeMatrix(matrix);
 }
 
 PhysicsComponent::~PhysicsComponent()
@@ -41,7 +41,7 @@ void PhysicsComponent::perform(float deltaTime)
 	float matrix[16];
 	transform.getOpenGLMatrix(matrix);
 
-	this->getOwner()->setLocalMatrix(matrix);
+	this->getOwner()->recomputeMatrix(matrix);
 }
 
 RigidBody* PhysicsComponent::getRigidBody()

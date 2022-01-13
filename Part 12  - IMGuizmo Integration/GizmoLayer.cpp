@@ -6,30 +6,40 @@
 #include "vgMath.h"
 #include "ImGuizmo.h"
 #include "UIManager.h"
+#include "GameObjectManager.h"
 
-GizmoLayer::GizmoLayer(): AUIScreen("GizmoLayer")
+GizmoLayer* GizmoLayer::sharedInstance = nullptr;
+
+GizmoLayer* GizmoLayer::getInstance()
 {
-	
+	return sharedInstance;
+}
+
+void GizmoLayer::initialize()
+{
+	sharedInstance = new GizmoLayer();
+}
+
+void GizmoLayer::destroy()
+{
+	delete sharedInstance;
+}
+
+
+GizmoLayer::GizmoLayer() {
+
 }
 
 GizmoLayer::~GizmoLayer()
 {
-	AUIScreen::~AUIScreen();
+
 }
 
-void GizmoLayer::drawUI()
-{
-	Matrix4x4 viewMatrix = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
-	Matrix4x4 projectionMatrix = SceneCameraHandler::getInstance()->getSceneCameraProjectionMatrix();
-	Matrix4x4 locationMatrix = SceneCameraHandler::getInstance()->getSceneCameraLocationMatrix();
-
+void GizmoLayer::draw()
+{	
+	
 	ImGui::Begin("Gizmos", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
-	float* viewMatrix16 = viewMatrix.getMatrix();
-	float* projectionMatrix16 = projectionMatrix.getMatrix();
-	float* locationMatrix16 = locationMatrix.getMatrix();
-	Matrix4x4 identity; identity.setIdentity();
-	float* identityMatrix16 = identity.getMatrix();
-
+	
 	Vector3D cameraRot = SceneCameraHandler::getInstance()->getCameraRotationXYZ();
 	quat rot(1.0f, cameraRot.getX(), cameraRot.getY(), cameraRot.getZ());
 
@@ -45,22 +55,74 @@ void GizmoLayer::drawUI()
 		SceneCameraHandler::getInstance()->setCameraLocation(translation.x, translation.y, translation.z);
 	}
 
+	ImGui::Checkbox("Show Grid", &this->gridShow);
+
 	SceneCameraHandler::getInstance()->setCameraRotation(rot.x, rot.y, rot.z);
 	SceneCameraHandler::getInstance()->setCameraLocation(translation.x, translation.y, translation.z);
 	
+	if (ImGui::RadioButton("Translate", this->translate))
+	{
+		this->translate = true;
+		this->rotate = false;
+		this->scale = false;
+	}
+	ImGui::SameLine();
+	if (ImGui::RadioButton("Rotate", this->rotate))
+	{
+		this->translate = false;
+		this->rotate = true;
+		this->scale = false;
+	}
+	ImGui::SameLine();
+	if (ImGui::RadioButton("Scale", this->scale))
+	{
+		this->translate = false;
+		this->rotate = false;
+		this->scale = true;
+	}
 	ImGui::End();
 	
-	//TODO: This is just a test for draw grid. Must fix render ordering.
-	ImGuizmo::SetDrawlist();
-	ImGuizmo::SetImGuiContext(ImGui::GetCurrentContext());
 	ImGuizmo::BeginFrame();
     ImGuiIO& io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-	ImGuizmo::DrawGrid(viewMatrix16, projectionMatrix16, identityMatrix16, 100);
-	//ImGuizmo::DrawCubes(viewMatrix16, projectionMatrix16, identityMatrix16, 6);
-	Manipulate(viewMatrix16, projectionMatrix16, ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, identityMatrix16);
 
-	//ImGui::End();
+	Matrix4x4 viewMatrix = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
+	Matrix4x4 projectionMatrix = SceneCameraHandler::getInstance()->getSceneCameraProjectionMatrix();
+	Matrix4x4 locationMatrix = SceneCameraHandler::getInstance()->getSceneCameraLocationMatrix();
+
+	float* viewMatrix16 = viewMatrix.getMatrix();
+	float* projectionMatrix16 = projectionMatrix.getMatrix();
+	float* locationMatrix16 = locationMatrix.getMatrix();
+	
+	if(this->gridShow)
+	{
+		Matrix4x4 identity; identity.setIdentity();
+		float* identityMatrix16 = identity.getMatrix();
+		ImGuizmo::DrawGrid(viewMatrix16, projectionMatrix16, identityMatrix16, 100); //draw grid
+	}
+	
+	
+	this->selectedObject = GameObjectManager::getInstance()->getSelectedObject();
+	if(this->selectedObject != nullptr)
+	{
+		float* locationMatrix = this->selectedObject->getLocalMatrix().getMatrix();
+		
+		if(this->translate) Manipulate(viewMatrix16, projectionMatrix16, ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, locationMatrix);
+		if(this->rotate) Manipulate(viewMatrix16, projectionMatrix16, ImGuizmo::ROTATE, ImGuizmo::LOCAL, locationMatrix);
+		if(this->scale) Manipulate(viewMatrix16, projectionMatrix16, ImGuizmo::SCALE, ImGuizmo::LOCAL, locationMatrix);
+
+		float translate[3] = { 0.0f, 0.0f, 0.0f };
+		float rotate[3] = {0.0f, 0.0f, 0.0f};
+		float scale[3] = { 0.0f, 0.0f, 0.0f };
+		ImGuizmo::DecomposeMatrixToComponents(locationMatrix, translate, rotate, scale);
+		this->selectedObject->setNewMatrix(locationMatrix);
+	}
+	
+}
+
+void GizmoLayer::enableGizmo(AGameObject* selectedObject)
+{
+	this->selectedObject = selectedObject;
 }
 
 

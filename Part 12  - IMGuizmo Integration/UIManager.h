@@ -19,7 +19,6 @@ public:
 	const String ACTION_SCREEN = "ACTION_SCREEN";
 	const String CONSOLE_SCREEN = "CONSOLE_SCREEN";
 	const String MATERIAL_SCREEN = "MATERIAL_SCREEN";
-	const String GIZMO_LAYER = "GIZMO_LAYER";
 };
 
 

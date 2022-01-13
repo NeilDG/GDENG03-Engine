@@ -19,8 +19,9 @@ Window::~Window()
 
 LRESULT CALLBACK WndProc(HWND windowHandle, UINT msg, WPARAM wparam, LPARAM lparam) {
     //Used for processing input events for IMGUI
-    if (ImGui_ImplWin32_WndProcHandler(windowHandle, msg, wparam, lparam))
+    if (ImGui_ImplWin32_WndProcHandler(windowHandle, msg, wparam, lparam)) {
         return true;
+	}
 
     switch (msg) {
     case WM_CREATE: {

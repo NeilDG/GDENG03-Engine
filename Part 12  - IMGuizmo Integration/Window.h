@@ -26,11 +26,12 @@ protected:
 	Window(Window const&) {};             // copy constructor is private
 	Window& operator=(Window const&) {};  // assignment operator is private*/
 	HWND windowHandle;
-
+	
 	bool createWindow();
 
 private:
 	bool runningFlag = false;
+	
 
 };
 

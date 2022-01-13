@@ -83,7 +83,8 @@ public:
 	ComponentList getComponentsOfTypeRecursive(AComponent::ComponentType type);
 
 	void updateLocalMatrix(); //updates local matrix based from latest position, rotation, and scale.
-	void setLocalMatrix(float matrix[16]);
+	void recomputeMatrix(float matrix[16]);
+	void setNewMatrix(float matrix[16]);
 	float* getRawMatrix();
 	Matrix4x4 getLocalMatrix();
 	float* getPhysicsLocalMatrix(); //scale is set to 1.0

@@ -1,14 +1,29 @@
 #pragma once
-#include "AUIScreen.h"
+#include "AGameObject.h"
 
-class UIManager;
-class GizmoLayer :    public AUIScreen
+class GizmoLayer
 {
+public:
+	static GizmoLayer* getInstance();
+	static void initialize();
+	static void destroy();
+
+	void draw();
+	void enableGizmo(AGameObject* selectedObject);
+
 private:
 	GizmoLayer();
 	~GizmoLayer();
+	GizmoLayer(GizmoLayer const&) {};
+	GizmoLayer& operator=(GizmoLayer const&) {};
+	static GizmoLayer* sharedInstance;
 
-	void drawUI() override;
-	friend class UIManager;
+	bool gridShow = true;
+	bool translate = true;
+	bool rotate = false;
+	bool scale = false;
+	AGameObject* selectedObject = nullptr;
+
+	
 };
 

@@ -25,6 +25,8 @@
 #include "Debug.h"
 #include <sstream>
 
+#include "GizmoLayer.h"
+
 static float f = 0.0f;
 static int counter = 0;
 
@@ -75,7 +77,7 @@ void AppWindow::onUpdate()
 	GraphicsEngine* graphEngine = GraphicsEngine::getInstance();
 	DeviceContext* deviceContext = graphEngine->getImmediateContext();
 	ShaderNames shaderNames;
-	deviceContext->clearRenderTargetColor(this->swapChain, 0, 0.5, 0.5, 1);
+	deviceContext->clearRenderTargetColor(this->swapChain, 0.25, 0.25, 0.25, 1);
 
 	RECT windowRect = this->getClientWindowRect();
 	int width = windowRect.right - windowRect.left;
@@ -100,11 +102,21 @@ void AppWindow::onUpdate()
 			backend->endFrameStep();
 		}
 	}
+
 	
 	//default updates on systems
 	GameObjectManager::getInstance()->renderAll(width, height);
 	SceneCameraHandler::getInstance()->update();
+
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	GizmoLayer::getInstance()->draw();
 	UIManager::getInstance()->drawAllUI();
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	
 
 	graphEngine->getSwapChain()->present(true); //NOTE: Called once per screen refresh.
 }
@@ -156,6 +168,7 @@ void AppWindow::initializeEngine()
 
 	GameObjectManager::initialize();
 	SceneCameraHandler::initialize();
+	GizmoLayer::initialize();
 	BaseComponentSystem::initialize();
 	ActionHistory::initialize();
 }
