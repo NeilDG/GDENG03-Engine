@@ -26,7 +26,10 @@ public:
 	Matrix4x4 multiplyTo(Matrix4x4 matrix);
 	Vector3D getZDirection();
 	Vector3D getXDirection();
+	
 	Vector3D getTranslation();
+	Vector3D getScale();
+	Vector3D getRotation();
 
 	void debugPrint();
 	float* getMatrix();

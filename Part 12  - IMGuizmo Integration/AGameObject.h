@@ -61,10 +61,9 @@ public:
 	void setScale(Vector3D scale);
 	Vector3D getLocalScale();
 
-	void setRotation(float x, float y, float z);
-	void setRotation(Vector3D rot);
-	void setRotation(float x, float y, float z, float w);
-	Vector3D getLocalRotation();
+	void setRotationDegrees(float x, float y, float z);
+	Vector3D getLocalRotationDegrees();
+	Vector3D getLocalRotationRaw();
 
 	//void setEulerAnglesRotation(float x, float y, float z);
 	//Vector3D getEulerAngles();
@@ -95,8 +94,8 @@ public:
 protected:
 	String name;
 	Vector3D localPosition;
+	Vector3D localRotation;
 	Vector3D localScale;
-	AQuaternion orientation;
 	Matrix4x4 localMatrix;
 	PrimitiveType objectType;
 

@@ -1,6 +1,10 @@
 #include "AGameObject.h"
 #include "EditorAction.h"
 
+static const float ZPI = 3.14159265358979323846f;
+static const float RAD2DEG = (180.f / ZPI);
+static const float DEG2RAD = (ZPI / 180.f);
+
 AGameObject::AGameObject(String name, PrimitiveType type)
 {
 	this->name = name;
@@ -63,39 +67,22 @@ void AGameObject::setScale(Vector3D scale)
 	this->overrideMatrix = false;
 }
 
-void AGameObject::setRotation(float x, float y, float z)
+void AGameObject::setRotationDegrees(float x, float y, float z)
 {
-	//this->localRotation = Vector3D(x, y, z);
-	this->orientation = {};
-	this->orientation.x = x;
-	this->orientation.y = y;
-	this->orientation.z = z;
+	
+	this->localRotation = Vector3D(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD);
 	this->overrideMatrix = false;
 }
 
-void AGameObject::setRotation(Vector3D rot)
+Vector3D AGameObject::getLocalRotationDegrees()
 {
-	//this->localRotation = rot;
-	this->orientation = {};
-	this->orientation.x = rot.getX();
-	this->orientation.y = rot.getY();
-	this->orientation.z = rot.getZ();
-	this->overrideMatrix = false;
+	Vector3D rotDeg(this->localRotation.getX() * RAD2DEG, this->localRotation.getY() * RAD2DEG, this->localRotation.getZ() * RAD2DEG);
+	return rotDeg;
 }
 
-void AGameObject::setRotation(float x, float y, float z, float w)
+Vector3D AGameObject::getLocalRotationRaw()
 {
-	this->orientation = {};
-	this->orientation.x = x;
-	this->orientation.y = y;
-	this->orientation.z = z;
-	this->orientation.w = w;
-	this->overrideMatrix = false;
-}
-
-Vector3D AGameObject::getLocalRotation()
-{
-	return Vector3D(this->orientation.x, this->orientation.y, this->orientation.z);
+	return this->localRotation;
 }
 
 bool AGameObject::isEnabled()
@@ -190,7 +177,7 @@ void AGameObject::updateLocalMatrix()
 	Matrix4x4 allMatrix; allMatrix.setIdentity();
 	Matrix4x4 translationMatrix; translationMatrix.setIdentity();  translationMatrix.setTranslation(this->getLocalPosition());
 	Matrix4x4 scaleMatrix; scaleMatrix.setScale(this->getLocalScale());
-	Vector3D rotation = this->getLocalRotation();
+	Vector3D rotation = this->getLocalRotationDegrees();
 	Matrix4x4 xMatrix; xMatrix.setRotationX(rotation.getX());
 	Matrix4x4 yMatrix; yMatrix.setRotationY(rotation.getY());
 	Matrix4x4 zMatrix; zMatrix.setRotationZ(rotation.getZ());
@@ -277,7 +264,7 @@ float* AGameObject::getPhysicsLocalMatrix()
 	Matrix4x4 translationMatrix; translationMatrix.setIdentity();  
 	translationMatrix.setTranslation(this->getLocalPosition());
 	Matrix4x4 scaleMatrix; scaleMatrix.setScale(Vector3D::ones()); //physics 3D only accepts uniform scale for rigidbody
-	Vector3D rotation = this->getLocalRotation();
+	Vector3D rotation = this->getLocalRotationDegrees();
 	Matrix4x4 xMatrix; xMatrix.setRotationX(rotation.getX());
 	Matrix4x4 yMatrix; yMatrix.setRotationY(rotation.getY());
 	Matrix4x4 zMatrix; zMatrix.setRotationZ(rotation.getZ());
@@ -304,7 +291,7 @@ void AGameObject::restoreEditState()
 	if (this->lastEditState != NULL) {
 		this->localPosition = this->lastEditState->getStorePos();
 		this->localScale = this->lastEditState->getStoredScale();
-		this->orientation = this->lastEditState->getStoredOrientation();
+		this->localRotation = this->lastEditState->getStoredOrientation();
 		this->localMatrix = this->lastEditState->getStoredMatrix();
 
 		this->lastEditState = NULL;

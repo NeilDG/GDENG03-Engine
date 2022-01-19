@@ -91,19 +91,19 @@ void Camera::onKeyUp(int key)
 void Camera::onMouseMove(const Point deltaPos)
 {
 	if (this->mouseDown) {
-		Vector3D localRot = this->getLocalRotation();
+		Vector3D localRot = this->getLocalRotationDegrees();
 		float x = localRot.getX();
 		float y = localRot.getY();
 		float z = localRot.getZ();
 
-		float speed = 0.005f;
+		float speed = 0.5f;
 		x += deltaPos.getY() * speed;
 		y += deltaPos.getX() * speed;
 
-		this->setRotation(x, y, z);
+		this->setRotationDegrees(x, y, z);
 		//this->updateViewMatrix();
 
-		std::cout << " Local rot: " << this->getLocalRotation().getX() << " " << this->getLocalRotation().getY() << " " << this->getLocalRotation().getZ() << "\n";
+		std::cout << " Local rot: " << this->getLocalRotationDegrees().getX() << " " << this->getLocalRotationDegrees().getY() << " " << this->getLocalRotationDegrees().getZ() << "\n";
 	}
 }
 
@@ -130,7 +130,7 @@ void Camera::updateViewMatrix()
 	Matrix4x4 worldCam; worldCam.setIdentity();
 	Matrix4x4 temp; temp.setIdentity();
 
-	Vector3D localRot = this->getLocalRotation();
+	Vector3D localRot = this->getLocalRotationRaw();
 
 	temp.setRotationX(localRot.getX());
 	worldCam = worldCam.multiplyTo(temp);
@@ -140,12 +140,6 @@ void Camera::updateViewMatrix()
 
 	temp.setTranslation(this->getLocalPosition());
 	worldCam = worldCam.multiplyTo(temp);
-
-	/*Vector3D cameraPos = this->worldCameraMatrix.getTranslation() + (worldCam.getZDirection() * (this->forwardDirection * 0.01f));
-	std::cout << "Camera pos: " << cameraPos.getX() << " " << cameraPos.getY() << " " << cameraPos.getZ() << "\n";
-	temp.setTranslation(cameraPos);
-	worldCam = worldCam.multiplyTo(temp);
-	this->worldCameraMatrix = worldCam;*/
 
 	worldCam.getInverse();
 	this->localMatrix = worldCam;

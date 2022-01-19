@@ -116,6 +116,10 @@ void GizmoLayer::draw()
 		float scale[3] = { 0.0f, 0.0f, 0.0f };
 		ImGuizmo::DecomposeMatrixToComponents(locationMatrix, translate, rotate, scale);
 		this->selectedObject->setNewMatrix(locationMatrix);
+
+		//this->selectedObject->setPosition(translate[0], translate[1], translate[2]);
+		//this->selectedObject->setRotationDegrees(rotate[0], rotate[1], rotate[2]);
+		//this->selectedObject->setScale(scale[0], scale[1], scale[2]);
 	}
 	
 }

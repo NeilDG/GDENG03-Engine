@@ -30,7 +30,7 @@ void SceneWriter::writeToFile()
 	for (int i = 0; i < allObjects.size(); i++) {
 		sceneFile << allObjects[i]->getName() << std::endl;
 		Vector3D position = allObjects[i]->getLocalPosition();
-		Vector3D rotation = allObjects[i]->getLocalRotation();
+		Vector3D rotation = allObjects[i]->getLocalRotationDegrees();
 		Vector3D scale = allObjects[i]->getLocalScale();
 
 		sceneFile << "Type: " << allObjects[i]->getObjectType() << std::endl;

@@ -79,6 +79,18 @@ void Matrix4x4::setRotationZ(float z)
 	this->matrix[1][1] = cos(z);
 }
 
+Vector3D Matrix4x4::getRotation()
+{
+	float roll = atan2f(this->matrix[1][2], this->matrix[2][2]);
+	float c2 = sqrtf(this->matrix[0][0] * this->matrix[0][0] + this->matrix[0][1] * this->matrix[0][1]);
+	float s1 = sinf(roll);
+	float c1 = cosf(roll);
+	float pitch = atan2f(-this->matrix[0][2], c2);
+	float yaw = atan2f(s1 * this->matrix[2][0] - c1 * this->matrix[1][0],
+		c1 * this->matrix[1][1] - s1 * this->matrix[2][1]);
+	return Vector3D(roll, yaw, pitch);
+}
+
 void Matrix4x4::setPerspectiveFovLH(float fov, float aspect, float znear, float zfar)
 {
 	this->setIdentity();
@@ -162,6 +174,11 @@ Vector3D Matrix4x4::getXDirection()
 Vector3D Matrix4x4::getTranslation()
 {
 	return Vector3D(this->matrix[3][0], this->matrix[3][1], this->matrix[3][2]);
+}
+
+Vector3D Matrix4x4::getScale()
+{
+	return Vector3D(this->matrix[0][0], this->matrix[1][1], this->matrix[2][2]);
 }
 
 void Matrix4x4::debugPrint()

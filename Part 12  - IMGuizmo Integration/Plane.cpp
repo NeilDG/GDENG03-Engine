@@ -65,7 +65,7 @@ Plane::Plane(String name): Cube(name)
 	this->constantBuffer->load(&cbData, sizeof(CBData));
 
 	this->setScale(8.0f, 8.0f, 0.1f);
-	this->setRotation(190.0f, 0.0f, 0.0f);
+	this->setRotationDegrees(190.0f, 0.0f, 0.0f);
 }
 
 Plane::~Plane()

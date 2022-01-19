@@ -40,7 +40,7 @@ Matrix4x4 SceneCameraHandler::getSceneCameraLocationMatrix() const
 
 Vector3D SceneCameraHandler::getCameraRotationXYZ() const
 {
-    return this->sceneCamera->getLocalRotation();
+    return this->sceneCamera->getLocalRotationDegrees();
 }
 
 Vector3D SceneCameraHandler::getCameraLocationXYZ() const
@@ -50,7 +50,7 @@ Vector3D SceneCameraHandler::getCameraLocationXYZ() const
 
 void SceneCameraHandler::setCameraRotation(float x, float y, float z)
 {
-    this->sceneCamera->setRotation(x, y, z);
+    this->sceneCamera->setRotationDegrees(x, y, z);
 }
 
 void SceneCameraHandler::setCameraLocation(float x, float y, float z)

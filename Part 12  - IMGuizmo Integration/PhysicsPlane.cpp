@@ -69,7 +69,7 @@ PhysicsPlane::PhysicsPlane(String name, bool skipInit): Cube(name)
 
 	this->setPosition(0.0f, -5.0f, 0.0f);
 	this->setScale(32.0f, 0.2f, 32.0f);
-	this->setRotation(0.0f, 0.0f, 0.0f);
+	this->setRotationDegrees(0.0f, 0.0f, 0.0f);
 	this->updateLocalMatrix();
 	this->attachComponent(new PhysicsComponent("PhysicsComponent", this));
 

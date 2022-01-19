@@ -129,7 +129,7 @@ void GameObjectManager::createObjectFromFile(String name, AGameObject::Primitive
 	if (type == AGameObject::PrimitiveType::CUBE) {
 		Cube* cube = new Cube(name);
 		cube->setPosition(position);
-		cube->setRotation(rotation);
+		cube->setRotationDegrees(rotation.getX(), rotation.getY(), rotation.getZ());
 		cube->setScale(scale);
 		this->addObject(cube);
 	}
@@ -137,7 +137,7 @@ void GameObjectManager::createObjectFromFile(String name, AGameObject::Primitive
 	else if (type == AGameObject::PrimitiveType::PLANE) {
 		Plane* plane = new Plane(name);
 		plane->setPosition(position);
-		plane->setRotation(rotation);
+		plane->setRotationDegrees(rotation.getX(), rotation.getY(), rotation.getZ());(rotation);
 		plane->setScale(scale);
 		this->addObject(plane);
 	}
@@ -145,7 +145,7 @@ void GameObjectManager::createObjectFromFile(String name, AGameObject::Primitive
 	else if (type == AGameObject::PrimitiveType::TEXTURED_CUBE) {
 		TexturedCube* cube = new TexturedCube(name);
 		cube->setPosition(position);
-		cube->setRotation(rotation);
+		cube->setRotationDegrees(rotation.getX(), rotation.getY(), rotation.getZ()); (rotation);
 		cube->setScale(scale);
 		this->addObject(cube);
 	}
@@ -153,7 +153,7 @@ void GameObjectManager::createObjectFromFile(String name, AGameObject::Primitive
 	else if (type == AGameObject::PrimitiveType::PHYSICS_CUBE) {
 		PhysicsCube* cube = new PhysicsCube(name);
 		cube->setPosition(position);
-		cube->setRotation(rotation);
+		cube->setRotationDegrees(rotation.getX(), rotation.getY(), rotation.getZ()); (rotation);
 		cube->setScale(scale);
 		this->addObject(cube);
 	}
@@ -161,7 +161,7 @@ void GameObjectManager::createObjectFromFile(String name, AGameObject::Primitive
 	else if (type == AGameObject::PrimitiveType::PHYSICS_PLANE) {
 		PhysicsPlane* plane = new PhysicsPlane(name);
 		plane->setPosition(position);
-		plane->setRotation(rotation);
+		plane->setRotationDegrees(rotation.getX(), rotation.getY(), rotation.getZ()); (rotation);
 		plane->setScale(scale);
 		this->addObject(plane);
 	}
@@ -233,7 +233,7 @@ void GameObjectManager::applyEditorAction(EditorAction* action)
 		//re-apply state
 		object->recomputeMatrix(action->getStoredMatrix().getMatrix());
 		object->setPosition(action->getStorePos());
-		object->setRotation(action->getStoredOrientation().x, action->getStoredOrientation().y, action->getStoredOrientation().z);
+		object->setRotationDegrees(action->getStoredOrientation().getX(), action->getStoredOrientation().getY(), action->getStoredOrientation().getZ());
 		object->setScale(action->getStoredScale());
 
 	}

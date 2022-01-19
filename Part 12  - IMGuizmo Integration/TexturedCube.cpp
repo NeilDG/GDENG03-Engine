@@ -142,7 +142,7 @@ void TexturedCube::draw(int width, int height)
 	Matrix4x4 allMatrix; allMatrix.setIdentity();
 	Matrix4x4 translationMatrix; translationMatrix.setIdentity();  translationMatrix.setTranslation(this->getLocalPosition());
 	Matrix4x4 scaleMatrix; scaleMatrix.setScale(this->getLocalScale());
-	Vector3D rotation = this->getLocalRotation();
+	Vector3D rotation = this->getLocalRotationDegrees();
 	Matrix4x4 zMatrix; zMatrix.setRotationZ(rotation.getZ());
 	Matrix4x4 xMatrix; xMatrix.setRotationX(rotation.getX());
 	Matrix4x4 yMatrix; yMatrix.setRotationY(rotation.getY());

@@ -59,7 +59,7 @@ void InspectorScreen::updateTransformDisplays()
 	this->positionDisplay[1] = pos.getY();
 	this->positionDisplay[2] = pos.getZ();
 
-	Vector3D rot = this->selectedObject->getLocalRotation();
+	Vector3D rot = this->selectedObject->getLocalRotationDegrees();
 	this->rotationDisplay[0] = rot.getX();
 	this->rotationDisplay[1] = rot.getY();
 	this->rotationDisplay[2] = rot.getZ();
@@ -133,7 +133,7 @@ void InspectorScreen::onTransformUpdate()
 		ActionHistory::getInstance()->recordAction(this->selectedObject);
 
 		this->selectedObject->setPosition(this->positionDisplay[0], this->positionDisplay[1], this->positionDisplay[2]);
-		this->selectedObject->setRotation(this->rotationDisplay[0], this->rotationDisplay[1], this->rotationDisplay[2]);
+		this->selectedObject->setRotationDegrees(this->rotationDisplay[0], this->rotationDisplay[1], this->rotationDisplay[2]);
 		//this->selectedObject->setEulerAnglesRotation(this->rotationDisplay[0], this->rotationDisplay[1], this->rotationDisplay[2]);
 		this->selectedObject->setScale(this->scaleDisplay[0], this->scaleDisplay[1], this->scaleDisplay[2]);
 	}
