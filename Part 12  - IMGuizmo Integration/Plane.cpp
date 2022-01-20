@@ -4,7 +4,8 @@
 
 Plane::Plane(String name): Cube(name)
 {
-	this->objectType = PrimitiveType::PHYSICS_PLANE;
+	this->objectType = PrimitiveType::PLANE;
+	
 	ShaderNames shaderNames;
 	void* shaderByteCode = NULL;
 	size_t sizeShader = 0;
@@ -65,7 +66,7 @@ Plane::Plane(String name): Cube(name)
 	this->constantBuffer->load(&cbData, sizeof(CBData));
 
 	this->setScale(8.0f, 8.0f, 0.1f);
-	this->setRotationDegrees(190.0f, 0.0f, 0.0f);
+	this->setRotationDegrees(90.0f, 0.0f, 0.0f);
 }
 
 Plane::~Plane()

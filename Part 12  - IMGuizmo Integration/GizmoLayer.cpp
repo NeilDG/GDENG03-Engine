@@ -111,15 +111,19 @@ void GizmoLayer::draw()
 		if(this->rotate) Manipulate(viewMatrix16, projectionMatrix16, ImGuizmo::ROTATE, ImGuizmo::LOCAL, locationMatrix);
 		if(this->scale) Manipulate(viewMatrix16, projectionMatrix16, ImGuizmo::SCALE, ImGuizmo::LOCAL, locationMatrix);
 
-		float translate[3] = { 0.0f, 0.0f, 0.0f };
-		float rotate[3] = {0.0f, 0.0f, 0.0f};
-		float scale[3] = { 0.0f, 0.0f, 0.0f };
-		ImGuizmo::DecomposeMatrixToComponents(locationMatrix, translate, rotate, scale);
-		this->selectedObject->setNewMatrix(locationMatrix);
+		if(this->translate || this->rotate || this->scale)
+		{
+			float translate[3] = { 0.0f, 0.0f, 0.0f };
+			float rotate[3] = { 0.0f, 0.0f, 0.0f };
+			float scale[3] = { 0.0f, 0.0f, 0.0f };
+			ImGuizmo::DecomposeMatrixToComponents(locationMatrix, translate, rotate, scale);
+			//this->selectedObject->setNewMatrix(locationMatrix);
 
-		//this->selectedObject->setPosition(translate[0], translate[1], translate[2]);
-		//this->selectedObject->setRotationDegrees(rotate[0], rotate[1], rotate[2]);
-		//this->selectedObject->setScale(scale[0], scale[1], scale[2]);
+			this->selectedObject->setPosition(translate[0], translate[1], translate[2]);
+			this->selectedObject->setRotationDegrees(rotate[0], rotate[1], rotate[2]);
+			this->selectedObject->setScale(scale[0], scale[1], scale[2]);
+		}
+		
 	}
 	
 }
