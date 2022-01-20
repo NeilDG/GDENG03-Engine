@@ -5,6 +5,7 @@
 #include "SceneCameraHandler.h"
 #include "ShaderLibrary.h"
 #include "BasicRenderer.h"
+#include "EngineBackend.h"
 
 Cube::Cube(String name, bool skipInit):AGameObject(name, AGameObject::PrimitiveType::CUBE)
 {
@@ -94,11 +95,13 @@ void Cube::draw(int width, int height)
 	
 	CBData cbData = {};
 
-	if (this->overrideMatrix) {
+	if(EngineBackend::getInstance()->getMode() == EngineBackend::EDITOR)
+	{
+		this->updateLocalMatrix();
 		cbData.worldMatrix = this->localMatrix;
 	}
-	else {
-		this->updateLocalMatrix();
+	else
+	{
 		cbData.worldMatrix = this->localMatrix;
 	}
 	

@@ -82,8 +82,8 @@ public:
 	ComponentList getComponentsOfTypeRecursive(AComponent::ComponentType type);
 
 	void updateLocalMatrix(); //updates local matrix based from latest position, rotation, and scale.
-	void recomputeMatrix(float matrix[16]);
-	void setNewMatrix(float matrix[16]);
+	void setPhysicsMatrix(const float matrix[16]); //for rigidbody updates only
+	void setNewMatrix(const float matrix[16]);
 	float* getRawMatrix();
 	Matrix4x4 getLocalMatrix();
 	float* getPhysicsLocalMatrix(); //scale is set to 1.0
@@ -101,7 +101,7 @@ protected:
 
 	ComponentList componentList;
 
-	bool overrideMatrix = false;
+	//bool overrideMatrix = false;
 
 	virtual void awake();
 

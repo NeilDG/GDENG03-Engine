@@ -7,7 +7,8 @@
 
 PhysicsPlane::PhysicsPlane(String name, bool skipInit): Cube(name)
 {
-	this->objectType = PrimitiveType::PHYSICS_CUBE;
+	this->objectType = PrimitiveType::PHYSICS_PLANE;
+	
 	ShaderNames shaderNames;
 	void* shaderByteCode = NULL;
 	size_t sizeShader = 0;
@@ -70,12 +71,10 @@ PhysicsPlane::PhysicsPlane(String name, bool skipInit): Cube(name)
 	this->setPosition(0.0f, -5.0f, 0.0f);
 	this->setScale(32.0f, 0.2f, 32.0f);
 	this->setRotationDegrees(0.0f, 0.0f, 0.0f);
-	this->updateLocalMatrix();
 	this->attachComponent(new PhysicsComponent("PhysicsComponent", this));
 
 	PhysicsComponent* component = (PhysicsComponent*) this->findComponentOfType(AComponent::ComponentType::Physics, "PhysicsComponent");
-	component->getRigidBody()->setType(BodyType::KINEMATIC);
-	//component->getRigidBody()->setMass(0.0f);
+	component->getRigidBody()->setType(BodyType::STATIC);
 }
 
 PhysicsPlane::~PhysicsPlane()

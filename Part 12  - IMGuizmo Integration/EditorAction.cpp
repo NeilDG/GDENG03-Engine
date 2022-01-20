@@ -5,7 +5,7 @@ EditorAction::EditorAction(AGameObject* gameObject)
 	//capture object state
 	this->objectName = gameObject->getName();
 	this->localPosition = gameObject->getLocalPosition();
-	this->localRotation = gameObject->getLocalRotationDegrees();
+	this->localRotation = gameObject->getLocalRotationRaw();
 	this->localScale = gameObject->getLocalScale();
 	this->localMatrix = gameObject->getLocalMatrix();
 }

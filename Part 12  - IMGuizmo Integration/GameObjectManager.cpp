@@ -231,7 +231,7 @@ void GameObjectManager::applyEditorAction(EditorAction* action)
 	AGameObject* object = this->findObjectByName(action->getOwnerName());
 	if (object != NULL) {
 		//re-apply state
-		object->recomputeMatrix(action->getStoredMatrix().getMatrix());
+		object->setNewMatrix(action->getStoredMatrix().getMatrix());
 		object->setPosition(action->getStorePos());
 		object->setRotationDegrees(action->getStoredOrientation().getX(), action->getStoredOrientation().getY(), action->getStoredOrientation().getZ());
 		object->setScale(action->getStoredScale());
