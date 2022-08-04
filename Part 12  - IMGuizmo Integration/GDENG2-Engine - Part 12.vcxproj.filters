@@ -279,9 +279,6 @@
     <ClCompile Include="BasicRenderer.cpp">
       <Filter>ComponentSystem</Filter>
     </ClCompile>
-    <ClCompile Include="CSALGCM_Sample.cpp">
-      <Filter>App</Filter>
-    </ClCompile>
     <ClCompile Include="imgui_tables.cpp">
       <Filter>IMGUI</Filter>
     </ClCompile>
