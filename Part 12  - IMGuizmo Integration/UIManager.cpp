@@ -11,6 +11,7 @@
 #include "MaterialScreen.h"
 #include "SceneCameraHandler.h"
 #include "GizmoLayer.h"
+#include "Viewport.h"
 
 
 UIManager* UIManager::sharedInstance = NULL;
@@ -115,9 +116,17 @@ UIManager::UIManager(HWND windowHandle)
 	// GizmoLayer* gizmoLayer = new GizmoLayer();
 	// this->uiTable[uiNames.GIZMO_LAYER] = gizmoLayer;
 	// this->uiList.push_back(gizmoLayer);
+
+	//viewport overlay for listening to raycasting
+	this->viewport = new Viewport();
 	
 }
 
 UIManager::~UIManager()
 {
+}
+
+Viewport* UIManager::getViewportRef() const
+{
+	return this->viewport;
 }

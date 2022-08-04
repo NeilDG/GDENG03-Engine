@@ -221,6 +221,7 @@
     <ClCompile Include="Vector4D.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexShader.cpp" />
+    <ClCompile Include="Viewport.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -298,6 +299,7 @@
     <ClInclude Include="vGizmo.h" />
     <ClInclude Include="vGizmoMath.h" />
     <ClInclude Include="vgMath.h" />
+    <ClInclude Include="Viewport.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>

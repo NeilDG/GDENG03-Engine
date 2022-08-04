@@ -173,7 +173,7 @@ void AppWindow::initializeEngine()
 	ActionHistory::initialize();
 }
 
-void AppWindow::createInterface()
+void AppWindow::createInterface() const
 {
 	UIManager::initialize(this->windowHandle);
 }
@@ -224,7 +224,7 @@ void AppWindow::onMouseMove(const Point deltaPos)
 {
 }
 
-void AppWindow::onLeftMouseDown(const Point deltaPos)
+void AppWindow::onLeftMouseDown(const Point deltaPos, const Point currentPt)
 {
 	//std::cout << "Left mouse down! \n";
 }

@@ -21,7 +21,7 @@ public:
 	const String MATERIAL_SCREEN = "MATERIAL_SCREEN";
 };
 
-
+class Viewport;
 class UIManager
 {
 public: 
@@ -49,5 +49,8 @@ private:
 
 	UIList uiList;
 	UITable uiTable;
+
+	Viewport* viewport;
+	Viewport* getViewportRef() const;
 };
 

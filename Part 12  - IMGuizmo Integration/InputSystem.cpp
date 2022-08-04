@@ -72,7 +72,8 @@ void InputSystem::update()
 			if (this->keyStates[i] & 0x80 && this->keyStates[i] != this->oldKeyStates[i]) {
 				if (i == VK_LBUTTON && this->keyStates[i] != this->oldKeyStates[i]) {
 					Point deltaPt = Point(currentPt.x - this->oldMousePos.getX(), currentPt.y - this->oldMousePos.getY());
-					this->callOnLeftMouseDown(deltaPt);
+					Point pt = Point(currentPt.x, currentPt.y);
+					this->callOnLeftMouseDown(deltaPt, pt);
 				}
 				else if (i == VK_RBUTTON && this->keyStates[i] != this->oldKeyStates[i]) {
 					Point deltaPt = Point(currentPt.x - this->oldMousePos.getX(), currentPt.y - this->oldMousePos.getY());
@@ -153,10 +154,10 @@ void InputSystem::callOnMouseMove(Point deltaPt)
 	}
 }
 
-void InputSystem::callOnLeftMouseDown(Point deltaPt)
+void InputSystem::callOnLeftMouseDown(Point deltaPt, Point currentPt)
 {
 	for (int i = 0; i < this->inputListenerList.size(); i++) {
-		this->inputListenerList[i]->onLeftMouseDown(deltaPt);
+		this->inputListenerList[i]->onLeftMouseDown(deltaPt, currentPt);
 	}
 }
 

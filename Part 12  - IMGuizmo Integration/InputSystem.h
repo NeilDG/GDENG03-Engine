@@ -34,7 +34,7 @@ private:
 	void callOnKeyUp(int key);
 
 	void callOnMouseMove(Point deltaPt);
-	void callOnLeftMouseDown(Point deltaPt);
+	void callOnLeftMouseDown(Point deltaPt, Point currentPt);
 	void callOnLeftMouseUp(Point deltaPt);
 	void callOnRightMouseDown(Point deltaPt);
 	void callOnRightMouseUp(Point deltaPt);

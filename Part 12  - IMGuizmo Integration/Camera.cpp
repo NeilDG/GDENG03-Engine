@@ -107,7 +107,7 @@ void Camera::onMouseMove(const Point deltaPos)
 	}
 }
 
-void Camera::onLeftMouseDown(const Point deltaPos)
+void Camera::onLeftMouseDown(const Point deltaPos, const Point currentPt)
 {
 }
 

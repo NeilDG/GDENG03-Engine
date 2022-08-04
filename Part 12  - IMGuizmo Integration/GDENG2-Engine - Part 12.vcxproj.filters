@@ -291,6 +291,9 @@
     <ClCompile Include="ImGuizmo.cpp">
       <Filter>IMGuizmo</Filter>
     </ClCompile>
+    <ClCompile Include="Viewport.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppWindow.h">
@@ -517,6 +520,9 @@
     </ClInclude>
     <ClInclude Include="ImGuizmo.h">
       <Filter>IMGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewport.h">
+      <Filter>Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,6 @@
 #include "MathUtils.h"
 #include <stdlib.h>
+#include <cmath>
 
 float MathUtils::randomFloat(float a, float b)
 {
@@ -15,4 +16,14 @@ int MathUtils::randomInt(int a, int b)
     int num = rand() % range + a;
 
     return num;
+}
+
+float MathUtils::euclideanDist(Vector3D q, Vector3D p)
+{
+    float xpow = powf(q.getX() - p.getX(), 2);
+    float ypow = powf(q.getY() - p.getY(), 2);
+    float zpow = powf(q.getZ() - p.getZ(), 2);
+
+    float result = sqrt(xpow + ypow + zpow);
+    return result;
 }

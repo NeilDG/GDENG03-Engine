@@ -1,5 +1,6 @@
 #include "SceneCameraHandler.h"
 #include "EngineTime.h"
+#include "UIManager.h"
 
 SceneCameraHandler* SceneCameraHandler::sharedInstance = NULL;
 
@@ -56,6 +57,23 @@ void SceneCameraHandler::setCameraRotation(float x, float y, float z)
 void SceneCameraHandler::setCameraLocation(float x, float y, float z)
 {
     this->sceneCamera->setPosition(x, y, z);
+}
+
+Vector3D SceneCameraHandler::screenToWorldCoordinates(int screenX, int screenY)
+{
+    Matrix4x4 camSpace = this->getSceneCameraLocationMatrix();
+    std::cout << "Camera location: " << camSpace.getTranslation().getX() << " " << std::endl;
+    Matrix4x4 normScreenSpace; normScreenSpace.setTranslation(
+        Vector3D(screenX * 1.0f / UIManager::WINDOW_WIDTH, screenY * 1.0f / UIManager::WINDOW_HEIGHT, 1.0f));
+
+    Matrix4x4 projectInv = this->getSceneCameraProjectionMatrix();
+    projectInv.getInverse();
+
+    camSpace = projectInv.multiplyTo(normScreenSpace);
+    Matrix4x4 worldSpace; worldSpace.setIdentity();
+    worldSpace = projectInv.multiplyTo(camSpace);
+
+    return worldSpace.getTranslation();
 }
 
 /*void SceneCameraHandler::overrideCameraMatrix(mat4 newMatrix)
