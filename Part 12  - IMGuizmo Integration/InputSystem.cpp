@@ -1,5 +1,7 @@
 #include "InputSystem.h"
 
+#include "AppWindow.h"
+
 InputSystem* InputSystem::sharedInstance = NULL;
 
 InputSystem* InputSystem::getInstance()
@@ -54,6 +56,7 @@ void InputSystem::update()
 	
 	POINT currentPt = {};
 	GetCursorPos(&currentPt);
+	ScreenToClient(AppWindow::getInstance()->getWindowHandle(), &currentPt);
 
 	if (this->firstTimeCall) {
 		this->firstTimeCall = false;

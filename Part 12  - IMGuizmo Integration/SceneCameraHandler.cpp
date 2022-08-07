@@ -59,21 +59,27 @@ void SceneCameraHandler::setCameraLocation(float x, float y, float z)
     this->sceneCamera->setPosition(x, y, z);
 }
 
-Vector3D SceneCameraHandler::screenToWorldCoordinates(int screenX, int screenY)
+Vector3D SceneCameraHandler::screenToWorldCoordinates(int screenX, int screenY) const
 {
-    Matrix4x4 camSpace = this->getSceneCameraLocationMatrix();
-    std::cout << "Camera location: " << camSpace.getTranslation().getX() << " " << std::endl;
-    Matrix4x4 normScreenSpace; normScreenSpace.setTranslation(
-        Vector3D(screenX * 1.0f / UIManager::WINDOW_WIDTH, screenY * 1.0f / UIManager::WINDOW_HEIGHT, 1.0f));
+    Matrix4x4 projectionMat = this->getSceneCameraProjectionMatrix();
+    Matrix4x4 viewMat = this->getSceneCameraViewMatrix();
 
-    Matrix4x4 projectInv = this->getSceneCameraProjectionMatrix();
-    projectInv.getInverse();
+    Matrix4x4 newMat;
+    newMat = viewMat.multiplyTo(projectionMat);
+    newMat.setInverse();
 
-    camSpace = projectInv.multiplyTo(normScreenSpace);
-    Matrix4x4 worldSpace; worldSpace.setIdentity();
-    worldSpace = projectInv.multiplyTo(camSpace);
+    float x = 2.0f * (screenX * 1.0f / UIManager::WINDOW_WIDTH - 1.0f);
+    float y = 1.0f - 2.0f * (screenY * 1.0f / UIManager::WINDOW_HEIGHT);
+    float z = 2.0f;
+    float w = 1.0f;
+    Vector4D in(x, y, z, w);
 
-    return worldSpace.getTranslation();
+    Vector4D position = newMat.multiplyTo(in);
+    w = 1.0f / position.getW();
+
+    Vector3D worldPos(position.getX() * w, position.getY() * w, position.getZ() * w);
+
+    return worldPos;
 }
 
 /*void SceneCameraHandler::overrideCameraMatrix(mat4 newMatrix)

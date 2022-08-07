@@ -3,6 +3,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
+#include <reactphysics3d/reactphysics3d.h>
 
 class BasicRenderer;
 class Cube :    public AGameObject
@@ -12,7 +13,8 @@ public:
 	~Cube() override;
 
 	void update(float deltaTime) override;
-	virtual void draw(int width, int height) override;
+	void draw(int width, int height) override;
+	bool testObjectSelect(Vector3D point) override;
 
 	void attachRenderer(BasicRenderer* renderer);
 	BasicRenderer* getRenderer() const;
@@ -32,5 +34,6 @@ protected:
 
 private:
 	BasicRenderer* renderer;
+	CollisionBody* clickableBody; //for object picking
 };
 

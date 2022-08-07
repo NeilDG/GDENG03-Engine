@@ -1,4 +1,6 @@
 #include "Cube.h"
+
+#include "BaseComponentSystem.h"
 #include "GraphicsEngine.h"
 #include "InputSystem.h"
 #include "SwapChain.h"
@@ -6,6 +8,7 @@
 #include "ShaderLibrary.h"
 #include "BasicRenderer.h"
 #include "EngineBackend.h"
+#include "PhysicsSystem.h"
 
 Cube::Cube(String name, bool skipInit):AGameObject(name, AGameObject::PrimitiveType::CUBE)
 {
@@ -69,6 +72,16 @@ Cube::Cube(String name, bool skipInit):AGameObject(name, AGameObject::PrimitiveT
 
 	BasicRenderer* basicRenderer = new BasicRenderer();
 	this->attachRenderer(basicRenderer);
+
+	PhysicsCommon* physicsCommon = BaseComponentSystem::getInstance()->getPhysicsSystem()->getPhysicsCommon();
+	PhysicsWorld* physicsWorld = BaseComponentSystem::getInstance()->getPhysicsSystem()->getPhysicsWorld();
+
+	Transform transform; transform.setFromOpenGL(this->getRawMatrix());
+	Vector3D scale = this->getLocalScale();
+	BoxShape* boxShape = physicsCommon->createBoxShape(Vector3(scale.getX() / 2, scale.getY() / 2, scale.getZ() / 2)); //half extent
+	this->clickableBody = physicsWorld->createCollisionBody(transform);
+	this->clickableBody->addCollider(boxShape, transform);
+	this->clickableBody->setIsActive(true);
 }
 
 Cube::~Cube()
@@ -123,6 +136,12 @@ void Cube::draw(int width, int height)
 	deviceContext->drawTriangle(this->indexBuffer->getIndexSize(), 0, 0);
 
 	//this->localMatrix = cbData.projMatrix;
+}
+
+bool Cube::testObjectSelect(Vector3D point)
+{
+	const Vector3 reactPoint3(point.getX(), point.getY(), this->localMatrix.getTranslation().getZ());
+	return this->clickableBody->testPointInside(reactPoint3);
 }
 
 void Cube::attachRenderer(BasicRenderer* renderer)

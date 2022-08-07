@@ -91,6 +91,8 @@ public:
 	virtual void saveEditState();
 	virtual void restoreEditState();
 
+	virtual bool testObjectSelect(Vector3D point);
+
 protected:
 	String name;
 	Vector3D localPosition;

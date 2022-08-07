@@ -22,7 +22,7 @@ public:
 	void setCameraRotation(float x, float y, float z); //from IMGuizmo
 	void setCameraLocation(float x, float y, float z); //from IMGuizmo
 
-	Vector3D screenToWorldCoordinates(int screenX, int screenY);
+	Vector3D screenToWorldCoordinates(int screenX, int screenY) const;
 
 private:
 	SceneCameraHandler();

@@ -22,10 +22,6 @@ PhysicsComponent::PhysicsComponent(String name, AGameObject* owner): AComponent(
 	this->rigidBody->updateMassPropertiesFromColliders();
 	this->rigidBody->setMass(this->mass);
 	this->rigidBody->setType(BodyType::DYNAMIC);
-
-	// transform = this->rigidBody->getTransform();
-	// float matrix[16];
-	// transform.getOpenGLMatrix(matrix);
 }
 
 PhysicsComponent::~PhysicsComponent()

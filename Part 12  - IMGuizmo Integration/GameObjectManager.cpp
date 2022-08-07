@@ -52,6 +52,11 @@ int GameObjectManager::activeObjects()
 	return this->gameObjectList.size();
 }
 
+AGameObject* GameObjectManager::getLastObject()
+{
+	return this->gameObjectList[this->activeObjects() - 1];
+}
+
 void GameObjectManager::updateAll()
 {
 	for (int i = 0; i < this->gameObjectList.size(); i++) {

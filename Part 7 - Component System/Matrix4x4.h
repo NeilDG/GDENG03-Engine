@@ -20,7 +20,7 @@ public:
 
 	void setPerspectiveFovLH(float fov, float aspect, float znear, float zfar);
 	void setOrthoLH(float width, float height, float near_plane, float far_plane);
-	void getInverse();
+	void setInverse();
 
 	Matrix4x4 multiplyTo(Matrix4x4 matrix);
 	Vector3D getZDirection();

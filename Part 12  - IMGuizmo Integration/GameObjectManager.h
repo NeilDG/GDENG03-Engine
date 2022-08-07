@@ -20,6 +20,7 @@ public:
 	AGameObject* findObjectByName(String name);
 	List getAllObjects();
 	int activeObjects();
+	AGameObject* getLastObject();
 	void updateAll();
 	void renderAll(int viewportWidth, int viewportHeight);
 	void addObject(AGameObject* gameObject);

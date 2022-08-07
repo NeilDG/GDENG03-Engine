@@ -112,7 +112,7 @@ void Matrix4x4::setOrthoLH(float width, float height, float near_plane, float fa
 	this->matrix[3][2] = -(near_plane / (far_plane - near_plane));
 }
 
-void Matrix4x4::getInverse()
+void Matrix4x4::setInverse()
 {
 	int a, i, j;
 	Matrix4x4 out;
@@ -157,6 +157,17 @@ Matrix4x4 Matrix4x4::multiplyTo(Matrix4x4 matrix)
 				this->matrix[i][2] * matrix.matrix[2][j] + this->matrix[i][3] * matrix.matrix[3][j];
 		}
 	}
+
+	return out;
+}
+
+Vector4D Matrix4x4::multiplyTo(Vector4D in)
+{
+	Vector4D out;
+	out.x = in.getX() * (this->matrix[0][0] + this->matrix[0][1] + this->matrix[0][2] + this->matrix[0][3]);
+	out.y = in.getY() * (this->matrix[1][0] + this->matrix[1][1] + this->matrix[1][2] + this->matrix[1][3]);
+	out.z = in.getZ() * (this->matrix[2][0] + this->matrix[2][1] + this->matrix[2][2] + this->matrix[2][3]);
+	out.w = in.getW() * (this->matrix[3][0] + this->matrix[3][1] + this->matrix[3][2] + this->matrix[3][3]);
 
 	return out;
 }

@@ -94,7 +94,7 @@ void Matrix4x4::setOrthoLH(float width, float height, float near_plane, float fa
 	this->matrix[3][2] = -(near_plane / (far_plane - near_plane));
 }
 
-void Matrix4x4::getInverse()
+void Matrix4x4::setInverse()
 {
 	int a, i, j;
 	Matrix4x4 out;

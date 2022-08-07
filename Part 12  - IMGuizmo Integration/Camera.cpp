@@ -141,6 +141,6 @@ void Camera::updateViewMatrix()
 	temp.setTranslation(this->getLocalPosition());
 	worldCam = worldCam.multiplyTo(temp);
 
-	worldCam.getInverse();
+	worldCam.setInverse();
 	this->localMatrix = worldCam;
 }

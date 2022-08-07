@@ -55,6 +55,20 @@ void Viewport::onLeftMouseDown(const Point deltaPos, const Point currentPt)
 	}
 
 	GameObjectManager::getInstance()->setSelectedObject(gameObjectList[bestIndex]);
+
+	//React physics 3D approach
+	/*for (int i = 0; i < gameObjectList.size(); i++)
+	{
+		if(gameObjectList[i]->testObjectSelect(worldCoord))
+		{
+			GameObjectManager::getInstance()->setSelectedObject(gameObjectList[i]);
+			break;
+		}
+	}*/
+
+	/*GameObjectManager::getInstance()->createObject(AGameObject::PrimitiveType::CUBE);
+	AGameObject* gameObject = GameObjectManager::getInstance()->getLastObject();
+	gameObject->setPosition(worldCoord);*/
 }
 
 void Viewport::onLeftMouseUp(const Point deltaPos)

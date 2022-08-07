@@ -241,6 +241,12 @@ void AGameObject::setNewMatrix(const float matrix[16])
 	this->localMatrix.setMatrix(matrix4x4);
 }
 
+bool AGameObject::testObjectSelect(Vector3D point)
+{
+	std::cout << "No implementation of testObjectSelect()" << std::endl;
+	return false;
+}
+
 float* AGameObject::getRawMatrix()
 {
 	float* matrix4x4 = this->localMatrix.getMatrix();
