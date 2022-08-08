@@ -64,7 +64,6 @@ Vector3D SceneCameraHandler::screenToWorldCoordinates(int screenX, int screenY) 
 {
     Matrix4x4 projectionMat = this->getSceneCameraProjectionMatrix();
     Matrix4x4 viewMat = this->getSceneCameraViewMatrix();
-    Vector3D cameraLoc = this->getCameraLocationXYZ();
 
     Matrix4x4 newMat;
     newMat = projectionMat.multiplyTo(viewMat);
@@ -75,7 +74,11 @@ Vector3D SceneCameraHandler::screenToWorldCoordinates(int screenX, int screenY) 
     float z = 1.0f;
     float w = 1.0f;
 
-    std::cout << "View matrix X: " << viewMat.getTranslation().getX() << " Y: " << viewMat.getTranslation().getY() << std::endl;
+    x = x - viewMat.getTranslation().getX();
+    y = y - viewMat.getTranslation().getY();
+    //z = z - viewMat.getTranslation().getZ();
+
+    std::cout << "View matrix X: " << viewMat.getTranslation().getX() << " Y: " << viewMat.getTranslation().getY()  << " Z: " <<viewMat.getTranslation().getZ() << std::endl;
 
     Vector4D in(x, y, z, w);
 

@@ -67,7 +67,7 @@ Matrix4x4 Camera::getViewMatrix()
 	return this->localMatrix;
 }
 
-Matrix4x4 Camera::getProjectionMatrix()
+Matrix4x4 Camera::getProjectionMatrix() const
 {
 	int width = UIManager::WINDOW_WIDTH;
 	int height = UIManager::WINDOW_HEIGHT;
@@ -103,7 +103,7 @@ void Camera::onMouseMove(const Point deltaPos)
 		this->setRotationDegrees(x, y, z);
 		//this->updateViewMatrix();
 
-		std::cout << " Local rot: " << this->getLocalRotationDegrees().getX() << " " << this->getLocalRotationDegrees().getY() << " " << this->getLocalRotationDegrees().getZ() << "\n";
+		//std::cout << " Local rot: " << this->getLocalRotationDegrees().getX() << " " << this->getLocalRotationDegrees().getY() << " " << this->getLocalRotationDegrees().getZ() << "\n";
 	}
 }
 
