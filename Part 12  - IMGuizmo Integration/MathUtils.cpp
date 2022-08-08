@@ -27,3 +27,12 @@ float MathUtils::euclideanDist(Vector3D q, Vector3D p)
     float result = sqrt(xpow + ypow + zpow);
     return result;
 }
+
+float MathUtils::normalize(float x, float xMin, float xMax, float normMin, float normMax)
+{
+    float normRange = (normMax - normMin);
+    float xNorm = (x - xMin) / (xMax - xMin);
+    float result = (normRange * xNorm) + normMin;
+
+    return result;
+}

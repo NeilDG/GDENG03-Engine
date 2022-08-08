@@ -138,6 +138,9 @@ void Camera::updateViewMatrix()
 	temp.setRotationY(localRot.getY());
 	worldCam = worldCam.multiplyTo(temp);
 
+	//temp.setRotationZ(localRot.getZ());
+	//worldCam = worldCam.multiplyTo(temp);
+
 	temp.setTranslation(this->getLocalPosition());
 	worldCam = worldCam.multiplyTo(temp);
 

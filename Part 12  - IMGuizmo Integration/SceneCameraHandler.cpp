@@ -1,5 +1,6 @@
 #include "SceneCameraHandler.h"
 #include "EngineTime.h"
+#include "MathUtils.h"
 #include "UIManager.h"
 
 SceneCameraHandler* SceneCameraHandler::sharedInstance = NULL;
@@ -63,15 +64,19 @@ Vector3D SceneCameraHandler::screenToWorldCoordinates(int screenX, int screenY) 
 {
     Matrix4x4 projectionMat = this->getSceneCameraProjectionMatrix();
     Matrix4x4 viewMat = this->getSceneCameraViewMatrix();
+    Vector3D cameraLoc = this->getCameraLocationXYZ();
 
     Matrix4x4 newMat;
-    newMat = viewMat.multiplyTo(projectionMat);
+    newMat = projectionMat.multiplyTo(viewMat);
     newMat.setInverse();
 
-    float x = 2.0f * (screenX * 1.0f / UIManager::WINDOW_WIDTH - 1.0f);
-    float y = 1.0f - 2.0f * (screenY * 1.0f / UIManager::WINDOW_HEIGHT);
-    float z = 2.0f;
+    float x = 4.0f * MathUtils::normalize(screenX * 1.0f, 0.0, UIManager::WINDOW_WIDTH * 1.0f, -1.0f, 1.0f);
+    float y = -4.0f * MathUtils::normalize(screenY * 1.0f, 0.0, UIManager::WINDOW_HEIGHT * 1.0f, -1.0f, 1.0f);
+    float z = 1.0f;
     float w = 1.0f;
+
+    std::cout << "View matrix X: " << viewMat.getTranslation().getX() << " Y: " << viewMat.getTranslation().getY() << std::endl;
+
     Vector4D in(x, y, z, w);
 
     Vector4D position = newMat.multiplyTo(in);

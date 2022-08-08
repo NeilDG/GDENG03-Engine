@@ -169,6 +169,11 @@ Vector4D Matrix4x4::multiplyTo(Vector4D in)
 	out.z = in.getZ() * (this->matrix[2][0] + this->matrix[2][1] + this->matrix[2][2] + this->matrix[2][3]);
 	out.w = in.getW() * (this->matrix[3][0] + this->matrix[3][1] + this->matrix[3][2] + this->matrix[3][3]);
 
+	/*out.x = in.getX() * (this->matrix[0][0] + this->matrix[1][0] + this->matrix[2][0] + this->matrix[3][0]);
+	out.y = in.getY() * (this->matrix[0][1] + this->matrix[1][1] + this->matrix[2][1] + this->matrix[3][1]);
+	out.z = in.getZ() * (this->matrix[0][2] + this->matrix[1][2] + this->matrix[2][2] + this->matrix[3][2]);
+	out.w = in.getW() * (this->matrix[0][3] + this->matrix[1][3] + this->matrix[2][3] + this->matrix[3][3]);*/
+
 	return out;
 }
 

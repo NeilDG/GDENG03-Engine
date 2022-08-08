@@ -35,7 +35,7 @@ void Viewport::onLeftMouseDown(const Point deltaPos, const Point currentPt)
 
 	std::cout << "World coordinates! X: " << worldCoord.getX() << " Y: " << worldCoord.getY() << " Z: " <<worldCoord.getZ() << std::endl;
 
-	GameObjectManager::List gameObjectList = GameObjectManager::getInstance()->getAllObjects();
+	/*GameObjectManager::List gameObjectList = GameObjectManager::getInstance()->getAllObjects();
 	if (gameObjectList.size() == 0)
 		return;
 
@@ -66,9 +66,9 @@ void Viewport::onLeftMouseDown(const Point deltaPos, const Point currentPt)
 		}
 	}*/
 
-	/*GameObjectManager::getInstance()->createObject(AGameObject::PrimitiveType::CUBE);
+	GameObjectManager::getInstance()->createObject(AGameObject::PrimitiveType::CUBE);
 	AGameObject* gameObject = GameObjectManager::getInstance()->getLastObject();
-	gameObject->setPosition(worldCoord);*/
+	gameObject->setPosition(worldCoord);
 }
 
 void Viewport::onLeftMouseUp(const Point deltaPos)
