@@ -10,13 +10,13 @@ public:
 
 	void update(float deltaTime) override;
 	Matrix4x4 getViewMatrix();
-	Matrix4x4 getProjectionMatrix();
+	Matrix4x4 getProjectionMatrix() const;
 
 	virtual void onKeyDown(int key) override;
 	virtual void onKeyUp(int key) override;
 	virtual void onMouseMove(const Point deltaPos) override;
 	virtual void onLeftMouseDown(const Point deltaPos, const Point currentPt) override;
-	virtual void onLeftMouseUp(const Point deltaPos) override;
+	virtual void onLeftMouseUp(const Point deltaPos, const Point currentPt) override;
 	virtual void onRightMouseDown(const Point deltaPos) override;
 	virtual void onRightMouseUp(const Point deltaPos) override;
 

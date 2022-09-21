@@ -16,6 +16,12 @@ public:
 	float getZ();
 	float getW();
 
+	Vector4D operator *(float num);
+	Vector4D operator +(Vector4D vec);
+
+	static Vector4D zeros();
+	static Vector4D ones();
+
 private:
 	float x = 0.0f;
 	float y = 0.0f;

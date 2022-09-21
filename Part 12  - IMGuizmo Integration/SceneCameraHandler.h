@@ -1,6 +1,7 @@
 #pragma once
 #include "Camera.h"
 #include "vgMath.h"
+#include "Vector2D.h"
 
 class SceneCameraHandler
 {
@@ -23,6 +24,8 @@ public:
 	void setCameraLocation(float x, float y, float z); //from IMGuizmo
 
 	Vector3D screenToWorldCoordinates(int screenX, int screenY) const;
+	Vector2D worldToScreenCoordinates(float x, float y, float z) const;
+	Vector2D worldToScreenCoordinates(Vector3D pos) const;
 
 private:
 	SceneCameraHandler();
