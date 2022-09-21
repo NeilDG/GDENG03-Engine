@@ -229,7 +229,7 @@ void AppWindow::onLeftMouseDown(const Point deltaPos, const Point currentPt)
 	//std::cout << "Left mouse down! \n";
 }
 
-void AppWindow::onLeftMouseUp(const Point deltaPos)
+void AppWindow::onLeftMouseUp(const Point deltaPos, const Point currentPt)
 {
 	//std::cout << "Left mouse up! \n";
 }

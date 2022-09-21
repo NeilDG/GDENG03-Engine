@@ -28,6 +28,15 @@ float MathUtils::euclideanDist(Vector3D q, Vector3D p)
     return result;
 }
 
+float MathUtils::euclideanDist(Vector2D q, Vector2D p)
+{
+    float xpow = powf(q.getX() - p.getX(), 2);
+    float ypow = powf(q.getY() - p.getY(), 2);
+
+    float result = sqrt(xpow + ypow);
+    return result;
+}
+
 float MathUtils::normalize(float x, float xMin, float xMax, float normMin, float normMax)
 {
     float normRange = (normMax - normMin);

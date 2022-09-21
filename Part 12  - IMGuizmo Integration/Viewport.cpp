@@ -30,49 +30,46 @@ void Viewport::onMouseMove(const Point deltaPos)
 
 void Viewport::onLeftMouseDown(const Point deltaPos, const Point currentPt)
 {
-	std::cout << "Viewport Mouse DOWN! X: " << currentPt.getX() << " Y: " << currentPt.getY() << std::endl;
-	Vector3D worldCoord = SceneCameraHandler::getInstance()->screenToWorldCoordinates(currentPt.getX(), currentPt.getY());
+	//std::cout << "Viewport Mouse DOWN! X: " << currentPt.getX() << " Y: " << currentPt.getY() << std::endl;
+	//Vector3D worldCoord = SceneCameraHandler::getInstance()->screenToWorldCoordinates(currentPt.getX(), currentPt.getY());
+	//std::cout << "World coordinates! X: " << worldCoord.getX() << " Y: " << worldCoord.getY() << " Z: " <<worldCoord.getZ() << std::endl;
 
-	std::cout << "World coordinates! X: " << worldCoord.getX() << " Y: " << worldCoord.getY() << " Z: " <<worldCoord.getZ() << std::endl;
-
-	/*GameObjectManager::List gameObjectList = GameObjectManager::getInstance()->getAllObjects();
-	if (gameObjectList.size() == 0)
+	const GameObjectManager::List gameObjectList = GameObjectManager::getInstance()->getAllObjects();
+	if (gameObjectList.empty())
 		return;
 
 
 	//first implementation --> select nearest
 	int bestIndex = 0;
-	float distToBeat = MathUtils::euclideanDist(gameObjectList[bestIndex]->getLocalPosition(), worldCoord);
 
-	for(int i = 1; i < gameObjectList.size(); i++)
+	Vector2D screenPos = SceneCameraHandler::getInstance()->worldToScreenCoordinates(gameObjectList[bestIndex]->getLocalPosition());
+	Vector2D mousePos = Vector2D(currentPt.getX(), currentPt.getY());
+	float distToBeat = MathUtils::euclideanDist(screenPos, mousePos);
+
+	for (int i = 1; i < gameObjectList.size(); i++)
 	{
-		const float dist = MathUtils::euclideanDist(gameObjectList[i]->getLocalPosition(), worldCoord);
-		if(dist < distToBeat)
+		Vector2D screenPos = SceneCameraHandler::getInstance()->worldToScreenCoordinates(gameObjectList[i]->getLocalPosition());
+		const float dist = MathUtils::euclideanDist(screenPos, mousePos);
+		std::cout << "Distance of object " << i << ": " << dist << std::endl;
+		std::cout << "Mouse Pos: " << mousePos.getX() << " " << mousePos.getY() <<
+			" Screen Pos: " << screenPos.getX() << " " << screenPos.getY() <<
+			" Distance to beat: " << distToBeat << std::endl;
+		if (dist < distToBeat)
 		{
 			distToBeat = dist;
 			bestIndex = i;
 		}
 	}
 
-	GameObjectManager::getInstance()->setSelectedObject(gameObjectList[bestIndex]);
-
-	//React physics 3D approach
-	/*for (int i = 0; i < gameObjectList.size(); i++)
+	if (distToBeat < 600.0f)
 	{
-		if(gameObjectList[i]->testObjectSelect(worldCoord))
-		{
-			GameObjectManager::getInstance()->setSelectedObject(gameObjectList[i]);
-			break;
-		}
-	}*/
-
-	GameObjectManager::getInstance()->createObject(AGameObject::PrimitiveType::CUBE);
-	AGameObject* gameObject = GameObjectManager::getInstance()->getLastObject();
-	gameObject->setPosition(worldCoord);
+		GameObjectManager::getInstance()->setSelectedObject(gameObjectList[bestIndex]);
+	}
 }
 
-void Viewport::onLeftMouseUp(const Point deltaPos)
+void Viewport::onLeftMouseUp(const Point deltaPos, const Point currentPt)
 {
+	
 }
 
 void Viewport::onRightMouseDown(const Point deltaPos)

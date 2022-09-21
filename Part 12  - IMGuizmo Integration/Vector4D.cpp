@@ -56,3 +56,23 @@ float Vector4D::getW()
 {
 	return this->w;
 }
+
+Vector4D Vector4D::operator*(float num)
+{
+	return Vector4D(this->x * num, this->y * num, this->z * num, this->w * num);
+}
+
+Vector4D Vector4D::operator+(Vector4D vec)
+{
+	return Vector4D(this->x + vec.x, this->y + vec.y, this->z + vec.z, this->w + w);
+}
+
+Vector4D Vector4D::zeros()
+{
+	return Vector4D(0.0f, 0.0f, 0.0f, 0.0f);
+}
+
+Vector4D Vector4D::ones()
+{
+	return Vector4D(0.0f, 0.0f, 0.0f, 0.0f);
+}
