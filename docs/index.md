@@ -7,8 +7,6 @@
 
 <br>
 
-<!--### <strong><a href = "https://doi.org/10.1016/j.sigpro.2022.108631"> Paper (in Signal Processing - Elsevier)</a> | <a href = "https://github.com/NeilDG/SynthDehazing">Source code</a> </strong>-->
-
 ### <strong> <a href = "https://www.sciencedirect.com/science/article/pii/S1875952124000259?fbclid=IwAR1KTh-0BHUjtvKRk2O_vCCyaLjK6HJR56iYjVpdJl7D75hTcJyTnD3rLHY"> Paper </a> | <a href = "https://github.com/NeilDG/GDENG03-Engine">Scene editor source code</a> | Powerpoint slides (coming soon) </strong>
 For immediate access to powerpoint slides, please send an email for the request. Please indicate the purpose. Email: neil.delgallego@dlsu.edu.ph
 
