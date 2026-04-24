@@ -121,7 +121,7 @@ void AnitoEngine::createTestScene() {
     // Create cube GameObject
     std::cout << "[Scene Setup] Creating cube GameObject..." << std::endl;
     AnitoGameObject* cubeObject = new AnitoGameObject("TestCube", AnitoGameObject::PrimitiveType::Cube);
-    cubeObject->setPosition(0.0f, 0.0f, -5.0f);
+    cubeObject->setPosition(0.0f, 0.0f, 0.0f);
 
     // Add mesh renderer component
     AnitoMeshRenderer* meshRenderer = new AnitoMeshRenderer("CubeMeshRenderer");
@@ -222,7 +222,7 @@ void AnitoEngine::update(float deltaTime) {
             AnitoVector3D currentRot = cube->getRotation();
             cube->setRotation(
                 currentRot.x() + deltaTime * 0.5f,
-                currentRot.y() + deltaTime * 1.0f,
+                currentRot.y() + deltaTime * 4.0f,
                 currentRot.z() + deltaTime * 0.3f
             );
         }
