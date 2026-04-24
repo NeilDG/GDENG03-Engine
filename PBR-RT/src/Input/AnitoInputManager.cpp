@@ -48,6 +48,9 @@ void AnitoInputManager::update() {
 
     // Reset scroll delta (will be updated by callback)
     m_scrollDelta = 0.0f;
+
+    // Note: Previous states are stored in isKeyPressed/isKeyReleased methods
+    // This approach ensures we capture state at the moment of query
 }
 
 bool AnitoInputManager::isKeyDown(int key) const {
@@ -56,13 +59,36 @@ bool AnitoInputManager::isKeyDown(int key) const {
 }
 
 bool AnitoInputManager::isKeyPressed(int key) const {
-    // TODO: Implement pressed/released state tracking
-    return isKeyDown(key);
+    if (!m_window) return false;
+
+    bool currentlyDown = (glfwGetKey(m_window, key) == GLFW_PRESS);
+    bool wasDown = false;
+
+    auto it = m_previousKeyStates.find(key);
+    if (it != m_previousKeyStates.end()) {
+        wasDown = it->second;
+    }
+
+    // Update previous state for next frame
+    const_cast<AnitoInputManager*>(this)->m_previousKeyStates[key] = currentlyDown;
+
+    // Pressed = transition from not-down to down
+    return currentlyDown && !wasDown;
 }
 
 bool AnitoInputManager::isKeyReleased(int key) const {
-    // TODO: Implement pressed/released state tracking
-    return false;
+    if (!m_window) return false;
+
+    bool currentlyDown = (glfwGetKey(m_window, key) == GLFW_PRESS);
+    bool wasDown = false;
+
+    auto it = m_previousKeyStates.find(key);
+    if (it != m_previousKeyStates.end()) {
+        wasDown = it->second;
+    }
+
+    // Released = transition from down to not-down
+    return !currentlyDown && wasDown;
 }
 
 bool AnitoInputManager::isMouseButtonDown(MouseButton button) const {
@@ -71,13 +97,38 @@ bool AnitoInputManager::isMouseButtonDown(MouseButton button) const {
 }
 
 bool AnitoInputManager::isMouseButtonPressed(MouseButton button) const {
-    // TODO: Implement pressed/released state tracking
-    return isMouseButtonDown(button);
+    if (!m_window) return false;
+
+    int buttonInt = static_cast<int>(button);
+    bool currentlyDown = (glfwGetMouseButton(m_window, buttonInt) == GLFW_PRESS);
+    bool wasDown = false;
+
+    auto it = m_previousMouseStates.find(buttonInt);
+    if (it != m_previousMouseStates.end()) {
+        wasDown = it->second;
+    }
+
+    // Update previous state for next frame
+    const_cast<AnitoInputManager*>(this)->m_previousMouseStates[buttonInt] = currentlyDown;
+
+    // Pressed = transition from not-down to down
+    return currentlyDown && !wasDown;
 }
 
 bool AnitoInputManager::isMouseButtonReleased(MouseButton button) const {
-    // TODO: Implement pressed/released state tracking
-    return false;
+    if (!m_window) return false;
+
+    int buttonInt = static_cast<int>(button);
+    bool currentlyDown = (glfwGetMouseButton(m_window, buttonInt) == GLFW_PRESS);
+    bool wasDown = false;
+
+    auto it = m_previousMouseStates.find(buttonInt);
+    if (it != m_previousMouseStates.end()) {
+        wasDown = it->second;
+    }
+
+    // Released = transition from down to not-down
+    return !currentlyDown && wasDown;
 }
 
 void AnitoInputManager::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {

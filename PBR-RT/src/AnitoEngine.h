@@ -7,6 +7,7 @@ namespace Anito {
 class AnitoWindow;
 class AnitoRenderer;
 class AnitoGameObjectManager;
+class AnitoPBRTestScenes;
 
 /**
  * AnitoEngine - Main engine class
@@ -33,6 +34,12 @@ private:
     AnitoWindow* m_window;
     bool m_running;
     float m_lastFrameTime;
+
+    // PBR test scenes system
+    std::unique_ptr<AnitoPBRTestScenes> m_pbrTestScenes;
+
+    // Current camera position (updated per scene)
+    float m_currentCameraPos[3];
 
     // TODO: Add other subsystems as we implement them
 };

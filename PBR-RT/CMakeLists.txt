@@ -165,6 +165,8 @@ set(ANITO_RENDERER_SOURCES
     src/Renderer/AnitoRenderTexture.h
     src/Renderer/AnitoMeshGenerator.cpp
     src/Renderer/AnitoMeshGenerator.h
+    src/Renderer/AnitoPBRTestScenes.cpp
+    src/Renderer/AnitoPBRTestScenes.h
 )
 
 # Deferred Rendering Pipeline

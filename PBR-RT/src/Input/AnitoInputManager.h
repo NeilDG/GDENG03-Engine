@@ -3,6 +3,7 @@
 
 #include "../Math/AnitoVector2D.h"
 #include <GLFW/glfw3.h>
+#include <unordered_map>
 
 namespace Anito {
 
@@ -51,6 +52,10 @@ private:
     AnitoVector2D m_lastMousePosition;
     AnitoVector2D m_mouseDelta;
     float m_scrollDelta;
+
+    // State tracking for pressed/released detection
+    std::unordered_map<int, bool> m_previousKeyStates;
+    std::unordered_map<int, bool> m_previousMouseStates;
 
     // Callbacks
     static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);

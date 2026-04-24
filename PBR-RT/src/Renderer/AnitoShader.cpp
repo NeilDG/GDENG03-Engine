@@ -156,6 +156,14 @@ std::shared_ptr<AnitoShader> AnitoShader::createOrGet(const std::string& name,
     return shader;
 }
 
+std::shared_ptr<AnitoShader> AnitoShader::get(const std::string& name) {
+    auto it = s_shaderCache.find(name);
+    if (it != s_shaderCache.end()) {
+        return it->second;
+    }
+    return nullptr;
+}
+
 void AnitoShader::clearCache() {
     s_shaderCache.clear();
 }

@@ -22,6 +22,21 @@ The overall architecture follows modern game engine best practices: **Entity-Com
 - **Collaboration**: Agents must reference each other’s outputs, produce documentation, suggest tests, and flag integration risks.
 - **Tools**: Git (DLSU-GAME-Lab repo), CMake, Vulkan SDK, bgfx/Diligent, Assimp, SDL/GLFW, etc.
 
+## **CRITICAL: Before Starting ANY Task**
+
+1. ✅ **READ `BUILD_INSTRUCTIONS.md` FIRST** — Always understand the official build system before making changes
+2. ✅ **READ `agents.md` FIRST** — Understand project structure, standards, and your role
+3. ✅ **READ relevant documentation** — Check for README files, SHADER_COMPILATION_README.md, roadmap documents, etc.
+4. ❓ **ASK QUESTIONS** — When documentation conflicts with code (e.g., Ninja vs Visual Studio), ask which is correct
+5. 🚫 **NEVER assume** — Don't introduce new tools/workflows without confirming they align with project standards
+6. 🚫 **NEVER waste tokens** — Avoid fixing systems that aren't broken or diverging from documented workflows
+
+**Example violations to avoid:**
+- ❌ Changing build system from Visual Studio to Ninja without checking BUILD_INSTRUCTIONS.md
+- ❌ Modifying core architecture without reading existing design decisions
+- ❌ Introducing shader compilation workflows that bypass Build.bat
+- ❌ Creating solutions before understanding the problem context
+
 ## AI Agent Personas
 
 ### 1. **Anito Architect** (System Design Lead)

@@ -37,6 +37,7 @@ public:
     static std::shared_ptr<AnitoShader> createOrGet(const std::string& name, 
                                                      const std::string& vsPath, 
                                                      const std::string& fsPath);
+    static std::shared_ptr<AnitoShader> get(const std::string& name);
     static void clearCache();
 
 private:

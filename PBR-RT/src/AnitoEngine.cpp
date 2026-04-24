@@ -5,6 +5,7 @@
 #include "Renderer/AnitoShader.h"
 #include "Renderer/AnitoMaterial.h"
 #include "Renderer/AnitoMeshGenerator.h"
+#include "Renderer/AnitoPBRTestScenes.h"
 #include "GameObjects/AnitoGameObjectManager.h"
 #include "GameObjects/AnitoGameObject.h"
 #include "Components/AnitoMeshRenderer.h"
@@ -22,6 +23,8 @@ AnitoEngine::AnitoEngine()
     : m_window(nullptr)
     , m_running(false)
     , m_lastFrameTime(0.0f)
+    , m_pbrTestScenes(nullptr)
+    , m_currentCameraPos{0.0f, 5.0f, 15.0f}
 {
     s_instance = this;
 }
@@ -75,7 +78,7 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
 }
 
 void AnitoEngine::createTestScene() {
-    std::cout << "\n[Scene Setup] Creating test scene..." << std::endl;
+    std::cout << "\n[Scene Setup] Creating PBR test scenes..." << std::endl;
 
     AnitoRenderer* renderer = AnitoRenderer::getInstance();
     if (!renderer) return;
@@ -104,41 +107,27 @@ void AnitoEngine::createTestScene() {
     shader->createUniform("u_lightDir", bgfx::UniformType::Vec4);
     shader->createUniform("u_baseColor", bgfx::UniformType::Vec4);
     shader->createUniform("u_pbrParams", bgfx::UniformType::Vec4);
+    shader->createUniform("u_cameraPos", bgfx::UniformType::Vec4);  // Camera position uniform
 
-    // Create material
-    std::cout << "[Scene Setup] Creating material..." << std::endl;
-    auto material = std::make_shared<AnitoMaterial>("TestMaterial");
-    material->setShader(shader);
-    material->setBaseColor(1.0f, 1.0f, 1.0f, 1.0f);  // Pure white for maximum visibility
-    material->setEmissive(0.2f, 0.2f, 0.2f);  // Add emissive to make it visible even without lighting
-    material->setMetallic(0.0f);  // Non-metallic for better visibility
-    material->setRoughness(0.8f);
+    // Initialize PBR test scenes system
+    std::cout << "[Scene Setup] Initializing PBR test scenes..." << std::endl;
+    m_pbrTestScenes = std::make_unique<AnitoPBRTestScenes>();
+    m_pbrTestScenes->initialize(shader);
 
-    // Generate cube mesh
-    std::cout << "[Scene Setup] Generating cube mesh..." << std::endl;
-    auto cubeMesh = AnitoMeshGenerator::createCube(2.0f);
-
-    // Create cube GameObject
-    std::cout << "[Scene Setup] Creating cube GameObject..." << std::endl;
-    AnitoGameObject* cubeObject = new AnitoGameObject("TestCube", AnitoGameObject::PrimitiveType::Cube);
-    cubeObject->setPosition(0.0f, 0.0f, 0.0f);
-
-    // Add mesh renderer component
-    AnitoMeshRenderer* meshRenderer = new AnitoMeshRenderer("CubeMeshRenderer");
-    meshRenderer->setVertexBuffer(cubeMesh.vertexBuffer);
-    meshRenderer->setIndexBuffer(cubeMesh.indexBuffer);
-    meshRenderer->setMaterial(material);
-    cubeObject->attachComponent(meshRenderer);
-
-    // Register with manager
-    AnitoGameObjectManager::getInstance()->addObject(cubeObject);
-
-    // Setup camera view
+    // Setup camera view for the first scene
     std::cout << "[Scene Setup] Setting up camera..." << std::endl;
+    glm::vec3 cameraPos = m_pbrTestScenes->getCameraPositionForScene();
+    glm::vec3 lookAtPos = m_pbrTestScenes->getLookAtPositionForScene();
+
+    // Store camera position for per-frame uniform updates
+    m_currentCameraPos[0] = cameraPos.x;
+    m_currentCameraPos[1] = cameraPos.y;
+    m_currentCameraPos[2] = cameraPos.z;
+
     AnitoMatrix4x4 view = AnitoMatrix4x4::lookAt(
-        glm::vec3(0.0f, 2.0f, 5.0f),   // Eye position
-        glm::vec3(0.0f, 0.0f, -5.0f),  // Look at cube
-        glm::vec3(0.0f, 1.0f, 0.0f)    // Up vector
+        cameraPos,
+        lookAtPos,
+        glm::vec3(0.0f, 1.0f, 0.0f)
     );
 
     float aspect = static_cast<float>(renderer->getWidth()) / static_cast<float>(renderer->getHeight());
@@ -146,17 +135,15 @@ void AnitoEngine::createTestScene() {
 
     bgfx::setViewTransform(renderer->getMainViewId(), view.data(), proj.data());
 
-    // Set light direction (pointing FROM the surface TO the light source)
-    // Negate to point downward-left-back so surfaces facing up-right-front are lit
-    // w component = intensity (try higher value for visibility)
-    float lightDir[4] = { -0.5f, -1.0f, -0.3f, 2.0f };
+    // Set light direction (directional light from above-front-right)
+    // Direction points FROM light source, intensity increased for PBR test visibility
+    float lightDir[4] = { -0.3f, -0.5f, 0.8f, 12.0f }; // w = intensity
     shader->setUniform("u_lightDir", lightDir);
 
-    std::cout << "[Scene Setup] Test scene created successfully!" << std::endl;
-    std::cout << "  - Cube at (0, 0, -5)" << std::endl;
-    std::cout << "  - Camera at (0, 2, 5)" << std::endl;
-    std::cout << "  - Material base color: (1.0, 1.0, 1.0)" << std::endl;
-    std::cout << "  - Light direction: (-0.5, -1.0, -0.3), intensity: 2.0" << std::endl;
+    std::cout << "[Scene Setup] PBR test scenes created successfully!" << std::endl;
+    std::cout << "  - Current scene: " << m_pbrTestScenes->getCurrentSceneConfig().name << std::endl;
+    std::cout << "  - Description: " << m_pbrTestScenes->getCurrentSceneConfig().description << std::endl;
+    std::cout << "  - Press SPACE to switch between test scenes" << std::endl;
     std::cout << "==================================================" << std::endl;
 }
 
@@ -210,22 +197,44 @@ void AnitoEngine::update(float deltaTime) {
     // Update input
     if (AnitoInputManager::getInstance()) {
         AnitoInputManager::getInstance()->update();
+
+        // Handle scene switching with spacebar
+        if (m_pbrTestScenes && AnitoInputManager::getInstance()->isKeyPressed(GLFW_KEY_SPACE)) {
+            m_pbrTestScenes->switchToNextScene();
+
+            // Update camera for new scene
+            AnitoRenderer* renderer = AnitoRenderer::getInstance();
+            if (renderer) {
+                glm::vec3 cameraPos = m_pbrTestScenes->getCameraPositionForScene();
+                glm::vec3 lookAtPos = m_pbrTestScenes->getLookAtPositionForScene();
+
+                // Store updated camera position
+                m_currentCameraPos[0] = cameraPos.x;
+                m_currentCameraPos[1] = cameraPos.y;
+                m_currentCameraPos[2] = cameraPos.z;
+
+                AnitoMatrix4x4 view = AnitoMatrix4x4::lookAt(
+                    cameraPos,
+                    lookAtPos,
+                    glm::vec3(0.0f, 1.0f, 0.0f)
+                );
+
+                float aspect = static_cast<float>(renderer->getWidth()) / static_cast<float>(renderer->getHeight());
+                AnitoMatrix4x4 proj = AnitoMatrix4x4::perspective(glm::radians(60.0f), aspect, 0.1f, 100.0f);
+
+                bgfx::setViewTransform(renderer->getMainViewId(), view.data(), proj.data());
+            }
+        }
     }
 
-    // Update all game objects (including rotation)
+    // Update PBR test scenes (rotating cubes, etc.)
+    if (m_pbrTestScenes) {
+        m_pbrTestScenes->update(deltaTime);
+    }
+
+    // Update all game objects
     if (AnitoGameObjectManager::getInstance()) {
         AnitoGameObjectManager::getInstance()->updateAll(deltaTime);
-
-        // Rotate the test cube
-        AnitoGameObject* cube = AnitoGameObjectManager::getInstance()->findObjectByName("TestCube");
-        if (cube) {
-            AnitoVector3D currentRot = cube->getRotation();
-            cube->setRotation(
-                currentRot.x() + deltaTime * 0.5f,
-                currentRot.y() + deltaTime * 4.0f,
-                currentRot.z() + deltaTime * 0.3f
-            );
-        }
     }
 }
 
@@ -234,6 +243,21 @@ void AnitoEngine::render() {
     if (!renderer) return;
 
     renderer->beginFrame();
+
+    // Set global lighting uniforms (must be set every frame for bgfx)
+    if (m_pbrTestScenes) {
+        auto shader = AnitoShader::get("SimpleShader");
+        if (shader && shader->isValid()) {
+            // Set light direction (directional light from above-front-right)
+            // Direction points FROM light source, intensity increased for PBR test visibility
+            float lightDir[4] = { -0.3f, -0.5f, 0.8f, 12.0f }; // w = intensity
+            shader->setUniform("u_lightDir", lightDir);
+
+            // Set camera position
+            float cameraPos[4] = { m_currentCameraPos[0], m_currentCameraPos[1], m_currentCameraPos[2], 1.0f };
+            shader->setUniform("u_cameraPos", cameraPos);
+        }
+    }
 
     // Render all game objects
     if (AnitoGameObjectManager::getInstance()) {
