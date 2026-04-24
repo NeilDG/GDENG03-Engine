@@ -23,6 +23,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # Options
 option(ANITO_BUILD_SAMPLES "Build Anito Engine samples" ON)
 option(ANITO_USE_VULKAN "Use Vulkan backend for bgfx" ON)
+option(ANITO_COMPILE_SHADERS "Automatically compile shaders if shaderc is found" ON)
+option(ANITO_FAIL_ON_MISSING_SHADERC "Fail build if shaderc is not found" OFF)
 
 # =============================================================================
 # Dependencies Setup
@@ -272,16 +274,58 @@ endif()
 # Find or build shaderc for shader compilation
 set(SHADERC_EXECUTABLE "")
 
-# Check multiple locations for shaderc
-set(SHADERC_PATHS
+# Detect platform and architecture for build directory names
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(PLATFORM_ARCH "win64")
+else()
+    set(PLATFORM_ARCH "win32")
+endif()
+
+# Detect Visual Studio version
+if(MSVC_VERSION GREATER_EQUAL 1940)
+    set(VS_VERSION "vs2022")
+elseif(MSVC_VERSION GREATER_EQUAL 1930)
+    set(VS_VERSION "vs2022")
+elseif(MSVC_VERSION GREATER_EQUAL 1920)
+    set(VS_VERSION "vs2019")
+elseif(MSVC_VERSION GREATER_EQUAL 1910)
+    set(VS_VERSION "vs2017")
+else()
+    set(VS_VERSION "vs2015")
+endif()
+
+message(STATUS "Detected platform: ${PLATFORM_ARCH}_${VS_VERSION}")
+
+# Comprehensive search paths for shaderc
+set(SHADERC_SEARCH_PATHS
+    # User-provided tools directory
+    "${CMAKE_SOURCE_DIR}/tools/shaderc.exe"
+    "${CMAKE_SOURCE_DIR}/tools/bin/shaderc.exe"
+
+    # bgfx tools directory
     "${CMAKE_SOURCE_DIR}/external/bgfx/tools/shaderc.exe"
-    "${CMAKE_SOURCE_DIR}/tools/shaderc/shaderc.exe"
+    "${CMAKE_SOURCE_DIR}/external/bgfx/.build/shaderc.exe"
+
+    # Platform-specific build directories (current platform first)
+    "${CMAKE_SOURCE_DIR}/external/bgfx/.build/${PLATFORM_ARCH}_${VS_VERSION}/bin/shadercRelease.exe"
+    "${CMAKE_SOURCE_DIR}/external/bgfx/.build/${PLATFORM_ARCH}_${VS_VERSION}/bin/shadercDebug.exe"
+    "${CMAKE_SOURCE_DIR}/external/bgfx/.build/${PLATFORM_ARCH}_${VS_VERSION}/bin/shaderc.exe"
+
+    # Try other common Visual Studio versions
     "${CMAKE_SOURCE_DIR}/external/bgfx/.build/win64_vs2022/bin/shadercRelease.exe"
     "${CMAKE_SOURCE_DIR}/external/bgfx/.build/win64_vs2019/bin/shadercRelease.exe"
+    "${CMAKE_SOURCE_DIR}/external/bgfx/.build/win64_vs2017/bin/shadercRelease.exe"
     "${CMAKE_SOURCE_DIR}/external/bgfx/.build/win32_vs2022/bin/shadercRelease.exe"
+    "${CMAKE_SOURCE_DIR}/external/bgfx/.build/win32_vs2019/bin/shadercRelease.exe"
+    "${CMAKE_SOURCE_DIR}/external/bgfx/.build/win32_vs2017/bin/shadercRelease.exe"
+
+    # GENie build directories
+    "${CMAKE_SOURCE_DIR}/external/bgfx/.build/projects/gmake-mingw-gcc/shaderc.exe"
+    "${CMAKE_SOURCE_DIR}/external/bgfx/.build/projects/${PLATFORM_ARCH}/bin/shaderc.exe"
 )
 
-foreach(SHADERC_PATH ${SHADERC_PATHS})
+# Search for shaderc executable
+foreach(SHADERC_PATH ${SHADERC_SEARCH_PATHS})
     if(EXISTS "${SHADERC_PATH}")
         set(SHADERC_EXECUTABLE "${SHADERC_PATH}")
         message(STATUS "Found shaderc at: ${SHADERC_EXECUTABLE}")
@@ -289,8 +333,17 @@ foreach(SHADERC_PATH ${SHADERC_PATHS})
     endif()
 endforeach()
 
-# If shaderc is available, set up automatic shader compilation
-if(SHADERC_EXECUTABLE)
+# Also try to find shaderc in PATH
+if(NOT SHADERC_EXECUTABLE)
+    find_program(SHADERC_FROM_PATH shaderc shaderc.exe)
+    if(SHADERC_FROM_PATH)
+        set(SHADERC_EXECUTABLE "${SHADERC_FROM_PATH}")
+        message(STATUS "Found shaderc in PATH: ${SHADERC_EXECUTABLE}")
+    endif()
+endif()
+
+# If shaderc is available and shader compilation is enabled, set up automatic shader compilation
+if(SHADERC_EXECUTABLE AND ANITO_COMPILE_SHADERS)
     set(SHADER_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/assets/shaders/compiled")
     set(VARYING_DEF "${CMAKE_SOURCE_DIR}/assets/shaders/varying.def.sc")
     set(BGFX_INCLUDE "${CMAKE_SOURCE_DIR}/external/bgfx/src")
@@ -298,19 +351,34 @@ if(SHADERC_EXECUTABLE)
     # Create output directory
     file(MAKE_DIRECTORY ${SHADER_OUTPUT_DIR})
 
+    # Detect shader profile based on platform
+    if(WIN32)
+        set(SHADER_PLATFORM "windows")
+        set(SHADER_PROFILE "s_5_0")
+    else()
+        set(SHADER_PLATFORM "linux")
+        set(SHADER_PROFILE "120")
+    endif()
+
     # Function to compile a shader
     function(add_bgfx_shader SHADER_NAME SHADER_TYPE SHADER_SOURCE)
         if(SHADER_TYPE STREQUAL "VERTEX")
             set(TYPE_FLAG "vertex")
-            set(PROFILE "s_5_0")
         elseif(SHADER_TYPE STREQUAL "FRAGMENT")
             set(TYPE_FLAG "fragment")
-            set(PROFILE "s_5_0")
+        elseif(SHADER_TYPE STREQUAL "COMPUTE")
+            set(TYPE_FLAG "compute")
         else()
             message(FATAL_ERROR "Unknown shader type: ${SHADER_TYPE}")
         endif()
 
         set(OUTPUT_FILE "${SHADER_OUTPUT_DIR}/${SHADER_NAME}.bin")
+
+        # Check if source file exists
+        if(NOT EXISTS "${SHADER_SOURCE}")
+            message(WARNING "Shader source not found: ${SHADER_SOURCE}")
+            return()
+        endif()
 
         add_custom_command(
             OUTPUT ${OUTPUT_FILE}
@@ -318,8 +386,8 @@ if(SHADERC_EXECUTABLE)
                 -f "${SHADER_SOURCE}"
                 -o "${OUTPUT_FILE}"
                 --type ${TYPE_FLAG}
-                --platform windows
-                -p ${PROFILE}
+                --platform ${SHADER_PLATFORM}
+                -p ${SHADER_PROFILE}
                 --varyingdef "${VARYING_DEF}"
                 -i "${BGFX_INCLUDE}"
             DEPENDS ${SHADER_SOURCE} ${VARYING_DEF}
@@ -332,38 +400,72 @@ if(SHADERC_EXECUTABLE)
         set(${SHADER_NAME}_OUTPUT ${OUTPUT_FILE} PARENT_SCOPE)
     endfunction()
 
-    # Compile shaders
-    add_bgfx_shader(vs_simple VERTEX "${CMAKE_SOURCE_DIR}/assets/shaders/vs_simple.sc")
-    add_bgfx_shader(fs_simple FRAGMENT "${CMAKE_SOURCE_DIR}/assets/shaders/fs_simple.sc")
+    # Compile shaders (only if source files exist)
+    set(COMPILED_SHADERS "")
 
-    # Create a custom target that depends on all compiled shaders
-    add_custom_target(CompileShaders ALL
-        DEPENDS 
-            ${vs_simple_OUTPUT}
-            ${fs_simple_OUTPUT}
-        COMMENT "Compiling all shaders"
-    )
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/vs_simple.sc")
+        add_bgfx_shader(vs_simple VERTEX "${CMAKE_SOURCE_DIR}/assets/shaders/vs_simple.sc")
+        list(APPEND COMPILED_SHADERS ${vs_simple_OUTPUT})
+    endif()
 
-    # Make AnitoEngine depend on shader compilation
-    add_dependencies(AnitoEngine CompileShaders)
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/fs_simple.sc")
+        add_bgfx_shader(fs_simple FRAGMENT "${CMAKE_SOURCE_DIR}/assets/shaders/fs_simple.sc")
+        list(APPEND COMPILED_SHADERS ${fs_simple_OUTPUT})
+    endif()
 
-    message(STATUS "Automatic shader compilation enabled")
-    message(STATUS "  Shaders will be compiled to: ${SHADER_OUTPUT_DIR}")
+    # Only create shader compilation target if we have shaders to compile
+    if(COMPILED_SHADERS)
+        add_custom_target(CompileShaders ALL
+            DEPENDS ${COMPILED_SHADERS}
+            COMMENT "Compiling all shaders"
+        )
+
+        # Make AnitoEngine depend on shader compilation
+        add_dependencies(AnitoEngine CompileShaders)
+
+        message(STATUS "Automatic shader compilation enabled")
+        message(STATUS "  Shaders will be compiled to: ${SHADER_OUTPUT_DIR}")
+        message(STATUS "  Platform: ${SHADER_PLATFORM}, Profile: ${SHADER_PROFILE}")
+    else()
+        message(WARNING "No shader source files found to compile")
+    endif()
+elseif(ANITO_FAIL_ON_MISSING_SHADERC AND NOT SHADERC_EXECUTABLE)
+    message(FATAL_ERROR "shaderc.exe not found and ANITO_FAIL_ON_MISSING_SHADERC is ON. Build aborted.")
 else()
-    message(WARNING "========================================")
-    message(WARNING "shaderc.exe not found!")
-    message(WARNING "")
-    message(WARNING "Shaders will NOT be automatically compiled.")
-    message(WARNING "")
-    message(WARNING "To build shaderc from bgfx source:")
-    message(WARNING "  Run: tools/build_shaderc.bat")
-    message(WARNING "  This will build shaderc using bgfx's build system")
-    message(WARNING "")
-    message(WARNING "Then reconfigure CMake and rebuild.")
-    message(WARNING "")
-    message(WARNING "Or manually compile shaders using:")
-    message(WARNING "  powershell -ExecutionPolicy Bypass -File tools/compile_shaders.ps1")
-    message(WARNING "========================================")
+    message(STATUS "========================================")
+    message(STATUS "Shader compilation is DISABLED")
+
+    if(NOT SHADERC_EXECUTABLE)
+        message(STATUS "")
+        message(STATUS "shaderc.exe was not found in any of the following locations:")
+        foreach(SHADERC_PATH ${SHADERC_SEARCH_PATHS})
+            message(STATUS "  - ${SHADERC_PATH}")
+        endforeach()
+        message(STATUS "")
+        message(STATUS "To enable automatic shader compilation:")
+        message(STATUS "")
+        message(STATUS "  Option 1: Build shaderc using bgfx's GENie build system")
+        message(STATUS "    cd external/bgfx")
+        message(STATUS "    .\\..\\bx\\tools\\bin\\windows\\genie.exe --with-tools vs2022")
+        message(STATUS "    Open .build/<platform>/bgfx.sln and build the shaderc project")
+        message(STATUS "")
+        message(STATUS "  Option 2: Copy prebuilt shaderc.exe to:")
+        message(STATUS "    tools/shaderc.exe")
+        message(STATUS "")
+        message(STATUS "  Option 3: Download from bgfx releases:")
+        message(STATUS "    https://github.com/bkaradzic/bgfx/releases")
+        message(STATUS "")
+        message(STATUS "After obtaining shaderc, reconfigure CMake:")
+        message(STATUS "  cmake --build build --target clean")
+        message(STATUS "  cmake -B build")
+    else()
+        message(STATUS "Shader compilation manually disabled via ANITO_COMPILE_SHADERS option")
+    endif()
+
+    message(STATUS "")
+    message(STATUS "Build will continue without shader compilation.")
+    message(STATUS "You can manually compile shaders later if needed.")
+    message(STATUS "========================================")
 endif()
 
 add_custom_command(TARGET AnitoEngine POST_BUILD

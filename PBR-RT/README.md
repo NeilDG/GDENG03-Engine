@@ -35,61 +35,83 @@ Following modern game engine best practices:
 5. **ImGui** - Immediate mode GUI
 6. **ImGuizmo** - 3D gizmo manipulation
 
-## Quick Start
+## Quick Start (Windows)
 
-### 1. Clone Dependencies
-
-The external dependencies need to be cloned into the `external/` directory:
+### Simple Setup on New Hardware
 
 ```bash
-# Create external directory if it doesn't exist
-mkdir external
-cd external
+# 1. Setup (first time only - initializes submodules and configures CMake)
+Build.bat setup
 
-# Clone dependencies
-git clone https://github.com/g-truc/glm.git
-git clone https://github.com/glfw/glfw.git
-git clone --recursive https://github.com/bkaradzic/bgfx.git
-git clone https://github.com/bkaradzic/bgfx.cmake.git
-git clone https://github.com/bulletphysics/bullet3.git
-git clone https://github.com/ocornut/imgui.git
-git clone https://github.com/CedricGuillemet/ImGuizmo.git
-cd ..
+# 2. Build
+Build.bat
+
+# 3. Run
+Build.bat run
 ```
 
-**Note:** All dependencies have been cloned if you ran the steps above or if the `external/` folder contains these libraries.
+That's it! The unified build system handles everything.
 
-### 2. Build with Visual Studio
+### All Available Commands
 
-The project uses CMake and is configured for Visual Studio:
-
-**Option A: Visual Studio IDE (Recommended)**
-1. Open Visual Studio 2022 or newer
-2. Select "Open a local folder"
-3. Navigate to and open `X:\GithubProjects\GDENG03-Engine-PBR-RT`
-4. Visual Studio will automatically configure CMake
-5. Select "Build > Build All" or press Ctrl+Shift+B
-6. Run the project
-
-**Option B: Command Line**
 ```bash
-# Configure (first time only)
-cmake -B build -G Ninja
+Build.bat setup      # Initial setup (run once on new hardware)
+Build.bat build      # Build the project (default command)
+Build.bat rebuild    # Clean and build
+Build.bat clean      # Remove build artifacts
+Build.bat check      # Verify dependencies
+Build.bat run        # Build and run the engine
+Build.bat help       # Show all commands
 
-# Build
-cmake --build build
+# Options
+Build.bat build --config Debug    # Build in Debug mode
+Build.bat build --verbose         # Detailed output
+```
+
+### Shader Compiler (Optional)
+
+To enable automatic shader compilation:
+
+```bash
+# Build shaderc from source
+tools\build_shaderc.bat
+
+# Then rebuild
+Build.bat rebuild
+```
+
+### What It Does
+
+The build system automatically:
+- Checks for Git, CMake, and Visual Studio
+- Initializes all Git submodules
+- Configures CMake for your hardware
+- Detects your Visual Studio version
+- Builds the project
+
+### Detailed Documentation
+
+- **[BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md)** - Complete build guide with troubleshooting
+- **[SHADER_COMPILATION_README.md](SHADER_COMPILATION_README.md)** - Shader compilation details
+
+### Manual CMake (Alternative)
+
+If you prefer direct CMake control:
+
+```bash
+# Clone with submodules
+git clone --recursive <repository-url>
+
+# Or initialize submodules
+git submodule update --init --recursive
+
+# Configure and build
+cmake -B build
+cmake --build build --config Release
 
 # Run
-.\build\bin\AnitoEngine.exe
+.\build\bin\Release\AnitoEngine.exe
 ```
-
-### 3. Troubleshooting
-
-If you encounter build errors:
-- Ensure all dependencies are in `external/` directory
-- Delete the `out/` or `build/` folder and reconfigure
-- In Visual Studio: Project > Delete Cache and Reconfigure
-- Ensure you have Visual Studio 2022 or newer with C++ Desktop Development workload
 
 ## Project Structure
 
