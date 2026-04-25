@@ -133,6 +133,16 @@ $equirectVarying = Join-Path $ShaderSrcDir "varying_equirect_to_cubemap.def.sc"
 Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "vs_equirect_to_cubemap.sc") -Type "vertex" -OutputName "vs_equirect_to_cubemap" -VaryingDefOverride $equirectVarying
 Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "fs_equirect_to_cubemap.sc") -Type "fragment" -OutputName "fs_equirect_to_cubemap" -VaryingDefOverride $equirectVarying
 
+# Irradiance convolution shader (for diffuse IBL)
+$irradianceVarying = Join-Path $ShaderSrcDir "varying_irradiance_convolution.def.sc"
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "vs_irradiance_convolution.sc") -Type "vertex" -OutputName "vs_irradiance_convolution" -VaryingDefOverride $irradianceVarying
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "fs_irradiance_convolution.sc") -Type "fragment" -OutputName "fs_irradiance_convolution" -VaryingDefOverride $irradianceVarying
+
+# Prefilter environment map shader (for specular IBL)
+$prefilterVarying = Join-Path $ShaderSrcDir "varying_prefilter_envmap.def.sc"
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "vs_prefilter_envmap.sc") -Type "vertex" -OutputName "vs_prefilter_envmap" -VaryingDefOverride $prefilterVarying
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "fs_prefilter_envmap.sc") -Type "fragment" -OutputName "fs_prefilter_envmap" -VaryingDefOverride $prefilterVarying
+
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Shader compilation complete!" -ForegroundColor Green

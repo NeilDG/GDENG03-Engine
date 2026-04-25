@@ -192,8 +192,8 @@ void AnitoRenderer::loadEnvironmentMap(const std::string& hdrPath) {
 
     // Load equirect-to-cubemap conversion shader
     bgfx::ProgramHandle conversionProgram = createProgram(
-        "assets/shaders/vs_equirect_to_cubemap.bin",
-        "assets/shaders/fs_equirect_to_cubemap.bin"
+        "assets/shaders/compiled/vs_equirect_to_cubemap.bin",
+        "assets/shaders/compiled/fs_equirect_to_cubemap.bin"
     );
 
     if (!bgfx::isValid(conversionProgram)) {
@@ -241,7 +241,7 @@ void AnitoRenderer::loadEnvironmentMap(const std::string& hdrPath) {
     // Render to each cubemap face
     for (uint8_t face = 0; face < 6; ++face) {
         bgfx::Attachment attachment;
-        attachment.init(m_envCubemap, bgfx::Access::Write, 0, 0, face, BGFX_RESOLVE_NONE);
+        attachment.init(m_envCubemap, bgfx::Access::Write, face, 1, 0, BGFX_RESOLVE_NONE);
 
         bgfx::FrameBufferHandle faceFramebuffer = bgfx::createFrameBuffer(1, &attachment, false);
 
@@ -293,7 +293,7 @@ void AnitoRenderer::loadEnvironmentMap(const std::string& hdrPath) {
     // Load skybox shaders
     if (!bgfx::isValid(m_skyboxProgram)) {
         std::cout << "[AnitoRenderer] Loading skybox shaders..." << std::endl;
-        m_skyboxProgram = createProgram("assets/shaders/vs_skybox.bin", "assets/shaders/fs_skybox.bin");
+        m_skyboxProgram = createProgram("assets/shaders/compiled/vs_skybox.bin", "assets/shaders/compiled/fs_skybox.bin");
         if (bgfx::isValid(m_skyboxProgram)) {
             m_skyboxCubeUniform = bgfx::createUniform("s_skybox", bgfx::UniformType::Sampler);
             std::cout << "[AnitoRenderer] Skybox shaders loaded successfully" << std::endl;
@@ -303,6 +303,13 @@ void AnitoRenderer::loadEnvironmentMap(const std::string& hdrPath) {
     }
 
     std::cout << "[AnitoRenderer] Environment map ready for IBL!" << std::endl;
+
+    // Generate irradiance and prefilter maps
+    std::cout << "[AnitoRenderer] Generating irradiance map for diffuse IBL..." << std::endl;
+    generateIrradianceMap(m_envCubemap);
+
+    std::cout << "[AnitoRenderer] Generating prefiltered environment map for specular IBL..." << std::endl;
+    generatePrefilterMap(m_envCubemap);
 }
 
 void AnitoRenderer::renderSkybox(const float* viewProjInv, const float* cameraPos) {
@@ -363,6 +370,250 @@ void AnitoRenderer::renderSkybox(const float* viewProjInv, const float* cameraPo
         bgfx::destroy(viewProjInvUniform);
         bgfx::destroy(cameraPosUniform);
     }
+}
+
+void AnitoRenderer::generateIrradianceMap(bgfx::TextureHandle envCubemap) {
+    // Create irradiance cubemap (smaller resolution: 32x32 is sufficient for diffuse)
+    const uint32_t irradianceSize = 32;
+    m_irradianceMap = bgfx::createTextureCube(
+        irradianceSize,
+        false,
+        1,
+        bgfx::TextureFormat::RGBA16F,
+        BGFX_TEXTURE_RT
+    );
+
+    if (!bgfx::isValid(m_irradianceMap)) {
+        std::cerr << "[AnitoRenderer] Failed to create irradiance cubemap!" << std::endl;
+        return;
+    }
+
+    // Load irradiance convolution shader
+    bgfx::ProgramHandle convolutionProgram = createProgram(
+        "assets/shaders/vs_irradiance_convolution.bin",
+        "assets/shaders/fs_irradiance_convolution.bin"
+    );
+
+    if (!bgfx::isValid(convolutionProgram)) {
+        std::cerr << "[AnitoRenderer] Failed to load irradiance convolution shaders!" << std::endl;
+        bgfx::destroy(m_irradianceMap);
+        m_irradianceMap = BGFX_INVALID_HANDLE;
+        return;
+    }
+
+    // Create uniforms
+    bgfx::UniformHandle envMapSampler = bgfx::createUniform("s_envMap", bgfx::UniformType::Sampler);
+    bgfx::UniformHandle faceParamsUniform = bgfx::createUniform("u_faceParams", bgfx::UniformType::Vec4);
+
+    // Create fullscreen quad
+    struct PosTexVertex {
+        float x, y, z;
+        float u, v;
+    };
+
+    PosTexVertex vertices[] = {
+        {-1.0f, -1.0f, 0.0f, 0.0f, 0.0f},
+        { 1.0f, -1.0f, 0.0f, 1.0f, 0.0f},
+        { 1.0f,  1.0f, 0.0f, 1.0f, 1.0f},
+        {-1.0f,  1.0f, 0.0f, 0.0f, 1.0f}
+    };
+
+    uint16_t indices[] = { 0, 1, 2, 0, 2, 3 };
+
+    bgfx::VertexLayout layout;
+    layout.begin()
+        .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+        .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
+        .end();
+
+    bgfx::VertexBufferHandle vbh = bgfx::createVertexBuffer(
+        bgfx::makeRef(vertices, sizeof(vertices)),
+        layout
+    );
+
+    bgfx::IndexBufferHandle ibh = bgfx::createIndexBuffer(
+        bgfx::makeRef(indices, sizeof(indices))
+    );
+
+    // Render to each cubemap face
+    for (uint8_t face = 0; face < 6; ++face) {
+        bgfx::Attachment attachment;
+        attachment.init(m_irradianceMap, bgfx::Access::Write, 0, 0, face, BGFX_RESOLVE_NONE);
+
+        bgfx::FrameBufferHandle faceFramebuffer = bgfx::createFrameBuffer(1, &attachment, false);
+
+        if (!bgfx::isValid(faceFramebuffer)) {
+            std::cerr << "[AnitoRenderer] Failed to create irradiance framebuffer for face " << (int)face << std::endl;
+            continue;
+        }
+
+        // Set view for this face
+        bgfx::ViewId convolutionView = 16 + face; // Use views 16-21 for irradiance
+        bgfx::setViewFrameBuffer(convolutionView, faceFramebuffer);
+        bgfx::setViewRect(convolutionView, 0, 0, irradianceSize, irradianceSize);
+        bgfx::setViewClear(convolutionView, BGFX_CLEAR_COLOR, 0x000000ff, 1.0f, 0);
+
+        // Set face index uniform
+        float faceParams[4] = { (float)face, 0.0f, 0.0f, 0.0f };
+        bgfx::setUniform(faceParamsUniform, faceParams);
+
+        // Bind environment cubemap
+        bgfx::setTexture(0, envMapSampler, envCubemap);
+
+        // Set vertex and index buffers
+        bgfx::setVertexBuffer(0, vbh);
+        bgfx::setIndexBuffer(ibh);
+
+        // Set state
+        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
+
+        // Submit draw call
+        bgfx::submit(convolutionView, convolutionProgram);
+
+        // Cleanup framebuffer
+        bgfx::destroy(faceFramebuffer);
+    }
+
+    // Frame to execute all convolutions
+    bgfx::frame();
+
+    // Cleanup resources
+    bgfx::destroy(vbh);
+    bgfx::destroy(ibh);
+    bgfx::destroy(envMapSampler);
+    bgfx::destroy(faceParamsUniform);
+    bgfx::destroy(convolutionProgram);
+
+    std::cout << "[AnitoRenderer] Irradiance map generation complete!" << std::endl;
+}
+
+void AnitoRenderer::generatePrefilterMap(bgfx::TextureHandle envCubemap) {
+    // Create prefilter cubemap with mipmaps (512x512 base, 5 mip levels for roughness)
+    const uint32_t prefilterSize = 512;
+    const uint32_t numMips = 5; // Mip 0-4 for roughness 0.0-1.0
+
+    m_prefilterMap = bgfx::createTextureCube(
+        prefilterSize,
+        true,  // hasMips
+        numMips,
+        bgfx::TextureFormat::RGBA16F,
+        BGFX_TEXTURE_RT
+    );
+
+    if (!bgfx::isValid(m_prefilterMap)) {
+        std::cerr << "[AnitoRenderer] Failed to create prefilter cubemap!" << std::endl;
+        return;
+    }
+
+    // Load prefilter shader
+    bgfx::ProgramHandle prefilterProgram = createProgram(
+        "assets/shaders/vs_prefilter_envmap.bin",
+        "assets/shaders/fs_prefilter_envmap.bin"
+    );
+
+    if (!bgfx::isValid(prefilterProgram)) {
+        std::cerr << "[AnitoRenderer] Failed to load prefilter shaders!" << std::endl;
+        bgfx::destroy(m_prefilterMap);
+        m_prefilterMap = BGFX_INVALID_HANDLE;
+        return;
+    }
+
+    // Create uniforms
+    bgfx::UniformHandle envMapSampler = bgfx::createUniform("s_envMap", bgfx::UniformType::Sampler);
+    bgfx::UniformHandle faceParamsUniform = bgfx::createUniform("u_faceParams", bgfx::UniformType::Vec4);
+    bgfx::UniformHandle sampleCountUniform = bgfx::createUniform("u_sampleCount", bgfx::UniformType::Vec4);
+
+    // Create fullscreen quad
+    struct PosTexVertex {
+        float x, y, z;
+        float u, v;
+    };
+
+    PosTexVertex vertices[] = {
+        {-1.0f, -1.0f, 0.0f, 0.0f, 0.0f},
+        { 1.0f, -1.0f, 0.0f, 1.0f, 0.0f},
+        { 1.0f,  1.0f, 0.0f, 1.0f, 1.0f},
+        {-1.0f,  1.0f, 0.0f, 0.0f, 1.0f}
+    };
+
+    uint16_t indices[] = { 0, 1, 2, 0, 2, 3 };
+
+    bgfx::VertexLayout layout;
+    layout.begin()
+        .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+        .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
+        .end();
+
+    bgfx::VertexBufferHandle vbh = bgfx::createVertexBuffer(
+        bgfx::makeRef(vertices, sizeof(vertices)),
+        layout
+    );
+
+    bgfx::IndexBufferHandle ibh = bgfx::createIndexBuffer(
+        bgfx::makeRef(indices, sizeof(indices))
+    );
+
+    // Sample count for importance sampling
+    float sampleCount[4] = { 1024.0f, 0.0f, 0.0f, 0.0f };
+    bgfx::setUniform(sampleCountUniform, sampleCount);
+
+    // Render to each mip level (roughness variation)
+    for (uint8_t mip = 0; mip < numMips; ++mip) {
+        uint32_t mipSize = prefilterSize >> mip; // 512, 256, 128, 64, 32
+        float roughness = static_cast<float>(mip) / static_cast<float>(numMips - 1); // 0.0, 0.25, 0.5, 0.75, 1.0
+
+        // Render to each cubemap face
+        for (uint8_t face = 0; face < 6; ++face) {
+            bgfx::Attachment attachment;
+            attachment.init(m_prefilterMap, bgfx::Access::Write, 0, mip, face, BGFX_RESOLVE_NONE);
+
+            bgfx::FrameBufferHandle faceFramebuffer = bgfx::createFrameBuffer(1, &attachment, false);
+
+            if (!bgfx::isValid(faceFramebuffer)) {
+                std::cerr << "[AnitoRenderer] Failed to create prefilter framebuffer for face " << (int)face << ", mip " << (int)mip << std::endl;
+                continue;
+            }
+
+            // Set view for this face+mip
+            bgfx::ViewId prefilterView = 22 + mip * 6 + face; // Views 22-51 for prefiltering
+            bgfx::setViewFrameBuffer(prefilterView, faceFramebuffer);
+            bgfx::setViewRect(prefilterView, 0, 0, mipSize, mipSize);
+            bgfx::setViewClear(prefilterView, BGFX_CLEAR_COLOR, 0x000000ff, 1.0f, 0);
+
+            // Set face/roughness parameters
+            float faceParams[4] = { (float)face, roughness, (float)mipSize, 0.0f };
+            bgfx::setUniform(faceParamsUniform, faceParams);
+
+            // Bind environment cubemap
+            bgfx::setTexture(0, envMapSampler, envCubemap);
+
+            // Set vertex and index buffers
+            bgfx::setVertexBuffer(0, vbh);
+            bgfx::setIndexBuffer(ibh);
+
+            // Set state
+            bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
+
+            // Submit draw call
+            bgfx::submit(prefilterView, prefilterProgram);
+
+            // Cleanup framebuffer
+            bgfx::destroy(faceFramebuffer);
+        }
+    }
+
+    // Frame to execute all prefiltering
+    bgfx::frame();
+
+    // Cleanup resources
+    bgfx::destroy(vbh);
+    bgfx::destroy(ibh);
+    bgfx::destroy(envMapSampler);
+    bgfx::destroy(faceParamsUniform);
+    bgfx::destroy(sampleCountUniform);
+    bgfx::destroy(prefilterProgram);
+
+    std::cout << "[AnitoRenderer] Prefilter map generation complete!" << std::endl;
 }
 
 } // namespace Anito

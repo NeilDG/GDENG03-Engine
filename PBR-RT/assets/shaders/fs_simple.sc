@@ -8,13 +8,20 @@ uniform vec4 u_baseColor;     // rgba: albedo color
 uniform vec4 u_pbrParams;     // x: metallic, y: roughness, z: ao, w: unused
 uniform vec4 u_cameraPos;     // xyz: camera world position, w: unused
 uniform vec4 u_enableIBL;     // x: 0.0 = disabled, 1.0 = enabled
-samplerCube u_envMap;
+samplerCube u_envMap;         // Raw environment (for skybox/fallback)
+samplerCube u_irradianceMap;  // Precomputed irradiance for diffuse IBL
+samplerCube u_prefilterMap;   // Prefiltered environment for specular IBL (with mips)
 
 #define PI 3.14159265359
 
 // Fresnel-Schlick approximation (Filament spec eq. 2)
 vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+// Fresnel-Schlick with roughness for IBL
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
+    return F0 + (max(vec3_splat(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
 // GGX/Trowbridge-Reitz normal distribution function (Filament spec eq. 4)
@@ -109,18 +116,33 @@ void main()
     // IBL ambient/specular
     vec3 ambient;
     if (u_enableIBL.x > 0.5) {
-        // Sample environment for ambient diffuse (Lambertian)
-        vec3 envDiffuse = textureCube(u_envMap, N).rgb;
-        // Sample environment for specular (simple approximation: reflect V about N)
+        // Use prefiltered maps for physically accurate IBL
+
+        // Diffuse IBL: Sample irradiance map
+        vec3 irradiance = textureCube(u_irradianceMap, N).rgb;
+        vec3 diffuseIBL = irradiance * u_baseColor.rgb;
+
+        // Specular IBL: Sample prefiltered environment map at roughness mip level
         vec3 R = reflect(-V, N);
-        vec3 envSpecular = textureCube(u_envMap, R).rgb;
-        // Fresnel for ambient specular
-        vec3 kS_ambient = fresnelSchlick(max(dot(N, V), 0.0), F0);
-        vec3 kD_ambient = vec3_splat(1.0) - kS_ambient;
-        kD_ambient *= 1.0 - metallic;
-        ambient = (kD_ambient * envDiffuse * u_baseColor.rgb + kS_ambient * envSpecular) * ao;
+        const float MAX_REFLECTION_LOD = 4.0; // 5 mip levels (0-4)
+        float lod = roughness * MAX_REFLECTION_LOD;
+        vec3 prefilteredColor = textureCubeLod(u_prefilterMap, R, lod).rgb;
+
+        // Fresnel for IBL
+        vec3 F_ibl = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+
+        // Energy conservation for IBL
+        vec3 kS_ibl = F_ibl;
+        vec3 kD_ibl = vec3_splat(1.0) - kS_ibl;
+        kD_ibl *= 1.0 - metallic;
+
+        // Combine diffuse and specular IBL
+        vec3 diffuse_ambient = kD_ibl * diffuseIBL;
+        vec3 specular_ambient = kS_ibl * prefilteredColor;
+
+        ambient = (diffuse_ambient + specular_ambient) * ao;
     } else {
-        // Use old ambient
+        // Fallback: simple ambient without IBL
         vec3 kS_ambient = fresnelSchlick(max(dot(N, V), 0.0), F0);
         vec3 kD_ambient = vec3_splat(1.0) - kS_ambient;
         kD_ambient *= 1.0 - metallic;

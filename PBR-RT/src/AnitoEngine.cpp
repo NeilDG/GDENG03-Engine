@@ -13,6 +13,7 @@
 #include "Components/AnitoCamera.h"
 #include "Input/AnitoInputManager.h"
 #include <GLFW/glfw3.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
 namespace Anito {
@@ -58,6 +59,10 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
             AnitoRenderer::getInstance()->resize(w, h);
         }
     });
+
+    // Initialize input manager
+    AnitoInputManager::initialize(m_window->getGLFWWindow());
+    std::cout << "[Engine] Input Manager initialized" << std::endl;
 
     // Initialize vertex layouts
     PosColorVertex::init();
@@ -113,6 +118,8 @@ void AnitoEngine::createTestScene() {
     shader->createUniform("u_pbrParams", bgfx::UniformType::Vec4);
     shader->createUniform("u_cameraPos", bgfx::UniformType::Vec4);  // Camera position uniform
     shader->createUniform("u_envMap", bgfx::UniformType::Sampler);  // Environment cubemap sampler
+    shader->createUniform("u_irradianceMap", bgfx::UniformType::Sampler);  // Irradiance map for diffuse IBL
+    shader->createUniform("u_prefilterMap", bgfx::UniformType::Sampler);   // Prefiltered map for specular IBL
     shader->createUniform("u_enableIBL", bgfx::UniformType::Vec4);   // IBL toggle (as vec4 for bgfx compatibility)
 
     // Initialize PBR test scenes system
@@ -189,6 +196,7 @@ void AnitoEngine::shutdown() {
     AnitoTexture::clearCache();
 
     // Destroy subsystems in reverse order
+    AnitoInputManager::destroy();
     AnitoRenderer::destroy();
 
     if (m_window) {
@@ -251,6 +259,24 @@ void AnitoEngine::render() {
 
     renderer->beginFrame();
 
+    // STEP 1: Render skybox first (background)
+    if (renderer->isIBLReady() && renderer->getEnableIBL()) {
+        // Calculate view-projection inverse matrix for skybox
+        glm::vec3 cameraPos(m_currentCameraPos[0], m_currentCameraPos[1], m_currentCameraPos[2]);
+        glm::vec3 lookAtPos(0.0f, 0.0f, 0.0f);
+        AnitoMatrix4x4 view = AnitoMatrix4x4::lookAt(cameraPos, lookAtPos, glm::vec3(0.0f, 1.0f, 0.0f));
+
+        float aspect = static_cast<float>(renderer->getWidth()) / static_cast<float>(renderer->getHeight());
+        AnitoMatrix4x4 proj = AnitoMatrix4x4::perspective(glm::radians(60.0f), aspect, 0.1f, 100.0f);
+
+        // Calculate view-projection matrix
+        glm::mat4 viewProj = glm::make_mat4(proj.data()) * glm::make_mat4(view.data());
+        glm::mat4 viewProjInv = glm::inverse(viewProj);
+
+        // Render skybox
+        renderer->renderSkybox(glm::value_ptr(viewProjInv), m_currentCameraPos);
+    }
+
     // Set global lighting uniforms (must be set every frame for bgfx)
     if (m_pbrTestScenes) {
         auto shader = AnitoShader::get("SimpleShader");
@@ -267,9 +293,25 @@ void AnitoEngine::render() {
             // Set IBL environment cubemap and toggle
             if (renderer->isIBLReady()) {
                 bgfx::TextureHandle envCubemap = renderer->getEnvCubemap();
+                bgfx::TextureHandle irradianceMap = renderer->getIrradianceMap();
+                bgfx::TextureHandle prefilterMap = renderer->getPrefilterMap();
+
+                // Bind environment cubemap (for skybox/fallback)
                 bgfx::UniformHandle envMapUniform = shader->getUniformHandle("u_envMap");
                 if (bgfx::isValid(envMapUniform) && bgfx::isValid(envCubemap)) {
                     bgfx::setTexture(0, envMapUniform, envCubemap);
+                }
+
+                // Bind irradiance map (for diffuse IBL)
+                bgfx::UniformHandle irradianceMapUniform = shader->getUniformHandle("u_irradianceMap");
+                if (bgfx::isValid(irradianceMapUniform) && bgfx::isValid(irradianceMap)) {
+                    bgfx::setTexture(1, irradianceMapUniform, irradianceMap);
+                }
+
+                // Bind prefilter map (for specular IBL with roughness)
+                bgfx::UniformHandle prefilterMapUniform = shader->getUniformHandle("u_prefilterMap");
+                if (bgfx::isValid(prefilterMapUniform) && bgfx::isValid(prefilterMap)) {
+                    bgfx::setTexture(2, prefilterMapUniform, prefilterMap);
                 }
 
                 // Set IBL toggle state (pass as vec4 for bgfx compatibility)
@@ -282,7 +324,7 @@ void AnitoEngine::render() {
         }
     }
 
-    // Render all game objects
+    // STEP 2: Render all game objects (foreground)
     if (AnitoGameObjectManager::getInstance()) {
         AnitoGameObjectManager::getInstance()->renderAll();
     }

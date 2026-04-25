@@ -137,7 +137,7 @@ void AnitoPBRTestScenes::clearCurrentScene() {
     if (manager) {
         for (auto* obj : m_currentSceneObjects) {
             manager->removeObject(obj);
-            delete obj;
+            // Note: removeObject() already deletes the object, so we don't delete it here
         }
     }
     m_currentSceneObjects.clear();
