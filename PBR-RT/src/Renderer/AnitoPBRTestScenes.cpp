@@ -6,16 +6,22 @@
 
 namespace Anito {
 
+AnitoPBRTestScenes* AnitoPBRTestScenes::s_currentInstance = nullptr;
+
 AnitoPBRTestScenes::AnitoPBRTestScenes()
     : m_currentSceneIndex(0)
     , m_randomGen(std::random_device{}())
     , m_rotationDist(-glm::pi<float>(), glm::pi<float>())
 {
     setupSceneConfigs();
+    s_currentInstance = this;
 }
 
 AnitoPBRTestScenes::~AnitoPBRTestScenes() {
     clearCurrentScene();
+    if (s_currentInstance == this) {
+        s_currentInstance = nullptr;
+    }
 }
 
 void AnitoPBRTestScenes::setupSceneConfigs() {
@@ -24,15 +30,15 @@ void AnitoPBRTestScenes::setupSceneConfigs() {
     m_sceneConfigs[static_cast<int>(SceneType::SphereGrid)] = {
         SceneType::SphereGrid,
         "Sphere Grid - PBR Variation",
-        "5x5 grid: X-axis = Roughness (0.0 to 1.0), Y-axis = Metallic (0.0 to 1.0)",
-        5, 5, 3.0f, 1.0f
+        "6x6 grid: X-axis = Roughness (0.0 to 1.0), Y-axis = Metallic (0.0 to 1.0)",
+        6, 6, 3.0f, 1.0f
     };
 
     m_sceneConfigs[static_cast<int>(SceneType::CubeGrid)] = {
         SceneType::CubeGrid,
         "Rotating Cubes - PBR Variation",
-        "5x5 grid: Randomly rotating cubes with varying roughness and metallic",
-        5, 5, 3.0f, 1.0f
+        "6x6 grid: Randomly rotating cubes with varying roughness and metallic",
+        6, 6, 3.0f, 1.0f
     };
 
     m_sceneConfigs[static_cast<int>(SceneType::MixedMaterials)] = {

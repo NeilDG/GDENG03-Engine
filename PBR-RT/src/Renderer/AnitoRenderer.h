@@ -31,6 +31,14 @@ public:
     bgfx::ShaderHandle createShader(const std::string& shaderPath);
     bgfx::ProgramHandle createProgram(const std::string& vsPath, const std::string& fsPath);
 
+    // Skybox/IBL
+    void loadEnvironmentMap(const std::string& hdrPath);
+    void renderSkybox(const float* viewProjInv, const float* cameraPos);
+    bgfx::TextureHandle getEnvCubemap() const { return m_envCubemap; }
+    bool isIBLReady() const { return bgfx::isValid(m_envCubemap); }
+    void setEnableIBL(bool enable) { m_enableIBL = enable; }
+    bool getEnableIBL() const { return m_enableIBL; }
+
 private:
     AnitoRenderer();
     ~AnitoRenderer();
@@ -46,6 +54,12 @@ private:
     uint32_t m_height;
     bgfx::ViewId m_mainViewId;
     uint32_t m_resetFlags;
+
+    // Skybox/IBL
+    bgfx::TextureHandle m_envCubemap = BGFX_INVALID_HANDLE;
+    bgfx::ProgramHandle m_skyboxProgram = BGFX_INVALID_HANDLE;
+    bgfx::UniformHandle m_skyboxCubeUniform = BGFX_INVALID_HANDLE;
+    bool m_enableIBL = true;
 };
 
 } // namespace Anito

@@ -83,6 +83,10 @@ void AnitoEngine::createTestScene() {
     AnitoRenderer* renderer = AnitoRenderer::getInstance();
     if (!renderer) return;
 
+    // Load HDR environment map for IBL
+    std::cout << "[Scene Setup] Loading HDR environment map..." << std::endl;
+    renderer->loadEnvironmentMap("assets/hdr/relax_inn_seaview_suite_4k.hdr");
+
     // Load shader
     std::cout << "[Scene Setup] Loading shader..." << std::endl;
     auto shader = AnitoShader::createOrGet("SimpleShader", 
@@ -103,11 +107,13 @@ void AnitoEngine::createTestScene() {
         return;
     }
 
-    // Create uniforms for lighting
+    // Create uniforms for lighting and IBL
     shader->createUniform("u_lightDir", bgfx::UniformType::Vec4);
     shader->createUniform("u_baseColor", bgfx::UniformType::Vec4);
     shader->createUniform("u_pbrParams", bgfx::UniformType::Vec4);
     shader->createUniform("u_cameraPos", bgfx::UniformType::Vec4);  // Camera position uniform
+    shader->createUniform("u_envMap", bgfx::UniformType::Sampler);  // Environment cubemap sampler
+    shader->createUniform("u_enableIBL", bgfx::UniformType::Vec4);   // IBL toggle (as vec4 for bgfx compatibility)
 
     // Initialize PBR test scenes system
     std::cout << "[Scene Setup] Initializing PBR test scenes..." << std::endl;
@@ -144,6 +150,7 @@ void AnitoEngine::createTestScene() {
     std::cout << "  - Current scene: " << m_pbrTestScenes->getCurrentSceneConfig().name << std::endl;
     std::cout << "  - Description: " << m_pbrTestScenes->getCurrentSceneConfig().description << std::endl;
     std::cout << "  - Press SPACE to switch between test scenes" << std::endl;
+    std::cout << "  - Press Z to toggle IBL (Image-Based Lighting)" << std::endl;
     std::cout << "==================================================" << std::endl;
 }
 
@@ -256,6 +263,22 @@ void AnitoEngine::render() {
             // Set camera position
             float cameraPos[4] = { m_currentCameraPos[0], m_currentCameraPos[1], m_currentCameraPos[2], 1.0f };
             shader->setUniform("u_cameraPos", cameraPos);
+
+            // Set IBL environment cubemap and toggle
+            if (renderer->isIBLReady()) {
+                bgfx::TextureHandle envCubemap = renderer->getEnvCubemap();
+                bgfx::UniformHandle envMapUniform = shader->getUniformHandle("u_envMap");
+                if (bgfx::isValid(envMapUniform) && bgfx::isValid(envCubemap)) {
+                    bgfx::setTexture(0, envMapUniform, envCubemap);
+                }
+
+                // Set IBL toggle state (pass as vec4 for bgfx compatibility)
+                float iblEnabled[4] = { renderer->getEnableIBL() ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f };
+                bgfx::UniformHandle iblToggleUniform = shader->getUniformHandle("u_enableIBL");
+                if (bgfx::isValid(iblToggleUniform)) {
+                    bgfx::setUniform(iblToggleUniform, iblEnabled);
+                }
+            }
         }
     }
 

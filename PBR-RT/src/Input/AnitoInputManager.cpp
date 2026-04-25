@@ -1,4 +1,6 @@
 #include "AnitoInputManager.h"
+#include "../Renderer/AnitoRenderer.h"
+#include "../Renderer/AnitoPBRTestScenes.h"
 
 namespace Anito {
 
@@ -48,6 +50,29 @@ void AnitoInputManager::update() {
 
     // Reset scroll delta (will be updated by callback)
     m_scrollDelta = 0.0f;
+
+    // Handle IBL toggle (Z key)
+    bool zDown = isKeyDown(GLFW_KEY_Z);
+    if (zDown && !m_wasZPressed) {
+        auto* renderer = AnitoRenderer::getInstance();
+        if (renderer) {
+            renderer->setEnableIBL(!renderer->getEnableIBL());
+            std::cout << "[Input] IBL " << (renderer->getEnableIBL() ? "enabled" : "disabled") << std::endl;
+        }
+    }
+    m_wasZPressed = zDown;
+
+    // Handle scene switch (Space key)
+    bool spaceDown = isKeyDown(GLFW_KEY_SPACE);
+    if (spaceDown && !m_wasSpacePressed) {
+        auto* testScenes = AnitoPBRTestScenes::getCurrentInstance();
+        if (testScenes) {
+            testScenes->switchToNextScene();
+        } else {
+            std::cout << "[Input] Space pressed - but no test scenes instance available" << std::endl;
+        }
+    }
+    m_wasSpacePressed = spaceDown;
 
     // Note: Previous states are stored in isKeyPressed/isKeyReleased methods
     // This approach ensures we capture state at the moment of query

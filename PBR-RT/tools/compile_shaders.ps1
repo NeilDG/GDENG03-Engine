@@ -82,10 +82,16 @@ function Compile-Shader {
     param(
         [string]$ShaderFile,
         [string]$Type,
-        [string]$OutputName
+        [string]$OutputName,
+        [string]$VaryingDefOverride = ""
     )
 
-    $varyingDef = Join-Path $ShaderSrcDir "varying.def.sc"
+    if ([string]::IsNullOrEmpty($VaryingDefOverride)) {
+        $varyingDef = Join-Path $ShaderSrcDir "varying.def.sc"
+    } else {
+        $varyingDef = $VaryingDefOverride
+    }
+
     $outputFile = Join-Path $ShaderOutDir "$OutputName.bin"
 
     Write-Host "Compiling: $ShaderFile -> $OutputName.bin ($Type)" -ForegroundColor Cyan
@@ -113,9 +119,19 @@ function Compile-Shader {
 Write-Host "Compiling shaders..." -ForegroundColor Yellow
 Write-Host ""
 
-# Simple shader
+# Simple PBR shader
 Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "vs_simple.sc") -Type "vertex" -OutputName "vs_simple"
 Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "fs_simple.sc") -Type "fragment" -OutputName "fs_simple"
+
+# Skybox shader
+$skyboxVarying = Join-Path $ShaderSrcDir "varying_skybox.def.sc"
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "vs_skybox.sc") -Type "vertex" -OutputName "vs_skybox" -VaryingDefOverride $skyboxVarying
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "fs_skybox.sc") -Type "fragment" -OutputName "fs_skybox" -VaryingDefOverride $skyboxVarying
+
+# Equirectangular to cubemap conversion shader
+$equirectVarying = Join-Path $ShaderSrcDir "varying_equirect_to_cubemap.def.sc"
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "vs_equirect_to_cubemap.sc") -Type "vertex" -OutputName "vs_equirect_to_cubemap" -VaryingDefOverride $equirectVarying
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "fs_equirect_to_cubemap.sc") -Type "fragment" -OutputName "fs_equirect_to_cubemap" -VaryingDefOverride $equirectVarying
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan

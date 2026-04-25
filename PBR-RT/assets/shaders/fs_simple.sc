@@ -7,6 +7,8 @@ uniform vec4 u_lightDir;      // xyz: direction, w: intensity
 uniform vec4 u_baseColor;     // rgba: albedo color
 uniform vec4 u_pbrParams;     // x: metallic, y: roughness, z: ao, w: unused
 uniform vec4 u_cameraPos;     // xyz: camera world position, w: unused
+uniform vec4 u_enableIBL;     // x: 0.0 = disabled, 1.0 = enabled
+samplerCube u_envMap;
 
 #define PI 3.14159265359
 
@@ -104,13 +106,26 @@ void main()
     // Outgoing radiance Lo
     vec3 Lo = (diffuse + specular) * radiance * NdotL;
 
-    // Ambient lighting (simplified IBL approximation)
-    // Use Fresnel for ambient specular contribution
-    vec3 kS_ambient = fresnelSchlick(max(dot(N, V), 0.0), F0);
-    vec3 kD_ambient = vec3_splat(1.0) - kS_ambient;
-    kD_ambient *= 1.0 - metallic;
-
-    vec3 ambient = (kD_ambient * u_baseColor.rgb) * ao * 0.35;  // Increased from 0.15 to 0.35 for better visibility
+    // IBL ambient/specular
+    vec3 ambient;
+    if (u_enableIBL.x > 0.5) {
+        // Sample environment for ambient diffuse (Lambertian)
+        vec3 envDiffuse = textureCube(u_envMap, N).rgb;
+        // Sample environment for specular (simple approximation: reflect V about N)
+        vec3 R = reflect(-V, N);
+        vec3 envSpecular = textureCube(u_envMap, R).rgb;
+        // Fresnel for ambient specular
+        vec3 kS_ambient = fresnelSchlick(max(dot(N, V), 0.0), F0);
+        vec3 kD_ambient = vec3_splat(1.0) - kS_ambient;
+        kD_ambient *= 1.0 - metallic;
+        ambient = (kD_ambient * envDiffuse * u_baseColor.rgb + kS_ambient * envSpecular) * ao;
+    } else {
+        // Use old ambient
+        vec3 kS_ambient = fresnelSchlick(max(dot(N, V), 0.0), F0);
+        vec3 kD_ambient = vec3_splat(1.0) - kS_ambient;
+        kD_ambient *= 1.0 - metallic;
+        ambient = (kD_ambient * u_baseColor.rgb + kS_ambient * F0) * ao * 0.6;
+    }
 
     // Final color
     vec3 color = ambient + Lo;

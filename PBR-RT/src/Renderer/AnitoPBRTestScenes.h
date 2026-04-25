@@ -43,6 +43,10 @@ public:
     AnitoPBRTestScenes();
     ~AnitoPBRTestScenes();
 
+    // Singleton access (optional - for easy access from input manager)
+    static AnitoPBRTestScenes* s_currentInstance;
+    static AnitoPBRTestScenes* getCurrentInstance() { return s_currentInstance; }
+
     // Scene management
     void initialize(std::shared_ptr<AnitoShader> shader);
     void switchToNextScene();

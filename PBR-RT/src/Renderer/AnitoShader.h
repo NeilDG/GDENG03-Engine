@@ -28,6 +28,7 @@ public:
     void setTexture(const std::string& name, bgfx::TextureHandle texture, uint8_t stage = 0);
 
     bgfx::UniformHandle getUniform(const std::string& name);
+    bgfx::UniformHandle getUniformHandle(const std::string& name) { return getUniform(name); }
     bgfx::UniformHandle createUniform(const std::string& name, bgfx::UniformType::Enum type, uint16_t num = 1);
 
     // Utility

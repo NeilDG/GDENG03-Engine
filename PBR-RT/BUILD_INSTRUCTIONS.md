@@ -4,13 +4,14 @@ This guide will help you build Anito Engine on any Windows machine with minimal 
 
 ## Prerequisites
 
-1. **Visual Studio 2017 or newer** with C++ support
+1. **Visual Studio 2026** (Community, Professional, or Enterprise) with C++ support
    - Download from: https://visualstudio.microsoft.com/downloads/
    - Required components:
      - Desktop development with C++
      - Windows SDK
+   - **Note:** Visual Studio 2026 (version 18.x) is required for proper CMake integration
 
-2. **CMake 3.10 or newer**
+2. **CMake 3.10 or newer** (4.2.3-msvc3 recommended)
    - Download from: https://cmake.org/download/
    - Make sure to add CMake to PATH during installation
 
@@ -18,57 +19,115 @@ This guide will help you build Anito Engine on any Windows machine with minimal 
    - Download from: https://git-scm.com/download/win
    - Required for cloning submodules
 
-## Quick Start (First Time Setup)
+## Build System Configuration
 
 The Anito Engine uses a **unified build system** similar to AAA game engines like Unreal Engine.
 
-### Step 1: Setup (First Time Only)
+### System Specifications
+- **CMake Generator:** Visual Studio 18 2026
+- **Platform:** x64
+- **C++ Standard:** C++20
+- **Minimum CMake:** 3.10
+- **Build Directory:** `build/`
+- **Output Directory:** `build/bin/<Configuration>/`
+
+### Synchronized Configuration
+`Build.bat` is synchronized with `CMakeLists.txt` to ensure consistent builds:
+- ✅ CMake version validation (>= 3.10)
+- ✅ Explicit generator specification (Visual Studio 18 2026)
+- ✅ Platform enforcement (x64)
+- ✅ C++ standard enforcement (C++20)
+- ✅ Multi-configuration support (Debug, Release, RelWithDebInfo, MinSizeRel)
+
+## Quick Start (First Time Setup)
+
+### Step 1: Verify Requirements
+
+```bash
+Build.bat check
+```
+
+This will verify:
+- Git installation
+- CMake installation and version
+- Visual Studio 2026 availability
+
+### Step 2: Setup (First Time Only)
 
 ```bash
 Build.bat setup
 ```
 
 This will:
-- Check for required tools (Git, CMake)
+- Validate CMake version (>= 3.10)
 - Initialize and update all Git submodules
-- Verify all dependencies are present
-- Configure CMake for your system
+- Configure CMake with Visual Studio 18 2026 generator
+- Set x64 platform
+- Enable C++20 standard
+- Configure build options (IBL, Vulkan, shader compilation)
 
-### Step 2: Build
+### Step 3: Build
 
-```bash
-Build.bat
-```
-
-Or explicitly:
 ```bash
 Build.bat build
 ```
 
-### Step 3: Run
+Or explicitly specify configuration:
+```bash
+Build.bat build Release
+Build.bat build Debug
+```
+
+### Step 4: Run
 
 ```bash
 Build.bat run
+```
+
+Or run specific configuration:
+```bash
+Build.bat run Debug
+Build.bat run Release
 ```
 
 ## All Commands
 
 The unified `Build.bat` script provides all build operations:
 
+### Core Commands
 ```bash
-Build.bat setup      # Initial setup (run once on new hardware)
-Build.bat build      # Build the project (default)
-Build.bat rebuild    # Clean and build
-Build.bat clean      # Remove all build artifacts
-Build.bat check      # Verify dependencies
-Build.bat shaderc    # Build shader compiler helper
-Build.bat run        # Build and run the engine
-Build.bat help       # Show usage information
+Build.bat setup              # Initial setup (run once on new hardware)
+Build.bat build [config]     # Build the project (default: Release)
+Build.bat rebuild [config]   # Clean and rebuild
+Build.bat run [config]       # Build and run the engine
+Build.bat clean              # Remove all build artifacts
+Build.bat check              # Verify dependencies
+Build.bat shaderc            # Build shader compiler helper
+Build.bat help               # Show usage information
+```
 
-# Build options
-Build.bat build --config Debug      # Build in Debug mode
-Build.bat build --config Release    # Build in Release mode (default)
-Build.bat build --verbose           # Show detailed build output
+### Build Configurations
+- **Release** (default) - Optimized build for production
+- **Debug** - Debug symbols, no optimization
+- **RelWithDebInfo** - Release with debug information
+- **MinSizeRel** - Minimum size release build
+
+### Examples
+```bash
+# Build in Release mode (default)
+Build.bat
+
+# Build in Debug mode
+Build.bat build Debug
+
+# Build and run Debug version
+Build.bat run Debug
+
+# Clean and rebuild Release
+Build.bat rebuild Release
+
+# Build with verbose output
+Build.bat build --verbose
 ```
 
 ## Shader Compilation (Optional but Recommended)

@@ -57,6 +57,10 @@ private:
     std::unordered_map<int, bool> m_previousKeyStates;
     std::unordered_map<int, bool> m_previousMouseStates;
 
+    // Special key states for toggles
+    bool m_wasZPressed = false;
+    bool m_wasSpacePressed = false;
+
     // Callbacks
     static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 };
