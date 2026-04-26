@@ -1,4 +1,5 @@
 #include "AnitoRenderer.h"
+#include "AnitoShader.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -65,23 +66,56 @@ void AnitoRenderer::init(void* nativeWindowHandle, uint32_t width, uint32_t heig
     std::cout << "Renderer: " << bgfx::getRendererName(caps->rendererType) << std::endl;
     std::cout << "Vendor: " << caps->vendorId << std::endl;
 
-    // Configure main view
-    bgfx::setViewClear(m_mainViewId,
+    // Configure skybox view (view 0) - renders first with identity transform (fullscreen)
+    bgfx::ViewId skyboxView = 0;
+    bgfx::setViewClear(skyboxView,
         BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH,
-        0x303030ff, // Dark gray background
+        0x000000ff, // Black clear (skybox will fully cover background)
         1.0f,
         0);
+    bgfx::setViewRect(skyboxView, 0, 0, uint16_t(m_width), uint16_t(m_height));
+    // Set identity transform for skybox (fullscreen rendering)
+    float identityMtx[16] = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
+    bgfx::setViewTransform(skyboxView, identityMtx, identityMtx);
 
+    // Configure main geometry view (view 1) - clear depth only, preserve color from skybox
+    m_mainViewId = 1; // Change main view to 1
+    bgfx::setViewClear(m_mainViewId,
+        BGFX_CLEAR_DEPTH, // Only clear depth, preserve skybox color
+        0x303030ff,
+        1.0f,
+        0);
     bgfx::setViewRect(m_mainViewId, 0, 0, uint16_t(m_width), uint16_t(m_height));
+
+    std::cout << "[AnitoRenderer] View configuration:" << std::endl;
+    std::cout << "  - View 0: Skybox (fullscreen, identity transform)" << std::endl;
+    std::cout << "  - View 1: Geometry (3D scene, camera transform)" << std::endl;
 }
 
 void AnitoRenderer::release() {
+    // Cleanup skybox uniforms
+    if (bgfx::isValid(m_viewProjInvUniform)) bgfx::destroy(m_viewProjInvUniform);
+    if (bgfx::isValid(m_cameraPosUniform)) bgfx::destroy(m_cameraPosUniform);
+    if (bgfx::isValid(m_skyboxParamsUniform)) bgfx::destroy(m_skyboxParamsUniform);
+
     bgfx::shutdown();
 }
 
 void AnitoRenderer::beginFrame() {
-    // Touch view to ensure it's submitted
-    bgfx::touch(m_mainViewId);
+    // Touch both skybox and main views to ensure they're submitted
+    bgfx::touch(0); // Skybox view
+    bgfx::touch(m_mainViewId); // Main geometry view
+
+    // Debug: Print once every 120 frames
+    static int debugFrameCount = 0;
+    if (debugFrameCount++ % 120 == 0) {
+        std::cout << "[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view " << m_mainViewId << " (geometry)" << std::endl;
+    }
 }
 
 void AnitoRenderer::endFrame() {
@@ -93,7 +127,9 @@ void AnitoRenderer::resize(uint32_t width, uint32_t height) {
     m_width = width;
     m_height = height;
     bgfx::reset(m_width, m_height, m_resetFlags);
-    bgfx::setViewRect(m_mainViewId, 0, 0, uint16_t(m_width), uint16_t(m_height));
+    // Update both skybox and main view rects
+    bgfx::setViewRect(0, 0, 0, uint16_t(m_width), uint16_t(m_height)); // Skybox view
+    bgfx::setViewRect(m_mainViewId, 0, 0, uint16_t(m_width), uint16_t(m_height)); // Main view
 }
 
 bgfx::ShaderHandle AnitoRenderer::createShader(const std::string& shaderPath) {
@@ -174,14 +210,19 @@ void AnitoRenderer::loadEnvironmentMap(const std::string& hdrPath) {
 
     std::cout << "[AnitoRenderer] Converting equirectangular to cubemap (1024x1024)..." << std::endl;
 
-    // Create cubemap texture (render targets for each face)
+    // Create cubemap texture - must be both render target AND readable
+    // RGBA16F is linear format (not sRGB), perfect for HDR
     const uint32_t cubemapSize = 1024;
     m_envCubemap = bgfx::createTextureCube(
         cubemapSize,
-        false,
-        1,
+        false, // no mips initially
+        1,     // 1 layer
         bgfx::TextureFormat::RGBA16F,
-        BGFX_TEXTURE_RT
+        BGFX_TEXTURE_RT |  // Render target (for equirect conversion)
+        BGFX_SAMPLER_MIN_ANISOTROPIC | // High quality filtering
+        BGFX_SAMPLER_MAG_ANISOTROPIC |
+        BGFX_SAMPLER_U_CLAMP |
+        BGFX_SAMPLER_V_CLAMP
     );
 
     if (!bgfx::isValid(m_envCubemap)) {
@@ -277,8 +318,13 @@ void AnitoRenderer::loadEnvironmentMap(const std::string& hdrPath) {
         bgfx::destroy(faceFramebuffer);
     }
 
-    // Frame to execute all conversions
+    // IMPORTANT: BGFX rendering is asynchronous and requires multiple frames
+    // to complete GPU operations. We need to wait for the cubemap conversion
+    // to finish before we can use the texture.
+    std::cout << "[AnitoRenderer] Waiting for GPU to complete cubemap conversion..." << std::endl;
     bgfx::frame();
+    bgfx::frame();
+    bgfx::frame(); // Extra frames to ensure all GPU commands complete
 
     // Cleanup resources
     bgfx::destroy(vbh);
@@ -310,19 +356,46 @@ void AnitoRenderer::loadEnvironmentMap(const std::string& hdrPath) {
 
     std::cout << "[AnitoRenderer] Generating prefiltered environment map for specular IBL..." << std::endl;
     generatePrefilterMap(m_envCubemap);
+
+    std::cout << "\n========================================" << std::endl;
+    std::cout << "IBL SYSTEM READY!" << std::endl;
+    std::cout << "  - Skybox: " << (bgfx::isValid(m_skyboxProgram) ? "LOADED" : "FAILED") << std::endl;
+    std::cout << "  - Environment Cubemap: " << (bgfx::isValid(m_envCubemap) ? "LOADED" : "FAILED") << std::endl;
+    std::cout << "  - Irradiance Map: " << (bgfx::isValid(m_irradianceMap) ? "LOADED" : "FAILED") << std::endl;
+    std::cout << "  - Prefilter Map: " << (bgfx::isValid(m_prefilterMap) ? "LOADED" : "FAILED") << std::endl;
+    std::cout << "  - IBL Enabled: " << (m_enableIBL ? "YES" : "NO") << std::endl;
+    std::cout << "  - Press 'Z' to toggle IBL on/off" << std::endl;
+    std::cout << "========================================\n" << std::endl;
 }
 
 void AnitoRenderer::renderSkybox(const float* viewProjInv, const float* cameraPos) {
     if (!bgfx::isValid(m_envCubemap) || !bgfx::isValid(m_skyboxProgram)) {
+        static bool warningShown = false;
+        if (!warningShown) {
+            std::cerr << "[AnitoRenderer] Skybox cannot render: "
+                      << "envCubemap=" << bgfx::isValid(m_envCubemap)
+                      << ", program=" << bgfx::isValid(m_skyboxProgram) << std::endl;
+            warningShown = true;
+        }
         return;
     }
 
-    // Create fullscreen triangle vertices (more efficient than quad)
+    // Create persistent uniforms on first call
+    if (!bgfx::isValid(m_viewProjInvUniform)) {
+        m_viewProjInvUniform = bgfx::createUniform("u_viewProjInv", bgfx::UniformType::Mat4);
+    }
+    if (!bgfx::isValid(m_cameraPosUniform)) {
+        m_cameraPosUniform = bgfx::createUniform("u_cameraPos", bgfx::UniformType::Vec4);
+    }
+    if (!bgfx::isValid(m_skyboxParamsUniform)) {
+        m_skyboxParamsUniform = bgfx::createUniform("u_skyboxParams", bgfx::UniformType::Vec4);
+    }
+
+    // Create fullscreen triangle vertices
     struct PosVertex {
         float x, y;
     };
 
-    // Fullscreen triangle covering [-1, 1] NDC space
     static PosVertex skyboxVertices[] = {
         {-1.0f, -1.0f},
         { 3.0f, -1.0f},
@@ -338,49 +411,44 @@ void AnitoRenderer::renderSkybox(const float* viewProjInv, const float* cameraPo
         layoutInit = true;
     }
 
-    // Create transient vertex buffer for skybox
+    // BGFX pattern: Set textures FIRST
+    bgfx::setTexture(0, m_skyboxCubeUniform, m_envCubemap);
+
+    // Set render state
+    bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
+
+    // Create and set transient vertex buffer
     bgfx::TransientVertexBuffer tvb;
     bgfx::allocTransientVertexBuffer(&tvb, 3, skyboxLayout);
 
     if (tvb.data) {
         memcpy(tvb.data, skyboxVertices, sizeof(skyboxVertices));
-
-        // Set uniforms
-        bgfx::UniformHandle viewProjInvUniform = bgfx::createUniform("u_viewProjInv", bgfx::UniformType::Mat4);
-        bgfx::UniformHandle cameraPosUniform = bgfx::createUniform("u_cameraPos", bgfx::UniformType::Vec4);
-
-        bgfx::setUniform(viewProjInvUniform, viewProjInv);
-        bgfx::setUniform(cameraPosUniform, cameraPos);
-
-        // Bind cubemap
-        bgfx::setTexture(0, m_skyboxCubeUniform, m_envCubemap);
-
-        // Set vertex buffer
         bgfx::setVertexBuffer(0, &tvb);
-
-        // Render state: write to color only, depth = 1.0 (furthest)
-        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_DEPTH_TEST_LEQUAL);
-
-        // Submit to a background view (render before main geometry)
-        bgfx::ViewId skyboxView = 0; // Use view 0 for skybox background
-        bgfx::submit(skyboxView, m_skyboxProgram);
-
-        // Cleanup transient uniforms (note: don't destroy if they're reused)
-        // For now, we'll recreate each frame - for production, cache these
-        bgfx::destroy(viewProjInvUniform);
-        bgfx::destroy(cameraPosUniform);
     }
+
+    // Set uniforms
+    bgfx::setUniform(m_viewProjInvUniform, viewProjInv);
+    bgfx::setUniform(m_cameraPosUniform, cameraPos);
+
+    float skyboxParams[4] = { 3.0f, 0.0f, 0.0f, 0.0f };
+    bgfx::setUniform(m_skyboxParamsUniform, skyboxParams);
+
+    // Submit to view 0
+    bgfx::submit(0, m_skyboxProgram);
 }
 
 void AnitoRenderer::generateIrradianceMap(bgfx::TextureHandle envCubemap) {
-    // Create irradiance cubemap (smaller resolution: 32x32 is sufficient for diffuse)
+    // Create irradiance cubemap with proper sampling flags (smaller resolution: 32x32 is sufficient for diffuse)
+    // Note: Linear filtering is default in bgfx
     const uint32_t irradianceSize = 32;
     m_irradianceMap = bgfx::createTextureCube(
         irradianceSize,
         false,
         1,
         bgfx::TextureFormat::RGBA16F,
-        BGFX_TEXTURE_RT
+        BGFX_TEXTURE_RT |
+        BGFX_SAMPLER_U_CLAMP |
+        BGFX_SAMPLER_V_CLAMP
     );
 
     if (!bgfx::isValid(m_irradianceMap)) {
@@ -390,8 +458,8 @@ void AnitoRenderer::generateIrradianceMap(bgfx::TextureHandle envCubemap) {
 
     // Load irradiance convolution shader
     bgfx::ProgramHandle convolutionProgram = createProgram(
-        "assets/shaders/vs_irradiance_convolution.bin",
-        "assets/shaders/fs_irradiance_convolution.bin"
+        "assets/shaders/compiled/vs_irradiance_convolution.bin",
+        "assets/shaders/compiled/fs_irradiance_convolution.bin"
     );
 
     if (!bgfx::isValid(convolutionProgram)) {
@@ -438,7 +506,7 @@ void AnitoRenderer::generateIrradianceMap(bgfx::TextureHandle envCubemap) {
     // Render to each cubemap face
     for (uint8_t face = 0; face < 6; ++face) {
         bgfx::Attachment attachment;
-        attachment.init(m_irradianceMap, bgfx::Access::Write, 0, 0, face, BGFX_RESOLVE_NONE);
+        attachment.init(m_irradianceMap, bgfx::Access::Write, face, 1, 0, BGFX_RESOLVE_NONE);
 
         bgfx::FrameBufferHandle faceFramebuffer = bgfx::createFrameBuffer(1, &attachment, false);
 
@@ -488,7 +556,8 @@ void AnitoRenderer::generateIrradianceMap(bgfx::TextureHandle envCubemap) {
 }
 
 void AnitoRenderer::generatePrefilterMap(bgfx::TextureHandle envCubemap) {
-    // Create prefilter cubemap with mipmaps (512x512 base, 5 mip levels for roughness)
+    // Create prefilter cubemap with mipmaps and proper sampling flags (512x512 base, 5 mip levels for roughness)
+    // Note: Linear filtering with mips is default in bgfx
     const uint32_t prefilterSize = 512;
     const uint32_t numMips = 5; // Mip 0-4 for roughness 0.0-1.0
 
@@ -497,7 +566,9 @@ void AnitoRenderer::generatePrefilterMap(bgfx::TextureHandle envCubemap) {
         true,  // hasMips
         numMips,
         bgfx::TextureFormat::RGBA16F,
-        BGFX_TEXTURE_RT
+        BGFX_TEXTURE_RT |
+        BGFX_SAMPLER_U_CLAMP |
+        BGFX_SAMPLER_V_CLAMP
     );
 
     if (!bgfx::isValid(m_prefilterMap)) {
@@ -507,8 +578,8 @@ void AnitoRenderer::generatePrefilterMap(bgfx::TextureHandle envCubemap) {
 
     // Load prefilter shader
     bgfx::ProgramHandle prefilterProgram = createProgram(
-        "assets/shaders/vs_prefilter_envmap.bin",
-        "assets/shaders/fs_prefilter_envmap.bin"
+        "assets/shaders/compiled/vs_prefilter_envmap.bin",
+        "assets/shaders/compiled/fs_prefilter_envmap.bin"
     );
 
     if (!bgfx::isValid(prefilterProgram)) {
@@ -565,7 +636,7 @@ void AnitoRenderer::generatePrefilterMap(bgfx::TextureHandle envCubemap) {
         // Render to each cubemap face
         for (uint8_t face = 0; face < 6; ++face) {
             bgfx::Attachment attachment;
-            attachment.init(m_prefilterMap, bgfx::Access::Write, 0, mip, face, BGFX_RESOLVE_NONE);
+            attachment.init(m_prefilterMap, bgfx::Access::Write, face, 1, mip, BGFX_RESOLVE_NONE);
 
             bgfx::FrameBufferHandle faceFramebuffer = bgfx::createFrameBuffer(1, &attachment, false);
 
@@ -614,6 +685,39 @@ void AnitoRenderer::generatePrefilterMap(bgfx::TextureHandle envCubemap) {
     bgfx::destroy(prefilterProgram);
 
     std::cout << "[AnitoRenderer] Prefilter map generation complete!" << std::endl;
+}
+
+void AnitoRenderer::bindIBLTextures(std::shared_ptr<AnitoShader> shader) {
+    if (!shader || !shader->isValid()) return;
+    if (!isIBLReady()) return;
+
+    // Bind IBL textures to texture units 0, 1, 2
+    // These must be bound per-draw-call in bgfx
+
+    // Environment cubemap (unit 0)
+    bgfx::UniformHandle envMapUniform = shader->getUniformHandle("u_envMap");
+    if (bgfx::isValid(envMapUniform) && bgfx::isValid(m_envCubemap)) {
+        bgfx::setTexture(0, envMapUniform, m_envCubemap);
+    }
+
+    // Irradiance map for diffuse IBL (unit 1)
+    bgfx::UniformHandle irradianceMapUniform = shader->getUniformHandle("u_irradianceMap");
+    if (bgfx::isValid(irradianceMapUniform) && bgfx::isValid(m_irradianceMap)) {
+        bgfx::setTexture(1, irradianceMapUniform, m_irradianceMap);
+    }
+
+    // Prefilter map for specular IBL (unit 2)
+    bgfx::UniformHandle prefilterMapUniform = shader->getUniformHandle("u_prefilterMap");
+    if (bgfx::isValid(prefilterMapUniform) && bgfx::isValid(m_prefilterMap)) {
+        bgfx::setTexture(2, prefilterMapUniform, m_prefilterMap);
+    }
+
+    // Set IBL enable flag
+    float iblEnabled[4] = { m_enableIBL ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f };
+    bgfx::UniformHandle iblToggleUniform = shader->getUniformHandle("u_enableIBL");
+    if (bgfx::isValid(iblToggleUniform)) {
+        bgfx::setUniform(iblToggleUniform, iblEnabled);
+    }
 }
 
 } // namespace Anito

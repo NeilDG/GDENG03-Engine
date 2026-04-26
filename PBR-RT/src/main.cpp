@@ -15,6 +15,10 @@ int main(int argc, char** argv) {
             return -1;
         }
 
+        // Enable auto-shutdown after 6 seconds for frame capture testing
+        engine.setAutoShutdown(6.0f);
+        std::cout << "[Main] Auto-shutdown enabled: Engine will close after 6 seconds" << std::endl;
+
         engine.run();
         engine.shutdown();
 

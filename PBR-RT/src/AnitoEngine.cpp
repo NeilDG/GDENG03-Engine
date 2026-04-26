@@ -6,6 +6,7 @@
 #include "Renderer/AnitoMaterial.h"
 #include "Renderer/AnitoMeshGenerator.h"
 #include "Renderer/AnitoPBRTestScenes.h"
+#include "Debug/AnitoFrameCaptureRecorder.h"
 #include "GameObjects/AnitoGameObjectManager.h"
 #include "GameObjects/AnitoGameObject.h"
 #include "Components/AnitoMeshRenderer.h"
@@ -25,6 +26,9 @@ AnitoEngine::AnitoEngine()
     , m_running(false)
     , m_lastFrameTime(0.0f)
     , m_pbrTestScenes(nullptr)
+    , m_frameCaptureRecorder(nullptr)
+    , m_engineStartTime(0.0f)
+    , m_autoShutdownTime(0.0f) // Disabled by default
     , m_currentCameraPos{0.0f, 5.0f, 15.0f}
 {
     s_instance = this;
@@ -71,11 +75,16 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
     // Initialize GameObjectManager
     AnitoGameObjectManager::initialize();
 
+    // Initialize frame capture recorder
+    m_frameCaptureRecorder = std::make_unique<AnitoFrameCaptureRecorder>();
+    m_frameCaptureRecorder->initialize("anito-debug", 3.0f, "png");
+
     // Create test scene
     createTestScene();
 
     m_running = true;
     m_lastFrameTime = static_cast<float>(glfwGetTime());
+    m_engineStartTime = m_lastFrameTime;
 
     std::cout << "Anito Engine initialized successfully!" << std::endl;
     std::cout << "==================================================" << std::endl;
@@ -170,6 +179,16 @@ void AnitoEngine::run() {
         float deltaTime = currentTime - m_lastFrameTime;
         m_lastFrameTime = currentTime;
 
+        // Check for auto-shutdown
+        if (m_autoShutdownTime > 0.0f) {
+            float elapsedTime = currentTime - m_engineStartTime;
+            if (elapsedTime >= m_autoShutdownTime) {
+                std::cout << "[Engine] Auto-shutdown triggered after " << elapsedTime << " seconds" << std::endl;
+                m_running = false;
+                break;
+            }
+        }
+
         // Process events
         m_window->pollEvents();
 
@@ -178,6 +197,11 @@ void AnitoEngine::run() {
 
         // Render
         render();
+
+        // Update frame capture recorder
+        if (m_frameCaptureRecorder) {
+            m_frameCaptureRecorder->update(deltaTime);
+        }
     }
 
     std::cout << "[Engine] Main loop ended." << std::endl;
@@ -273,11 +297,18 @@ void AnitoEngine::render() {
         glm::mat4 viewProj = glm::make_mat4(proj.data()) * glm::make_mat4(view.data());
         glm::mat4 viewProjInv = glm::inverse(viewProj);
 
+        // Debug: Only print once every 60 frames to avoid spam
+        static int frameCount = 0;
+        if (frameCount++ % 60 == 0) {
+            std::cout << "[Render] Skybox rendering: IBL enabled, ready=" << renderer->isIBLReady() << std::endl;
+        }
+
         // Render skybox
         renderer->renderSkybox(glm::value_ptr(viewProjInv), m_currentCameraPos);
     }
 
     // Set global lighting uniforms (must be set every frame for bgfx)
+    // These are "global" in the sense that they're set once per frame before all mesh renders
     if (m_pbrTestScenes) {
         auto shader = AnitoShader::get("SimpleShader");
         if (shader && shader->isValid()) {
@@ -286,41 +317,13 @@ void AnitoEngine::render() {
             float lightDir[4] = { -0.3f, -0.5f, 0.8f, 12.0f }; // w = intensity
             shader->setUniform("u_lightDir", lightDir);
 
-            // Set camera position
+            // Set camera position (needed for specular reflections and view direction)
             float cameraPos[4] = { m_currentCameraPos[0], m_currentCameraPos[1], m_currentCameraPos[2], 1.0f };
             shader->setUniform("u_cameraPos", cameraPos);
 
-            // Set IBL environment cubemap and toggle
-            if (renderer->isIBLReady()) {
-                bgfx::TextureHandle envCubemap = renderer->getEnvCubemap();
-                bgfx::TextureHandle irradianceMap = renderer->getIrradianceMap();
-                bgfx::TextureHandle prefilterMap = renderer->getPrefilterMap();
-
-                // Bind environment cubemap (for skybox/fallback)
-                bgfx::UniformHandle envMapUniform = shader->getUniformHandle("u_envMap");
-                if (bgfx::isValid(envMapUniform) && bgfx::isValid(envCubemap)) {
-                    bgfx::setTexture(0, envMapUniform, envCubemap);
-                }
-
-                // Bind irradiance map (for diffuse IBL)
-                bgfx::UniformHandle irradianceMapUniform = shader->getUniformHandle("u_irradianceMap");
-                if (bgfx::isValid(irradianceMapUniform) && bgfx::isValid(irradianceMap)) {
-                    bgfx::setTexture(1, irradianceMapUniform, irradianceMap);
-                }
-
-                // Bind prefilter map (for specular IBL with roughness)
-                bgfx::UniformHandle prefilterMapUniform = shader->getUniformHandle("u_prefilterMap");
-                if (bgfx::isValid(prefilterMapUniform) && bgfx::isValid(prefilterMap)) {
-                    bgfx::setTexture(2, prefilterMapUniform, prefilterMap);
-                }
-
-                // Set IBL toggle state (pass as vec4 for bgfx compatibility)
-                float iblEnabled[4] = { renderer->getEnableIBL() ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f };
-                bgfx::UniformHandle iblToggleUniform = shader->getUniformHandle("u_enableIBL");
-                if (bgfx::isValid(iblToggleUniform)) {
-                    bgfx::setUniform(iblToggleUniform, iblEnabled);
-                }
-            }
+            // Note: IBL textures are now bound per-mesh in AnitoMeshRenderer::render()
+            // via AnitoRenderer::bindIBLTextures() to comply with bgfx per-draw-call requirements
+            // This ensures textures are properly bound for each submit() call
         }
     }
 

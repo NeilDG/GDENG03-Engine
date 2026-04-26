@@ -4,6 +4,8 @@
 - Always read the "agents.md" again, before reading my instructions. After each task, provide a self-reflection checklist, assuring me you've followed the standards and details set in the "agents.md"
 - You must consider modifying shader code, wherever necessary. Do not focus simply on the C++ aspects since we're mostly tasked with the rendering system. Be proactive in shader programming.
 - Before completing a task, ensure that the build and compilation is successful. Do not hastily change the build process as much as possible. Ask permission from me if this is necessary.
+- For each task, always perform a web search, of relevant resources, as specified in the agents.md. Ensure that the code is inspired by these professional and educational resources about game engine development, and real-time rendering.
+
 
 ###########
 - Check the following files: BUILD_INSTRUCTIONS.md, SHADER_COMPILATION_INSTRUCTIONS.md. Ensure that such instructions are also followed strictly.

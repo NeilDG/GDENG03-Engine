@@ -98,6 +98,9 @@ void AnitoMaterial::bind(bgfx::ViewId viewId) {
     // Bind textures
     // TODO: Create uniform samplers for each texture slot and bind them
     // For now, we'll use default white texture
+
+    // Note: IBL textures are bound separately by AnitoRenderer::bindIBLTextures()
+    // in the mesh renderer before submit
 }
 
 std::shared_ptr<AnitoMaterial> AnitoMaterial::createDefault() {

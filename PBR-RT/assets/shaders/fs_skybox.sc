@@ -1,25 +1,38 @@
-$input v_position
+$input v_dir
 #include <bgfx_shader.sh>
 
-uniform mat4 u_viewProjInv;
-uniform vec4 u_cameraPos;
 samplerCube s_skybox;
+uniform vec4 u_skyboxParams; // x: exposure
+
+// Convert from sRGB to linear space
+vec3 toLinear(vec3 _rgb)
+{
+    return pow(abs(_rgb), vec3_splat(2.2));
+}
+
+// Filmic tone mapping
+vec3 toFilmic(vec3 _rgb)
+{
+    _rgb = max(vec3_splat(0.0), _rgb - 0.004);
+    _rgb = (_rgb * (6.2 * _rgb + 0.5)) / (_rgb * (6.2 * _rgb + 1.7) + 0.06);
+    return _rgb;
+}
 
 void main()
 {
-    // Reconstruct view direction from screen position
-    vec2 uv = v_position.xy * 0.5 + 0.5;
-    vec4 ndc = vec4(uv * 2.0 - 1.0, 1.0, 1.0);
-    vec4 world = mul(u_viewProjInv, ndc);
-    vec3 dir = normalize(world.xyz / world.w - u_cameraPos.xyz);
+    // Normalize direction
+    vec3 dir = normalize(v_dir);
 
     // Sample cubemap
-    vec3 color = textureCube(s_skybox, dir).rgb;
+    vec4 color = textureCube(s_skybox, dir);
 
-    // Simple atmospheric effect: fade horizon, gamma correction
-    float horizon = pow(1.0 - abs(dir.y), 2.0);
-    color = mix(color, vec3(0.6,0.7,1.0), horizon * 0.25);
-    color = pow(color, vec3_splat(1.0/2.2));
+    // Convert to linear space
+    color.rgb = toLinear(color.rgb);
 
-    gl_FragColor = vec4(color, 1.0);
+    // Apply exposure
+    float exposure = u_skyboxParams.x;
+    color.rgb *= exp2(exposure);
+
+    // Apply tone mapping
+    gl_FragColor = vec4(toFilmic(color.rgb), 1.0);
 }

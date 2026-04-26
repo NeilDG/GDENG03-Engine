@@ -6,6 +6,9 @@
 
 namespace Anito {
 
+// Forward declarations
+class AnitoShader;
+
 /**
  * AnitoRenderer - Core rendering abstraction over bgfx
  * Implements deferred rendering pipeline with PBR materials
@@ -34,6 +37,7 @@ public:
     // Skybox/IBL
     void loadEnvironmentMap(const std::string& hdrPath);
     void renderSkybox(const float* viewProjInv, const float* cameraPos);
+    void bindIBLTextures(std::shared_ptr<AnitoShader> shader); // Bind IBL textures for current draw call
     bgfx::TextureHandle getEnvCubemap() const { return m_envCubemap; }
     bgfx::TextureHandle getIrradianceMap() const { return m_irradianceMap; }
     bgfx::TextureHandle getPrefilterMap() const { return m_prefilterMap; }
@@ -67,6 +71,12 @@ private:
     bgfx::TextureHandle m_prefilterMap = BGFX_INVALID_HANDLE;       // Specular IBL (512x512 with mips)
     bgfx::ProgramHandle m_skyboxProgram = BGFX_INVALID_HANDLE;
     bgfx::UniformHandle m_skyboxCubeUniform = BGFX_INVALID_HANDLE;
+
+    // Persistent skybox uniforms (don't create/destroy every frame!)
+    bgfx::UniformHandle m_viewProjInvUniform = BGFX_INVALID_HANDLE;
+    bgfx::UniformHandle m_cameraPosUniform = BGFX_INVALID_HANDLE;
+    bgfx::UniformHandle m_skyboxParamsUniform = BGFX_INVALID_HANDLE;
+
     bool m_enableIBL = true;
 };
 

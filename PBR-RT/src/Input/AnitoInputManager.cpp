@@ -57,7 +57,17 @@ void AnitoInputManager::update() {
         auto* renderer = AnitoRenderer::getInstance();
         if (renderer) {
             renderer->setEnableIBL(!renderer->getEnableIBL());
-            std::cout << "[Input] IBL " << (renderer->getEnableIBL() ? "enabled" : "disabled") << std::endl;
+            std::cout << "\n========================================" << std::endl;
+            std::cout << "IBL " << (renderer->getEnableIBL() ? "ENABLED" : "DISABLED") << std::endl;
+            if (renderer->getEnableIBL()) {
+                std::cout << "  - Skybox visible: YES" << std::endl;
+                std::cout << "  - Environment lighting: ACTIVE" << std::endl;
+                std::cout << "  - Irradiance diffuse: ACTIVE" << std::endl;
+                std::cout << "  - Specular reflections: ACTIVE" << std::endl;
+            } else {
+                std::cout << "  - Using simple ambient lighting" << std::endl;
+            }
+            std::cout << "========================================\n" << std::endl;
         }
     }
     m_wasZPressed = zDown;

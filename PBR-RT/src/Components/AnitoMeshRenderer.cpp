@@ -38,8 +38,14 @@ void AnitoMeshRenderer::render() {
     m_vertexBuffer->bind();
     m_indexBuffer->bind();
 
-    // Bind material
+    // Bind material (PBR parameters)
     m_material->bind(renderer->getMainViewId());
+
+    // CRITICAL: Bind IBL textures per-draw-call (bgfx requirement)
+    // This must be done AFTER material bind and BEFORE setState/submit
+    if (renderer->isIBLReady()) {
+        renderer->bindIBLTextures(m_material->getShader());
+    }
 
     // Set render state (default for now)
     uint64_t state = 0

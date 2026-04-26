@@ -213,6 +213,12 @@ set(ANITO_WINDOW_SOURCES
     src/Input/AnitoInputManager.h
 )
 
+# Debug Tools
+set(ANITO_DEBUG_SOURCES
+    src/Debug/AnitoFrameCaptureRecorder.cpp
+    src/Debug/AnitoFrameCaptureRecorder.h
+)
+
 # Main Application
 set(ANITO_APP_SOURCES
     src/main.cpp
@@ -229,6 +235,7 @@ set(ANITO_ALL_SOURCES
     ${ANITO_GAMEOBJECT_SOURCES}
     ${ANITO_COMPONENT_SOURCES}
     ${ANITO_WINDOW_SOURCES}
+    ${ANITO_DEBUG_SOURCES}
     ${ANITO_APP_SOURCES}
 )
 
@@ -362,8 +369,15 @@ if(SHADERC_EXECUTABLE AND ANITO_COMPILE_SHADERS)
         set(SHADER_PROFILE "120")
     endif()
 
-    # Function to compile a shader
+    # Function to compile a shader (with optional custom varying definition)
     function(add_bgfx_shader SHADER_NAME SHADER_TYPE SHADER_SOURCE)
+        # Optional 4th parameter: custom varying definition file
+        if(ARGC GREATER 3)
+            set(CUSTOM_VARYING_DEF "${ARGV3}")
+        else()
+            set(CUSTOM_VARYING_DEF "${VARYING_DEF}")
+        endif()
+
         if(SHADER_TYPE STREQUAL "VERTEX")
             set(TYPE_FLAG "vertex")
         elseif(SHADER_TYPE STREQUAL "FRAGMENT")
@@ -382,6 +396,12 @@ if(SHADERC_EXECUTABLE AND ANITO_COMPILE_SHADERS)
             return()
         endif()
 
+        # Check if varying def exists
+        if(NOT EXISTS "${CUSTOM_VARYING_DEF}")
+            message(WARNING "Varying definition not found: ${CUSTOM_VARYING_DEF}")
+            return()
+        endif()
+
         add_custom_command(
             OUTPUT ${OUTPUT_FILE}
             COMMAND "${SHADERC_EXECUTABLE}"
@@ -390,9 +410,9 @@ if(SHADERC_EXECUTABLE AND ANITO_COMPILE_SHADERS)
                 --type ${TYPE_FLAG}
                 --platform ${SHADER_PLATFORM}
                 -p ${SHADER_PROFILE}
-                --varyingdef "${VARYING_DEF}"
+                --varyingdef "${CUSTOM_VARYING_DEF}"
                 -i "${BGFX_INCLUDE}"
-            DEPENDS ${SHADER_SOURCE} ${VARYING_DEF}
+            DEPENDS ${SHADER_SOURCE} ${CUSTOM_VARYING_DEF}
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             COMMENT "Compiling ${SHADER_TYPE} shader: ${SHADER_NAME}"
             VERBATIM
@@ -413,6 +433,54 @@ if(SHADERC_EXECUTABLE AND ANITO_COMPILE_SHADERS)
     if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/fs_simple.sc")
         add_bgfx_shader(fs_simple FRAGMENT "${CMAKE_SOURCE_DIR}/assets/shaders/fs_simple.sc")
         list(APPEND COMPILED_SHADERS ${fs_simple_OUTPUT})
+    endif()
+
+    # IBL Shaders - Equirectangular to Cubemap conversion
+    set(EQUIRECT_VARYING_DEF "${CMAKE_SOURCE_DIR}/assets/shaders/varying_equirect_to_cubemap.def.sc")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/vs_equirect_to_cubemap.sc")
+        add_bgfx_shader(vs_equirect_to_cubemap VERTEX "${CMAKE_SOURCE_DIR}/assets/shaders/vs_equirect_to_cubemap.sc" "${EQUIRECT_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${vs_equirect_to_cubemap_OUTPUT})
+    endif()
+
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/fs_equirect_to_cubemap.sc")
+        add_bgfx_shader(fs_equirect_to_cubemap FRAGMENT "${CMAKE_SOURCE_DIR}/assets/shaders/fs_equirect_to_cubemap.sc" "${EQUIRECT_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${fs_equirect_to_cubemap_OUTPUT})
+    endif()
+
+    # IBL Shaders - Irradiance convolution for diffuse IBL
+    set(IRRADIANCE_VARYING_DEF "${CMAKE_SOURCE_DIR}/assets/shaders/varying_irradiance_convolution.def.sc")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/vs_irradiance_convolution.sc")
+        add_bgfx_shader(vs_irradiance_convolution VERTEX "${CMAKE_SOURCE_DIR}/assets/shaders/vs_irradiance_convolution.sc" "${IRRADIANCE_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${vs_irradiance_convolution_OUTPUT})
+    endif()
+
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/fs_irradiance_convolution.sc")
+        add_bgfx_shader(fs_irradiance_convolution FRAGMENT "${CMAKE_SOURCE_DIR}/assets/shaders/fs_irradiance_convolution.sc" "${IRRADIANCE_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${fs_irradiance_convolution_OUTPUT})
+    endif()
+
+    # IBL Shaders - Prefilter environment map for specular IBL
+    set(PREFILTER_VARYING_DEF "${CMAKE_SOURCE_DIR}/assets/shaders/varying_prefilter_envmap.def.sc")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/vs_prefilter_envmap.sc")
+        add_bgfx_shader(vs_prefilter_envmap VERTEX "${CMAKE_SOURCE_DIR}/assets/shaders/vs_prefilter_envmap.sc" "${PREFILTER_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${vs_prefilter_envmap_OUTPUT})
+    endif()
+
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/fs_prefilter_envmap.sc")
+        add_bgfx_shader(fs_prefilter_envmap FRAGMENT "${CMAKE_SOURCE_DIR}/assets/shaders/fs_prefilter_envmap.sc" "${PREFILTER_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${fs_prefilter_envmap_OUTPUT})
+    endif()
+
+    # IBL Shaders - Skybox rendering
+    set(SKYBOX_VARYING_DEF "${CMAKE_SOURCE_DIR}/assets/shaders/varying_skybox.def.sc")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/vs_skybox.sc")
+        add_bgfx_shader(vs_skybox VERTEX "${CMAKE_SOURCE_DIR}/assets/shaders/vs_skybox.sc" "${SKYBOX_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${vs_skybox_OUTPUT})
+    endif()
+
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/fs_skybox.sc")
+        add_bgfx_shader(fs_skybox FRAGMENT "${CMAKE_SOURCE_DIR}/assets/shaders/fs_skybox.sc" "${SKYBOX_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${fs_skybox_OUTPUT})
     endif()
 
     # Only create shader compilation target if we have shaders to compile

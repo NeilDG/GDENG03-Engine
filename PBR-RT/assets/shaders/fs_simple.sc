@@ -118,8 +118,9 @@ void main()
     if (u_enableIBL.x > 0.5) {
         // Use prefiltered maps for physically accurate IBL
 
-        // Diffuse IBL: Sample irradiance map
+        // Diffuse IBL: Sample irradiance map and convert to linear
         vec3 irradiance = textureCube(u_irradianceMap, N).rgb;
+        irradiance = pow(abs(irradiance), vec3_splat(2.2)); // toLinear
         vec3 diffuseIBL = irradiance * u_baseColor.rgb;
 
         // Specular IBL: Sample prefiltered environment map at roughness mip level
@@ -127,6 +128,7 @@ void main()
         const float MAX_REFLECTION_LOD = 4.0; // 5 mip levels (0-4)
         float lod = roughness * MAX_REFLECTION_LOD;
         vec3 prefilteredColor = textureCubeLod(u_prefilterMap, R, lod).rgb;
+        prefilteredColor = pow(abs(prefilteredColor), vec3_splat(2.2)); // toLinear
 
         // Fresnel for IBL
         vec3 F_ibl = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
@@ -137,9 +139,14 @@ void main()
         kD_ibl *= 1.0 - metallic;
 
         // Combine diffuse and specular IBL
-        vec3 diffuse_ambient = kD_ibl * diffuseIBL;
-        vec3 specular_ambient = kS_ibl * prefilteredColor;
+        // Increased multipliers for indoor HDR maps (BGFX uses exp2(exposure))
+        float iblDiffuseStrength = 2.0;  // Reduced from 3.5 (toLinear gives more accurate values)
+        float iblSpecularStrength = 2.5; // Reduced from 4.0 (filmic tone mapping is less aggressive)
 
+        vec3 diffuse_ambient = kD_ibl * diffuseIBL * iblDiffuseStrength;
+        vec3 specular_ambient = kS_ibl * prefilteredColor * iblSpecularStrength;
+
+        // Apply AO
         ambient = (diffuse_ambient + specular_ambient) * ao;
     } else {
         // Fallback: simple ambient without IBL
@@ -149,14 +156,12 @@ void main()
         ambient = (kD_ambient * u_baseColor.rgb + kS_ambient * F0) * ao * 0.6;
     }
 
-    // Final color
-    vec3 color = ambient + Lo;
+    // Combine direct lighting and ambient (IBL)
+    vec3 color = Lo + ambient;
 
-    // Tone mapping (Reinhard)
-    color = color / (color + vec3_splat(1.0));
-
-    // Gamma correction (assuming sRGB output)
-    color = pow(color, vec3_splat(1.0/2.2));
+    // Filmic tone mapping (BGFX pattern - matches skybox)
+    color = max(vec3_splat(0.0), color - 0.004);
+    color = (color * (6.2 * color + 0.5)) / (color * (6.2 * color + 1.7) + 0.06);
 
     gl_FragColor = vec4(color, u_baseColor.a);
 }
