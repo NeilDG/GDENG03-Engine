@@ -27,8 +27,6 @@ AnitoEngine::AnitoEngine()
     , m_lastFrameTime(0.0f)
     , m_pbrTestScenes(nullptr)
     , m_frameCaptureRecorder(nullptr)
-    , m_engineStartTime(0.0f)
-    , m_autoShutdownTime(0.0f) // Disabled by default
     , m_currentCameraPos{0.0f, 5.0f, 15.0f}
 {
     s_instance = this;
@@ -84,7 +82,6 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
 
     m_running = true;
     m_lastFrameTime = static_cast<float>(glfwGetTime());
-    m_engineStartTime = m_lastFrameTime;
 
     std::cout << "Anito Engine initialized successfully!" << std::endl;
     std::cout << "==================================================" << std::endl;
@@ -179,16 +176,6 @@ void AnitoEngine::run() {
         float deltaTime = currentTime - m_lastFrameTime;
         m_lastFrameTime = currentTime;
 
-        // Check for auto-shutdown
-        if (m_autoShutdownTime > 0.0f) {
-            float elapsedTime = currentTime - m_engineStartTime;
-            if (elapsedTime >= m_autoShutdownTime) {
-                std::cout << "[Engine] Auto-shutdown triggered after " << elapsedTime << " seconds" << std::endl;
-                m_running = false;
-                break;
-            }
-        }
-
         // Process events
         m_window->pollEvents();
 
@@ -209,6 +196,11 @@ void AnitoEngine::run() {
 
 void AnitoEngine::shutdown() {
     std::cout << "\n[Engine] Shutting down Anito Engine..." << std::endl;
+
+    // Destroy PBR test scenes and frame capture recorder BEFORE bgfx shutdown
+    // These hold bgfx resources (uniforms, textures, etc.) that must be destroyed before bgfx::shutdown()
+    m_pbrTestScenes.reset();
+    m_frameCaptureRecorder.reset();
 
     // Destroy game objects
     if (AnitoGameObjectManager::getInstance()) {

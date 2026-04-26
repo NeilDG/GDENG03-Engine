@@ -344,24 +344,25 @@ void AnitoPBRTestScenes::createMetallicShowcaseScene() {
     int index = 0;
     for (int y = 0; y < config.gridSizeY; ++y) {
         for (int x = 0; x < config.gridSizeX; ++x) {
-            if (index >= metals.size()) break;
+            // Calculate which metal to use - cycle through available metals
+            int metalIndex = index % metals.size();
 
             // Roughness varies across X
             float roughness = static_cast<float>(x) / static_cast<float>(config.gridSizeX - 1);
             roughness = 0.0f + roughness * 0.6f; // Range from 0.0 to 0.6 for metals
-            
+
             // Always metallic
             float metallic = 1.0f;
 
             // Get metal color
-            glm::vec3 color = y == 0 ? metals[index].second : metals[index + config.gridSizeX].second;
+            glm::vec3 color = metals[metalIndex].second;
 
             // Create material
-            std::string matName = metals[index].first + "_" + std::to_string(x);
+            std::string matName = metals[metalIndex].first + "_" + std::to_string(y) + "_" + std::to_string(x);
             auto material = createMaterialWithParams(matName, color, metallic, roughness);
 
             // Create sphere
-            std::string objName = "Metal_" + metals[index].first + "_" + std::to_string(x);
+            std::string objName = "Metal_" + metals[metalIndex].first + "_" + std::to_string(y) + "_" + std::to_string(x);
             auto* sphere = new AnitoGameObject(objName, AnitoGameObject::PrimitiveType::Sphere);
 
             // Position
@@ -405,24 +406,25 @@ void AnitoPBRTestScenes::createDielectricShowcaseScene() {
     int index = 0;
     for (int y = 0; y < config.gridSizeY; ++y) {
         for (int x = 0; x < config.gridSizeX; ++x) {
-            if (index >= dielectrics.size()) break;
+            // Calculate which dielectric to use - cycle through available dielectrics
+            int dielectricIndex = index % dielectrics.size();
 
             // Roughness varies across X
             float roughness = static_cast<float>(x) / static_cast<float>(config.gridSizeX - 1);
             roughness = 0.2f + roughness * 0.8f; // Range from 0.2 to 1.0 for dielectrics
-            
+
             // Never metallic
             float metallic = 0.0f;
 
             // Get dielectric color
-            glm::vec3 color = y == 0 ? dielectrics[index].second : dielectrics[index + config.gridSizeX].second;
+            glm::vec3 color = dielectrics[dielectricIndex].second;
 
             // Create material
-            std::string matName = dielectrics[index].first + "_" + std::to_string(x);
+            std::string matName = dielectrics[dielectricIndex].first + "_" + std::to_string(y) + "_" + std::to_string(x);
             auto material = createMaterialWithParams(matName, color, metallic, roughness);
 
             // Create sphere
-            std::string objName = "Dielec_" + dielectrics[index].first + "_" + std::to_string(x);
+            std::string objName = "Dielec_" + dielectrics[dielectricIndex].first + "_" + std::to_string(y) + "_" + std::to_string(x);
             auto* sphere = new AnitoGameObject(objName, AnitoGameObject::PrimitiveType::Sphere);
 
             // Position
