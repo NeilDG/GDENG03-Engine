@@ -1,4 +1,5 @@
 #include "AnitoEngine.h"
+#include "Config/AnitoEngineConfig.h"
 #include "Window/AnitoWindow.h"
 #include "Renderer/AnitoRenderer.h"
 #include "Renderer/AnitoVertexBuffer.h"
@@ -6,7 +7,9 @@
 #include "Renderer/AnitoMaterial.h"
 #include "Renderer/AnitoMeshGenerator.h"
 #include "Renderer/AnitoPBRTestScenes.h"
+#include "Renderer/Deferred/AnitoGBuffer.h"
 #include "Debug/AnitoFrameCaptureRecorder.h"
+#include "Debug/AnitoProfilerManager.h"
 #include "GameObjects/AnitoGameObjectManager.h"
 #include "GameObjects/AnitoGameObject.h"
 #include "Components/AnitoMeshRenderer.h"
@@ -25,6 +28,8 @@ AnitoEngine::AnitoEngine()
     : m_window(nullptr)
     , m_running(false)
     , m_lastFrameTime(0.0f)
+    , m_maxRuntimeSeconds(0.0f)
+    , m_elapsedRuntime(0.0f)
     , m_pbrTestScenes(nullptr)
     , m_frameCaptureRecorder(nullptr)
     , m_currentCameraPos{0.0f, 5.0f, 15.0f}
@@ -43,6 +48,30 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
     std::cout << "  DLSU GAME Lab - AAA Game Engine Development" << std::endl;
     std::cout << "  Principal Investigator: Neil Patrick Del Gallego, Ph.D." << std::endl;
     std::cout << "==================================================" << std::endl;
+
+    // Load configuration file
+    std::cout << "[Engine] Loading configuration..." << std::endl;
+    AnitoEngineConfig::load("engine_config.ini");
+
+    // Get runtime duration setting
+    m_maxRuntimeSeconds = AnitoEngineConfig::getFloat("Runtime.MaxRuntimeSeconds", 0.0f);
+    if (m_maxRuntimeSeconds > 0.0f) {
+        std::cout << "[Engine] Runtime limit: " << m_maxRuntimeSeconds << " seconds" << std::endl;
+        std::cout << "[Engine] Engine will automatically exit after this duration." << std::endl;
+    } else {
+        std::cout << "[Engine] Runtime limit: DISABLED (will run indefinitely)" << std::endl;
+    }
+
+    // Initialize profiling system
+    std::cout << "[Engine] Initializing profiling system..." << std::endl;
+    AnitoProfilerManager::initialize(
+        "anito-debug",
+        true,  // Enable CPU profiling
+        true,  // Enable GPU profiling
+        AnitoMemoryProfiler::TrackingMode::LIGHT,  // Use light memory tracking
+        true   // Enable crash reporter
+    );
+    std::cout << "[Engine] Profiling system initialized - Output: anito-debug/" << std::endl;
 
     // Create window
     m_window = AnitoWindow::create(title, width, height);
@@ -75,7 +104,12 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
 
     // Initialize frame capture recorder
     m_frameCaptureRecorder = std::make_unique<AnitoFrameCaptureRecorder>();
-    m_frameCaptureRecorder->initialize("anito-debug", 3.0f, "png");
+    m_frameCaptureRecorder->initialize("anito-debug/frames", 1.0f, "png");  // Capture every 1 second
+
+    // [STEP 1-3 TEST] Initialize G-Buffer for deferred rendering
+    std::cout << "\n[Engine] === STEP 1-3: G-Buffer Creation Test ===" << std::endl;
+    m_gBuffer = std::make_unique<AnitoGBuffer>(width, height);
+    std::cout << "[Engine] === G-Buffer Test Complete ===\n" << std::endl;
 
     // Create test scene
     createTestScene();
@@ -170,11 +204,25 @@ void AnitoEngine::createTestScene() {
 void AnitoEngine::run() {
     std::cout << "\n[Engine] Starting main loop..." << std::endl;
 
+    // Reset elapsed runtime
+    m_elapsedRuntime = 0.0f;
+
     while (m_running && !m_window->shouldClose()) {
         // Calculate delta time
         float currentTime = static_cast<float>(glfwGetTime());
         float deltaTime = currentTime - m_lastFrameTime;
         m_lastFrameTime = currentTime;
+
+        // Update elapsed runtime
+        m_elapsedRuntime += deltaTime;
+
+        // Check if we've exceeded the runtime limit
+        if (m_maxRuntimeSeconds > 0.0f && m_elapsedRuntime >= m_maxRuntimeSeconds) {
+            std::cout << "\n[Engine] Runtime limit reached (" << m_maxRuntimeSeconds 
+                      << " seconds). Exiting..." << std::endl;
+            m_running = false;
+            break;
+        }
 
         // Process events
         m_window->pollEvents();
@@ -192,6 +240,7 @@ void AnitoEngine::run() {
     }
 
     std::cout << "[Engine] Main loop ended." << std::endl;
+    std::cout << "[Engine] Total runtime: " << m_elapsedRuntime << " seconds" << std::endl;
 }
 
 void AnitoEngine::shutdown() {
@@ -221,6 +270,11 @@ void AnitoEngine::shutdown() {
     }
 
     m_running = false;
+
+    // Destroy profiling system (will automatically export final reports)
+    std::cout << "[Engine] Exporting profiling data..." << std::endl;
+    AnitoProfilerManager::destroy();
+
     std::cout << "[Engine] Shutdown complete." << std::endl;
 }
 

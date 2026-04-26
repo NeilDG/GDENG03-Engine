@@ -9,6 +9,7 @@ class AnitoRenderer;
 class AnitoGameObjectManager;
 class AnitoPBRTestScenes;
 class AnitoFrameCaptureRecorder;
+class AnitoGBuffer;
 
 /**
  * AnitoEngine - Main engine class
@@ -36,6 +37,10 @@ private:
     bool m_running;
     float m_lastFrameTime;
 
+    // Runtime duration control (from engine_config.ini)
+    float m_maxRuntimeSeconds;  // 0 = run indefinitely
+    float m_elapsedRuntime;     // Total time elapsed since run() started
+
     // PBR test scenes system
     std::unique_ptr<AnitoPBRTestScenes> m_pbrTestScenes;
 
@@ -44,6 +49,9 @@ private:
 
     // Current camera position (updated per scene)
     float m_currentCameraPos[3];
+
+    // Deferred rendering G-Buffer (Step 1-3 test)
+    std::unique_ptr<AnitoGBuffer> m_gBuffer;
 
     // TODO: Add other subsystems as we implement them
 };

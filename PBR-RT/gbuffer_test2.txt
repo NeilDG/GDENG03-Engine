@@ -1,0 +1,196 @@
+==================================================
+  Anito Engine - Project Anito (DOST-PCIEERD)
+  DLSU GAME Lab - AAA Game Engine Development
+  Principal Investigator: Neil Patrick Del Gallego, Ph.D.
+==================================================
+Anito Window created: Anito Engine - Deferred PBR Renderer (1280x720)
+Anito Renderer initialized successfully
+Renderer: Direct3D 11
+Vendor: 32902
+[AnitoRenderer] View configuration:
+  - View 0: Skybox (fullscreen, identity transform)
+  - View 1: Geometry (3D scene, camera transform)
+[Engine] Input Manager initialized
+AnitoGameObjectManager initialized
+[FrameCapture] Initialized:
+  Output Dir: anito-debug
+  Interval: 3s
+  Format: png
+
+[Engine] === STEP 1-3: G-Buffer Creation Test ===
+[AnitoGBuffer] Creating G-Buffer: 1280x720
+[AnitoGBuffer]   RT0: Albedo+Metallic (RGBA8) created
+[AnitoGBuffer]   RT1: Normal+Roughness (RGBA8) created
+[AnitoGBuffer]   RT2: Position+AO (RGBA16F) created
+[AnitoGBuffer]   RT3: Emission (RGBA8) created
+[AnitoGBuffer]   Depth: D24S8 created
+[AnitoGBuffer] ✅ G-Buffer framebuffer created successfully
+[AnitoGBuffer] Memory usage (approximate): 
+[AnitoGBuffer]   - 3x RGBA8 (RT0,1,3): 10 MB
+[AnitoGBuffer]   - 1x RGBA16F (RT2): 7 MB
+[AnitoGBuffer]   - 1x D24S8 (Depth): 3 MB
+[AnitoGBuffer]   - Total: ~21 MB
+[Engine] === G-Buffer Test Complete ===
+
+
+[Scene Setup] Creating PBR test scenes...
+[Scene Setup] Loading HDR environment map...
+[AnitoRenderer] Loading environment map: assets/hdr/relax_inn_seaview_suite_4k.hdr
+[AnitoRenderer] Loaded HDR: 4096x2048 (3 channels)
+[AnitoRenderer] Converting equirectangular to cubemap (1024x1024)...
+[AnitoRenderer] Waiting for GPU to complete cubemap conversion...
+[AnitoRenderer] Cubemap conversion complete!
+[AnitoRenderer] Loading skybox shaders...
+[AnitoRenderer] Skybox shaders loaded successfully
+[AnitoRenderer] Environment map ready for IBL!
+[AnitoRenderer] Generating irradiance map for diffuse IBL...
+[AnitoRenderer] Irradiance map generation complete!
+[AnitoRenderer] Generating prefiltered environment map for specular IBL...
+[AnitoRenderer] Prefilter map generation complete!
+
+========================================
+IBL SYSTEM READY!
+  - Skybox: LOADED
+  - Environment Cubemap: LOADED
+  - Irradiance Map: LOADED
+  - Prefilter Map: LOADED
+  - IBL Enabled: YES
+  - Press 'Z' to toggle IBL on/off
+========================================
+
+[Scene Setup] Loading shader...
+[AnitoShader] Successfully loaded shader: SimpleShader
+[Scene Setup] Initializing PBR test scenes...
+
+[PBR Test Scenes] Loading scene: Sphere Grid - PBR Variation
+[PBR Test Scenes] Scene loaded with 36 objects
+[Scene Setup] Setting up camera...
+[Scene Setup] PBR test scenes created successfully!
+  - Current scene: Sphere Grid - PBR Variation
+  - Description: 6x6 grid: X-axis = Roughness (0.0 to 1.0), Y-axis = Metallic (0.0 to 1.0)
+  - Press SPACE to switch between test scenes
+  - Press Z to toggle IBL (Image-Based Lighting)
+==================================================
+Anito Engine initialized successfully!
+==================================================
+
+[Engine] Starting main loop...
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 0 capture...
+[FrameCapture] Frame saved: anito-debug/frame_0.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 1 capture...
+[FrameCapture] Frame saved: anito-debug/frame_1.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 2 capture...
+[FrameCapture] Frame saved: anito-debug/frame_2.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 3 capture...
+[FrameCapture] Frame saved: anito-debug/frame_3.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 4 capture...
+[FrameCapture] Frame saved: anito-debug/frame_4.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 5 capture...
+[FrameCapture] Frame saved: anito-debug/frame_5.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 6 capture...
+[FrameCapture] Frame saved: anito-debug/frame_6.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 7 capture...
+[FrameCapture] Frame saved: anito-debug/frame_7.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 8 capture...
+[FrameCapture] Frame saved: anito-debug/frame_8.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 9 capture...
+[FrameCapture] Frame saved: anito-debug/frame_9.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 10 capture...
+[FrameCapture] Frame saved: anito-debug/frame_10.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 11 capture...
+[FrameCapture] Frame saved: anito-debug/frame_11.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 12 capture...
+[FrameCapture] Frame saved: anito-debug/frame_12.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 13 capture...
+[FrameCapture] Frame saved: anito-debug/frame_13.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 14 capture...
+[FrameCapture] Frame saved: anito-debug/frame_14.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 15 capture...
+[FrameCapture] Frame saved: anito-debug/frame_15.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 16 capture...
+[FrameCapture] Frame saved: anito-debug/frame_16.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[Engine] Main loop ended.
+
+[Engine] Shutting down Anito Engine...
+[Engine] Shutdown complete.

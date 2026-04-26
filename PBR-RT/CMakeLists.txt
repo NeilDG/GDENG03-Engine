@@ -213,10 +213,27 @@ set(ANITO_WINDOW_SOURCES
     src/Input/AnitoInputManager.h
 )
 
-# Debug Tools
+# Configuration
+set(ANITO_CONFIG_SOURCES
+    src/Config/AnitoEngineConfig.h
+)
+
+# Debug Tools & Profilers
 set(ANITO_DEBUG_SOURCES
     src/Debug/AnitoFrameCaptureRecorder.cpp
     src/Debug/AnitoFrameCaptureRecorder.h
+    src/Debug/AnitoConsoleLogger.cpp
+    src/Debug/AnitoConsoleLogger.h
+    src/Debug/AnitoPerformanceProfiler.cpp
+    src/Debug/AnitoPerformanceProfiler.h
+    src/Debug/AnitoGPUProfiler.cpp
+    src/Debug/AnitoGPUProfiler.h
+    src/Debug/AnitoMemoryProfiler.cpp
+    src/Debug/AnitoMemoryProfiler.h
+    src/Debug/AnitoCrashReporter.cpp
+    src/Debug/AnitoCrashReporter.h
+    src/Debug/AnitoProfilerManager.cpp
+    src/Debug/AnitoProfilerManager.h
 )
 
 # Main Application
@@ -235,6 +252,7 @@ set(ANITO_ALL_SOURCES
     ${ANITO_GAMEOBJECT_SOURCES}
     ${ANITO_COMPONENT_SOURCES}
     ${ANITO_WINDOW_SOURCES}
+    ${ANITO_CONFIG_SOURCES}
     ${ANITO_DEBUG_SOURCES}
     ${ANITO_APP_SOURCES}
 )
@@ -483,6 +501,18 @@ if(SHADERC_EXECUTABLE AND ANITO_COMPILE_SHADERS)
         list(APPEND COMPILED_SHADERS ${fs_skybox_OUTPUT})
     endif()
 
+    # Deferred Rendering Shaders - G-Buffer geometry pass
+    set(GBUFFER_VARYING_DEF "${CMAKE_SOURCE_DIR}/assets/shaders/varying_gbuffer.def.sc")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/vs_gbuffer.sc")
+        add_bgfx_shader(vs_gbuffer VERTEX "${CMAKE_SOURCE_DIR}/assets/shaders/vs_gbuffer.sc" "${GBUFFER_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${vs_gbuffer_OUTPUT})
+    endif()
+
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/fs_gbuffer.sc")
+        add_bgfx_shader(fs_gbuffer FRAGMENT "${CMAKE_SOURCE_DIR}/assets/shaders/fs_gbuffer.sc" "${GBUFFER_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${fs_gbuffer_OUTPUT})
+    endif()
+
     # Only create shader compilation target if we have shaders to compile
     if(COMPILED_SHADERS)
         add_custom_target(CompileShaders ALL
@@ -543,6 +573,21 @@ add_custom_command(TARGET AnitoEngine POST_BUILD
     ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:AnitoEngine>/assets
     COMMENT "Copying assets to build directory"
 )
+
+# Copy engine configuration file to build directory
+add_custom_command(TARGET AnitoEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_SOURCE_DIR}/engine_config.ini $<TARGET_FILE_DIR:AnitoEngine>/engine_config.ini
+    COMMENT "Copying engine_config.ini to build directory"
+)
+
+# Set Visual Studio debugger working directory to project root
+# This ensures logs and debug output go to PBR-RT/anito-debug instead of bin/anito-debug
+if(MSVC)
+    set_target_properties(AnitoEngine PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    )
+endif()
 
 message(STATUS "Anito Engine configuration complete")
 message(STATUS "  C++ Standard: ${CMAKE_CXX_STANDARD}")

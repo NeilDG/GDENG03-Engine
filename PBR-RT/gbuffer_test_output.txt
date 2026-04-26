@@ -1,0 +1,81 @@
+==================================================
+  Anito Engine - Project Anito (DOST-PCIEERD)
+  DLSU GAME Lab - AAA Game Engine Development
+  Principal Investigator: Neil Patrick Del Gallego, Ph.D.
+==================================================
+Anito Window created: Anito Engine - Deferred PBR Renderer (1280x720)
+Anito Renderer initialized successfully
+Renderer: Direct3D 11
+Vendor: 32902
+[AnitoRenderer] View configuration:
+  - View 0: Skybox (fullscreen, identity transform)
+  - View 1: Geometry (3D scene, camera transform)
+[Engine] Input Manager initialized
+AnitoGameObjectManager initialized
+[FrameCapture] Initialized:
+  Output Dir: anito-debug
+  Interval: 3s
+  Format: png
+
+[Scene Setup] Creating PBR test scenes...
+[Scene Setup] Loading HDR environment map...
+[AnitoRenderer] Loading environment map: assets/hdr/relax_inn_seaview_suite_4k.hdr
+[AnitoRenderer] Loaded HDR: 4096x2048 (3 channels)
+[AnitoRenderer] Converting equirectangular to cubemap (1024x1024)...
+[AnitoRenderer] Waiting for GPU to complete cubemap conversion...
+[AnitoRenderer] Cubemap conversion complete!
+[AnitoRenderer] Loading skybox shaders...
+[AnitoRenderer] Skybox shaders loaded successfully
+[AnitoRenderer] Environment map ready for IBL!
+[AnitoRenderer] Generating irradiance map for diffuse IBL...
+[AnitoRenderer] Irradiance map generation complete!
+[AnitoRenderer] Generating prefiltered environment map for specular IBL...
+[AnitoRenderer] Prefilter map generation complete!
+
+========================================
+IBL SYSTEM READY!
+  - Skybox: LOADED
+  - Environment Cubemap: LOADED
+  - Irradiance Map: LOADED
+  - Prefilter Map: LOADED
+  - IBL Enabled: YES
+  - Press 'Z' to toggle IBL on/off
+========================================
+
+[Scene Setup] Loading shader...
+[AnitoShader] Successfully loaded shader: SimpleShader
+[Scene Setup] Initializing PBR test scenes...
+
+[PBR Test Scenes] Loading scene: Sphere Grid - PBR Variation
+[PBR Test Scenes] Scene loaded with 36 objects
+[Scene Setup] Setting up camera...
+[Scene Setup] PBR test scenes created successfully!
+  - Current scene: Sphere Grid - PBR Variation
+  - Description: 6x6 grid: X-axis = Roughness (0.0 to 1.0), Y-axis = Metallic (0.0 to 1.0)
+  - Press SPACE to switch between test scenes
+  - Press Z to toggle IBL (Image-Based Lighting)
+==================================================
+Anito Engine initialized successfully!
+==================================================
+[Main] Auto-shutdown enabled: Engine will close after 6 seconds
+
+[Engine] Starting main loop...
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Requesting frame 0 capture...
+[FrameCapture] Frame saved: anito-debug/frame_0.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[Engine] Auto-shutdown triggered after 6.00073 seconds
+[Engine] Main loop ended.
+
+[Engine] Shutting down Anito Engine...
+[Engine] Shutdown complete.
+
+[Engine] Shutting down Anito Engine...
+[Engine] Shutdown complete.

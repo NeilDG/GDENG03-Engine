@@ -1,0 +1,268 @@
+==================================================
+  Anito Engine - Project Anito (DOST-PCIEERD)
+  DLSU GAME Lab - AAA Game Engine Development
+  Principal Investigator: Neil Patrick Del Gallego, Ph.D.
+==================================================
+[Engine] Initializing profiling system...
+========================================
+Anito Profiler Manager - Initializing
+========================================
+
+================================================================================
+  Anito Engine - New Session Started
+  Timestamp: 2026-04-27 00:07:37.733
+  Log File: anito-debug/logs/anito_2026-04-27_00-07-37.log
+================================================================================
+
+[37m[2026-04-27 00:07:37.734] [INFO   ] [ProfilerManager] Initializing profiling systems...[0m
+[CrashReporter] Initialized
+  Output Dir: anito-debug/crashes
+  Minidump enabled (Windows)
+[37m[2026-04-27 00:07:37.734] [INFO   ] [ProfilerManager] Crash Reporter initialized[0m
+[PerformanceProfiler] Initialized
+  Output Dir: anito-debug/profiling
+[37m[2026-04-27 00:07:37.735] [INFO   ] [ProfilerManager] CPU Performance Profiler initialized[0m
+[GPUProfiler] Initialized
+  Output Dir: anito-debug/profiling
+  Note: GPU timing is estimated based on frame time
+  For accurate GPU profiling, use NVIDIA Nsight or RenderDoc
+[37m[2026-04-27 00:07:37.736] [INFO   ] [ProfilerManager] GPU Profiler initialized[0m
+[MemoryProfiler] Initialized
+  Output Dir: anito-debug/profiling
+  Tracking Mode: LIGHT (Basic statistics)
+[37m[2026-04-27 00:07:37.736] [INFO   ] [ProfilerManager] Memory Profiler initialized[0m
+[37m[2026-04-27 00:07:37.736] [INFO   ] [ProfilerManager] All profiling systems initialized successfully[0m
+========================================
+[Engine] Profiling system initialized - Output: anito-debug/
+Anito Window created: Anito Engine - Deferred PBR Renderer (1280x720)
+Anito Renderer initialized successfully
+Renderer: Direct3D 11
+Vendor: 32902
+[AnitoRenderer] View configuration:
+  - View 0: Skybox (fullscreen, identity transform)
+  - View 1: Geometry (3D scene, camera transform)
+[Engine] Input Manager initialized
+AnitoGameObjectManager initialized
+[FrameCapture] Initialized:
+  Output Dir: anito-debug/frames
+  Interval: 1s
+  Format: png
+
+[Engine] === STEP 1-3: G-Buffer Creation Test ===
+[AnitoGBuffer] Creating G-Buffer: 1280x720
+[AnitoGBuffer]   RT0: Albedo+Metallic (RGBA8) created
+[AnitoGBuffer]   RT1: Normal+Roughness (RGBA8) created
+[AnitoGBuffer]   RT2: Position+AO (RGBA16F) created
+[AnitoGBuffer]   RT3: Emission (RGBA8) created
+[AnitoGBuffer]   Depth: D24S8 created
+[AnitoGBuffer] ✅ G-Buffer framebuffer created successfully
+[AnitoGBuffer] Memory usage (approximate): 
+[AnitoGBuffer]   - 3x RGBA8 (RT0,1,3): 10 MB
+[AnitoGBuffer]   - 1x RGBA16F (RT2): 7 MB
+[AnitoGBuffer]   - 1x D24S8 (Depth): 3 MB
+[AnitoGBuffer]   - Total: ~21 MB
+[Engine] === G-Buffer Test Complete ===
+
+
+[Scene Setup] Creating PBR test scenes...
+[Scene Setup] Loading HDR environment map...
+[AnitoRenderer] Loading environment map: assets/hdr/relax_inn_seaview_suite_4k.hdr
+[AnitoRenderer] Loaded HDR: 4096x2048 (3 channels)
+[AnitoRenderer] Converting equirectangular to cubemap (1024x1024)...
+[AnitoRenderer] Waiting for GPU to complete cubemap conversion...
+[AnitoRenderer] Cubemap conversion complete!
+[AnitoRenderer] Loading skybox shaders...
+[AnitoRenderer] Skybox shaders loaded successfully
+[AnitoRenderer] Environment map ready for IBL!
+[AnitoRenderer] Generating irradiance map for diffuse IBL...
+[AnitoRenderer] Irradiance map generation complete!
+[AnitoRenderer] Generating prefiltered environment map for specular IBL...
+[AnitoRenderer] Prefilter map generation complete!
+
+========================================
+IBL SYSTEM READY!
+  - Skybox: LOADED
+  - Environment Cubemap: LOADED
+  - Irradiance Map: LOADED
+  - Prefilter Map: LOADED
+  - IBL Enabled: YES
+  - Press 'Z' to toggle IBL on/off
+========================================
+
+[Scene Setup] Loading shader...
+[AnitoShader] Successfully loaded shader: SimpleShader
+[Scene Setup] Initializing PBR test scenes...
+
+[PBR Test Scenes] Loading scene: Sphere Grid - PBR Variation
+[PBR Test Scenes] Scene loaded with 36 objects
+[Scene Setup] Setting up camera...
+[Scene Setup] PBR test scenes created successfully!
+  - Current scene: Sphere Grid - PBR Variation
+  - Description: 6x6 grid: X-axis = Roughness (0.0 to 1.0), Y-axis = Metallic (0.0 to 1.0)
+  - Press SPACE to switch between test scenes
+  - Press Z to toggle IBL (Image-Based Lighting)
+==================================================
+Anito Engine initialized successfully!
+==================================================
+
+[Engine] Starting main loop...
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 0 -> anito-debug/frames/frame_0000.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Converting frame 0 to png...
+[FrameCapture] Frame 0 saved: anito-debug/frames/frame_0000.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 1 -> anito-debug/frames/frame_0001.png
+[FrameCapture] Converting frame 1 to png...
+[FrameCapture] Frame 1 saved: anito-debug/frames/frame_0001.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 2 -> anito-debug/frames/frame_0002.png
+[FrameCapture] Converting frame 2 to png...
+[FrameCapture] Frame 2 saved: anito-debug/frames/frame_0002.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 3 -> anito-debug/frames/frame_0003.png
+[FrameCapture] Converting frame 3 to png...
+[FrameCapture] Frame 3 saved: anito-debug/frames/frame_0003.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 4 -> anito-debug/frames/frame_0004.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Converting frame 4 to png...
+[FrameCapture] Frame 4 saved: anito-debug/frames/frame_0004.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 5 -> anito-debug/frames/frame_0005.png
+[FrameCapture] Converting frame 5 to png...
+[FrameCapture] Frame 5 saved: anito-debug/frames/frame_0005.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 6 -> anito-debug/frames/frame_0006.png
+[FrameCapture] Converting frame 6 to png...
+[FrameCapture] Frame 6 saved: anito-debug/frames/frame_0006.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 7 -> anito-debug/frames/frame_0007.png
+[FrameCapture] Converting frame 7 to png...
+[FrameCapture] Frame 7 saved: anito-debug/frames/frame_0007.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 8 -> anito-debug/frames/frame_0008.png
+[FrameCapture] Converting frame 8 to png...
+[FrameCapture] Frame 8 saved: anito-debug/frames/frame_0008.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 9 -> anito-debug/frames/frame_0009.png
+[FrameCapture] Converting frame 9 to png...
+[FrameCapture] Frame 9 saved: anito-debug/frames/frame_0009.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 10 -> anito-debug/frames/frame_0010.png
+[FrameCapture] Converting frame 10 to png...
+[FrameCapture] Frame 10 saved: anito-debug/frames/frame_0010.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 11 -> anito-debug/frames/frame_0011.png
+[FrameCapture] Converting frame 11 to png...
+[FrameCapture] Frame 11 saved: anito-debug/frames/frame_0011.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 12 -> anito-debug/frames/frame_0012.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Converting frame 12 to png...
+[FrameCapture] Frame 12 saved: anito-debug/frames/frame_0012.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 13 -> anito-debug/frames/frame_0013.png
+[FrameCapture] Converting frame 13 to png...
+[FrameCapture] Frame 13 saved: anito-debug/frames/frame_0013.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 14 -> anito-debug/frames/frame_0014.png
+[FrameCapture] Converting frame 14 to png...
+[FrameCapture] Frame 14 saved: anito-debug/frames/frame_0014.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 15 -> anito-debug/frames/frame_0015.png
+[FrameCapture] Converting frame 15 to png...
+[FrameCapture] Frame 15 saved: anito-debug/frames/frame_0015.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 16 -> anito-debug/frames/frame_0016.png
+[FrameCapture] Converting frame 16 to png...
+[FrameCapture] Frame 16 saved: anito-debug/frames/frame_0016.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 17 -> anito-debug/frames/frame_0017.png
+[FrameCapture] Converting frame 17 to png...
+[FrameCapture] Frame 17 saved: anito-debug/frames/frame_0017.png
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 18 -> anito-debug/frames/frame_0018.png
+[FrameCapture] Converting frame 18 to png...
+[FrameCapture] Frame 18 saved: anito-debug/frames/frame_0018.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[AnitoRenderer::beginFrame] Touching view 0 (skybox) and view 1 (geometry)
+[Render] Skybox rendering: IBL enabled, ready=1
+[FrameCapture] Capturing frame 19 -> anito-debug/frames/frame_0019.png
+[FrameCapture] Converting frame 19 to png...
+[FrameCapture] Frame 19 saved: anito-debug/frames/frame_0019.png
+[Render] Skybox rendering: IBL enabled, ready=1
+[Engine] Main loop ended.
+
+[Engine] Shutting down Anito Engine...
+[Engine] Exporting profiling data...
+[37m[2026-04-27 00:07:59.033] [INFO   ] [ProfilerManager] Shutting down profiling systems...[0m
+
+========================================
+Anito Profiler Manager - Shutdown
+========================================
+
+========================================
+Performance Summary
+========================================
+
+--- CPU Performance ---
+Total Frames:   0
+Average FPS:    0.00
+Avg Frame Time: 0.00 ms
+Min Frame Time: 999999.00 ms
+Max Frame Time: 0.00 ms
+
+--- GPU Performance ---
+Draw Calls:     6881357
+Triangles:      7471203
+Vertices:       7536751
+Texture Memory: 6684783 MB
+Buffer Memory:  2097268 MB
+
+--- Memory Usage ---
+=== Memory Profile ===
+Total Allocated: 0.00 MB
+Peak Usage:      0.00 MB
+Active Allocations: 0
+
+By System:
+========================================
+[37m[2026-04-27 00:07:59.035] [INFO   ] [ProfilerManager] Exporting all profiling data for session: final_session_2026-04-27_00-07-59[0m
+[PerformanceProfiler] Exported to JSON: anito-debug/profiling/cpu_final_session_2026-04-27_00-07-59.json
+[GPUProfiler] Exported to JSON: anito-debug/profiling/gpu_final_session_2026-04-27_00-07-59.json
+[GPUProfiler] Exported to CSV: anito-debug/profiling/gpu_final_session_2026-04-27_00-07-59.csv
+[MemoryProfiler] Exported to JSON: anito-debug/profiling/memory_final_session_2026-04-27_00-07-59.json
+[37m[2026-04-27 00:07:59.040] [INFO   ] [ProfilerManager] All profiles exported successfully[0m
+[MemoryProfiler] Leak detection only available in HEAVY tracking mode
+[MemoryProfiler] Leak detection only available in HEAVY tracking mode
+========================================
+[Engine] Shutdown complete.

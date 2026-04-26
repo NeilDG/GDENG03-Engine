@@ -93,6 +93,42 @@ The build system automatically:
 
 - **[BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md)** - Complete build guide with troubleshooting
 - **[SHADER_COMPILATION_README.md](SHADER_COMPILATION_README.md)** - Shader compilation details
+- **[docs/ENGINE_CONFIG.md](docs/ENGINE_CONFIG.md)** - Engine configuration and runtime control
+
+## Runtime Configuration
+
+The engine supports configurable runtime duration through `engine_config.ini`:
+
+### Quick Usage
+
+```bash
+# Set engine to run for 15 seconds then auto-exit (useful for testing)
+powershell -ExecutionPolicy Bypass -File tools\Set-EngineRuntime.ps1 -Seconds 15 -CopyToBuild
+
+# Run the engine (will exit after 15 seconds)
+Build.bat run
+
+# Reset to infinite runtime (normal behavior)
+powershell -ExecutionPolicy Bypass -File tools\Set-EngineRuntime.ps1 -Seconds 0 -CopyToBuild
+```
+
+### Manual Configuration
+
+Edit `engine_config.ini`:
+
+```ini
+[Runtime]
+MaxRuntimeSeconds = 10  # Run for 10 seconds then exit
+# MaxRuntimeSeconds = 0   # Run indefinitely (default)
+```
+
+**Use Cases:**
+- ✅ **AI Agent Testing** - Automated validation without manual intervention
+- ✅ **Frame Capture** - Capture specific duration for analysis
+- ✅ **Performance Profiling** - Consistent test durations
+- ✅ **CI/CD** - Prevent hanging builds
+
+See **[docs/ENGINE_CONFIG.md](docs/ENGINE_CONFIG.md)** for complete documentation.
 
 ### Manual CMake (Alternative)
 
