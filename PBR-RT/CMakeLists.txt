@@ -203,6 +203,8 @@ set(ANITO_COMPONENT_SOURCES
     src/Components/AnitoCamera.h
     src/Components/AnitoTransform.cpp
     src/Components/AnitoTransform.h
+    src/Components/AnitoFPSCameraControl.cpp
+    src/Components/AnitoFPSCameraControl.h
 )
 
 # Window & Input

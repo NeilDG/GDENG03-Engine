@@ -10,6 +10,8 @@ class AnitoGameObjectManager;
 class AnitoPBRTestScenes;
 class AnitoFrameCaptureRecorder;
 class AnitoGBuffer;
+class AnitoGameObject;
+class AnitoCamera;
 
 /**
  * AnitoEngine - Main engine class
@@ -47,8 +49,9 @@ private:
     // Frame capture for debugging
     std::unique_ptr<AnitoFrameCaptureRecorder> m_frameCaptureRecorder;
 
-    // Current camera position (updated per scene)
-    float m_currentCameraPos[3];
+    // Camera GameObject with FPS control
+    AnitoGameObject* m_cameraObject;
+    AnitoCamera* m_camera;
 
     // Deferred rendering G-Buffer (Step 1-3 test)
     std::unique_ptr<AnitoGBuffer> m_gBuffer;

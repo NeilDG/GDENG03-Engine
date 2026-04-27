@@ -4,96 +4,162 @@
 **Principal Investigator:** Neil Patrick Del Gallego, Ph.D.  
 **Project Period:** June 2025 – June 2027
 
+---
+
 ## Overview
 
-Anito Engine is a modular, high-performance game engine designed for AAA visual fidelity on PC and Android platforms. It features:
+Anito Engine is a modular, high-performance game engine designed for **AAA visual fidelity** on **PC** and **Android** platforms.
 
-- **Deferred PBR Rendering** with physically-based materials
-- **Real-time Shadows** with shadow mapping
-- **GPU-based Object Picking** (industry-standard approach)
-- **bgfx Rendering Abstraction** (cross-platform Vulkan/DX12/Metal)
-- **Bullet Physics Integration**
-- **Component-based GameObject System**
-- **ImGui + ImGuizmo** for editor tools
+### Key Features
 
-## Architecture
+- ✅ **Physically-Based Rendering (PBR)** - Metallic/roughness workflow
+- ✅ **Image-Based Lighting (IBL)** - HDR environment maps for realistic lighting
+- ✅ **Deferred Rendering** - Optimized for complex lighting scenarios
+- ✅ **bgfx Rendering Abstraction** - Cross-platform (Vulkan/DX11/DX12/Metal)
+- ✅ **Comprehensive Profiling** - CPU, GPU, memory, crash reporting
+- ✅ **Component-based Architecture** - Flexible GameObject system
+- ✅ **Bullet Physics Integration** - Rigid body dynamics
+- ✅ **ImGui + ImGuizmo** - Editor UI and gizmo tools
 
-Following modern game engine best practices:
-- Entity-Component-System (ECS) core
-- Deferred rendering pipeline
-- Data-oriented design
-- Modular subsystems
+### Current Status
+
+**Phase 2 Complete** - Core PBR rendering with IBL  
+**Next Phase** - Shadow mapping and advanced lighting
+
+See [ROADMAP.md](docs/ROADMAP.md) for full development plan.
+
+---
+
+## Quick Start
+
+### 1. Clone & Setup
+
+```powershell
+# Clone repository
+git clone https://github.com/NeilDG/GDENG03-Engine
+cd GDENG03-Engine/PBR-RT
+
+# First-time setup (initializes submodules, configures CMake)
+Build.bat setup
+```
+
+### 2. Build & Run
+
+```powershell
+# Build (default: Release)
+Build.bat
+
+# Run the engine
+Build.bat run
+
+# Or build and run in one command
+Build.bat run Debug
+```
+
+### 3. Test PBR Rendering
+
+Once running:
+- **SPACE** - Cycle through test scenes
+- **Z** - Toggle IBL on/off
+- **ESC** - Quit
+
+---
+
+## Build System
+
+Anito Engine uses a **unified build system** following AAA studio practices:
+
+```powershell
+Build.bat [command] [options]
+```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `setup` | First-time setup (init submodules, configure) |
+| `build` | Build the project (default command) |
+| `rebuild` | Clean and rebuild |
+| `clean` | Remove build artifacts |
+| `check` | Verify dependencies |
+| `run` | Build and run the engine |
+| `validate` | Check build configuration sync |
+| `help` | Show all commands |
+
+### Options
+
+```powershell
+--config Debug        # Build in Debug mode
+--config Release      # Build in Release mode (default)
+--verbose             # Detailed output
+```
+
+### Examples
+
+```powershell
+Build.bat                          # Build Release
+Build.bat build Debug              # Build Debug
+Build.bat run Debug --verbose      # Build Debug, run with verbose output
+Build.bat rebuild Release          # Clean and rebuild Release
+```
+
+---
+
+## Documentation
+
+### 📖 Core Documentation
+
+| Document | Description |
+|----------|-------------|
+| **[BUILD.md](docs/BUILD.md)** | Complete build guide with troubleshooting |
+| **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** | System architecture and design patterns |
+| **[SHADER_PIPELINE.md](docs/SHADER_PIPELINE.md)** | Shader compilation and development |
+| **[PROFILING.md](docs/PROFILING.md)** | Performance profiling and debugging |
+| **[ROADMAP.md](docs/ROADMAP.md)** | Development roadmap and milestones |
+
+### 📋 Configuration & Runtime
+
+| Document | Description |
+|----------|-------------|
+| **[RUNTIME_CONFIG.md](docs/RUNTIME_CONFIG.md)** | Engine configuration (engine_config.ini) |
+| **[ENGINE_CONFIG.md](docs/ENGINE_CONFIG.md)** | Legacy config documentation |
+
+### 🎓 Guides
+
+| Guide | Description |
+|-------|-------------|
+| **[IBL_SETUP.md](docs/guides/IBL_SETUP.md)** | Image-Based Lighting guide and troubleshooting |
+
+### 🤖 AI Development
+
+| Document | Description |
+|----------|-------------|
+| **[agents.md](agents.md)** | AI agent instructions and coding standards |
+
+### 📦 Project Management
+
+| Document | Description |
+|----------|-------------|
+| **[TODO.md](TODO.md)** | Development task tracking |
+| **[IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)** | Current implementation status |
+
+---
 
 ## Dependencies
 
-### Required External Libraries
+All dependencies are managed via Git submodules in `external/`:
 
-1. **bgfx** - Rendering abstraction layer
-2. **GLFW** - Window and input management  
-3. **GLM** - Mathematics library
-4. **Bullet Physics** - Physics simulation
-5. **ImGui** - Immediate mode GUI
-6. **ImGuizmo** - 3D gizmo manipulation
+| Library | Purpose | Status |
+|---------|---------|--------|
+| **bgfx** | Rendering abstraction | ✅ Required |
+| **GLFW** | Window/input | ✅ Required |
+| **GLM** | Math library | ✅ Required |
+| **Bullet3** | Physics | ✅ Required |
+| **ImGui** | UI | ✅ Required |
+| **ImGuizmo** | 3D gizmos | ✅ Required |
+| **STB** | Image loading | ✅ Required |
 
-## Quick Start (Windows)
-
-### Simple Setup on New Hardware
-
-```bash
-# 1. Setup (first time only - initializes submodules and configures CMake)
-Build.bat setup
-
-# 2. Build
-Build.bat
-
-# 3. Run
-Build.bat run
-```
-
-That's it! The unified build system handles everything.
-
-### All Available Commands
-
-```bash
-Build.bat setup      # Initial setup (run once on new hardware)
-Build.bat build      # Build the project (default command)
-Build.bat rebuild    # Clean and build
-Build.bat clean      # Remove build artifacts
-Build.bat check      # Verify dependencies
-Build.bat run        # Build and run the engine
-Build.bat help       # Show all commands
-
-# Options
-Build.bat build --config Debug    # Build in Debug mode
-Build.bat build --verbose         # Detailed output
-```
-
-### Shader Compiler (Optional)
-
-To enable automatic shader compilation:
-
-```bash
-# Build shaderc from source
-tools\build_shaderc.bat
-
-# Then rebuild
-Build.bat rebuild
-```
-
-### What It Does
-
-The build system automatically:
-- Checks for Git, CMake, and Visual Studio
-- Initializes all Git submodules
-- Configures CMake for your hardware
-- Detects your Visual Studio version
-- Builds the project
-
-### Detailed Documentation
-
-- **[BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md)** - Complete build guide with troubleshooting
-- **[SHADER_COMPILATION_README.md](SHADER_COMPILATION_README.md)** - Shader compilation details
-- **[docs/ENGINE_CONFIG.md](docs/ENGINE_CONFIG.md)** - Engine configuration and runtime control
+Dependencies are initialized automatically by `Build.bat setup`.
 
 ## Runtime Configuration
 
@@ -132,105 +198,171 @@ See **[docs/ENGINE_CONFIG.md](docs/ENGINE_CONFIG.md)** for complete documentatio
 
 ### Manual CMake (Alternative)
 
-If you prefer direct CMake control:
+---
 
-```bash
-# Clone with submodules
-git clone --recursive <repository-url>
+## Runtime Configuration
 
-# Or initialize submodules
-git submodule update --init --recursive
+The engine supports runtime configuration via `engine_config.ini`:
 
-# Configure and build
-cmake -B build
-cmake --build build --config Release
+```ini
+[Runtime]
+MaxRuntimeSeconds = 15     # Auto-exit after 15 seconds (0 = infinite)
 
-# Run
-.\build\bin\Release\AnitoEngine.exe
+[Window]
+Width = 1280
+Height = 720
+Title = Anito Engine
+
+[Rendering]
+VSync = true
+MSAA = 4
+
+[Profiling]
+EnableCPUProfiling = true
+EnableGPUProfiling = true
+FrameCaptureInterval = 1.0
 ```
+
+**Use Cases:**
+- ✅ AI agent testing (automated validation)
+- ✅ Frame capture for specific durations
+- ✅ Performance profiling with consistent test windows
+- ✅ CI/CD integration (prevent hanging builds)
+
+See **[RUNTIME_CONFIG.md](docs/RUNTIME_CONFIG.md)** for complete documentation.
+
+---
 
 ## Project Structure
 
 ```
-GDENG03-Engine-PBR-RT/
-├── external/              # Third-party dependencies
-│   ├── bgfx/
-│   ├── glfw/
-│   ├── glm/
-│   ├── bullet3/
-│   ├── imgui/
-│   └── ImGuizmo/
-├── src/
-│   ├── Math/             # Vector and Matrix classes
-│   ├── Renderer/         # Core rendering (bgfx wrappers)
-│   │   ├── Deferred/     # Deferred rendering pipeline
-│   │   └── Lighting/     # Lighting and shadows
-│   ├── GameObjects/      # GameObject and Component system
-│   ├── Components/       # Built-in components
-│   ├── Window/           # Window management
-│   ├── Input/            # Input system
-│   └── main.cpp          # Entry point
-├── assets/               # Shaders, models, textures
-└── CMakeLists.txt
+PBR-RT/
+├── src/                      # Engine source code
+│   ├── Math/                 # Vector, Matrix, Quaternion
+│   ├── Renderer/             # Rendering system (bgfx)
+│   ├── GameObjects/          # GameObject & Component system
+│   ├── Components/           # Transform, Camera, MeshRenderer, etc.
+│   ├── Input/                # Input management
+│   ├── Window/               # Window management (GLFW)
+│   ├── Debug/                # Profiling & debugging tools
+│   └── main.cpp              # Entry point
+│
+├── assets/                   # Runtime assets
+│   ├── shaders/              # Shader source (.sc) and compiled (.bin)
+│   └── environments/         # HDR environment maps
+│
+├── external/                 # Third-party dependencies (Git submodules)
+│   ├── bgfx/                 # Rendering abstraction
+│   ├── glfw/                 # Window management
+│   ├── glm/                  # Math library
+│   ├── bullet3/              # Physics engine
+│   ├── imgui/                # UI framework
+│   └── ImGuizmo/             # 3D gizmos
+│
+├── docs/                     # Documentation
+│   ├── BUILD.md              # Build instructions
+│   ├── ARCHITECTURE.md       # System architecture
+│   ├── SHADER_PIPELINE.md    # Shader development
+│   ├── PROFILING.md          # Performance profiling
+│   ├── ROADMAP.md            # Development roadmap
+│   ├── guides/               # Step-by-step guides
+│   └── archive/              # Historical documentation
+│
+├── tools/                    # Build and utility scripts
+├── Build.bat                 # Unified build system
+├── CMakeLists.txt            # CMake configuration
+├── engine_config.ini         # Runtime configuration
+├── agents.md                 # AI agent instructions
+└── README.md                 # This file
 ```
 
-## Current Implementation Status
+---
+
+## Development Status
 
 ### ✅ Phase 1: Core Foundation (COMPLETE)
-- [x] bgfx initialization and window creation
-- [x] Math library wrappers (Vector3D, Matrix4x4)
-- [x] Vertex/Index buffer abstractions
-- [x] Main engine loop
+- Math library (Vector, Matrix)
+- Rendering abstractions (bgfx wrappers)
+- GameObject & Component system
+- Window & Input management
+- Build system & dependency management
 
-### 🚧 Phase 2: GameObject System (IN PROGRESS)
-- [ ] AnitoGameObject base class
-- [ ] AnitoComponent system
-- [ ] AnitoGameObjectManager
-- [ ] Transform component
-- [ ] Camera component
-- [ ] MeshRenderer component
+### ✅ Phase 2: PBR Rendering (COMPLETE)
+- Deferred rendering pipeline
+- PBR material system (metallic/roughness)
+- Image-Based Lighting (IBL)
+- HDR environment maps
+- Tone mapping & gamma correction
+- Test scenes & interactive demos
+- Comprehensive profiling system
 
-### 📋 Phase 3: Deferred Rendering (PLANNED)
-- [ ] G-Buffer implementation
-- [ ] PBR material system
-- [ ] Lighting pass
-- [ ] Shadow mapping
-- [ ] Post-processing
+### 🚧 Phase 3: Advanced Lighting (IN PROGRESS)
+- Shadow mapping (cascaded shadow maps)
+- Advanced BRDF (Cook-Torrance)
+- Screen-space techniques (SSAO, SSR)
 
-### 📋 Phase 4: Object Picking (PLANNED)
-- [ ] GPU-based ID rendering
-- [ ] Mouse raycast system
-- [ ] Selection highlighting
+### 🔜 Phase 4+: See [ROADMAP.md](docs/ROADMAP.md)
+- Post-processing & anti-aliasing
+- Volumetric effects
+- Terrain & environment systems
+- Animation & characters
+- Physics & vehicles
 
-### 📋 Phase 5: Editor Tools (PLANNED)
-- [ ] ImGui integration
-- [ ] ImGuizmo transform gizmos
-- [ ] Object hierarchy panel
-- [ ] Properties panel
+---
 
-## Rendering Style
+## Technical Highlights
 
-**Pipeline:** Deferred Rendering  
-**Lighting Model:** PBR (Metallic-Roughness)  
-**Shadow Technique:** Shadow Maps with Shadow Atlas  
-**Object Picking:** GPU-based ID rendering (Unity/Unreal style)
+**Rendering:**
+- Deferred PBR pipeline
+- Image-Based Lighting (IBL) with HDR environments
+- Filmic tone mapping
+- Cross-platform via bgfx (Vulkan, DirectX, Metal)
 
-## Development Notes
+**Architecture:**
+- Component-based GameObject system
+- Modular subsystems
+- Data-oriented design principles
+- bgfx abstraction for rendering portability
 
-This implementation follows the architecture patterns from the reference DirectX 11 engine (Part 12 - IMGuizmo Integration) but adapted for:
-- bgfx instead of DirectX 11
-- Deferred rendering instead of forward rendering
-- Bullet Physics instead of ReactPhysics3D
-- GLM for math instead of custom implementation
+**Profiling:**
+- CPU performance profiler (hierarchical timing)
+- GPU profiler (render pass timing)
+- Memory profiler (allocation tracking)
+- Frame capture system (PNG screenshots)
+- Crash reporting (Windows minidumps)
+- JSON export for AI feedback loops
 
-## Agent Responsibilities
+**Build System:**
+- Unified AAA-style build script (`Build.bat`)
+- CMake-based configuration
+- Automatic dependency management (Git submodules)
+- Shader compilation pipeline
 
-This implementation is being developed following the **Anito Renderer** agent persona with coordination from **Anito Architect**. See `agents.md` for full multi-agent development system.
+---
+
+## Support & Contribution
+
+**Project Lead:** Neil Patrick Del Gallego, Ph.D.  
+**Institution:** De La Salle University - GAME Lab  
+**Funding:** DOST-PCIEERD
+
+**Industry Partners:**
+- Cybercraft
+- Megacat Studios
+- VISON Technologies
+
+**For issues, questions, or contributions:**
+- Check documentation in `/docs`
+- Review `agents.md` for AI-assisted development guidelines
+- See `TODO.md` for current tasks
+
+---
 
 ## License
 
-DOST-PCIEERD Project Anito  
-De La Salle University - GAME Lab
+**DOST-PCIEERD Project Anito**  
+De La Salle University - GAME Lab  
+© 2025-2027
 
 ---
 

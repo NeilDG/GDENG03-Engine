@@ -15,6 +15,7 @@
 #include "Components/AnitoMeshRenderer.h"
 #include "Components/AnitoTransform.h"
 #include "Components/AnitoCamera.h"
+#include "Components/AnitoFPSCameraControl.h"
 #include "Input/AnitoInputManager.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -32,7 +33,8 @@ AnitoEngine::AnitoEngine()
     , m_elapsedRuntime(0.0f)
     , m_pbrTestScenes(nullptr)
     , m_frameCaptureRecorder(nullptr)
-    , m_currentCameraPos{0.0f, 5.0f, 15.0f}
+    , m_cameraObject(nullptr)
+    , m_camera(nullptr)
 {
     s_instance = this;
 }
@@ -167,26 +169,28 @@ void AnitoEngine::createTestScene() {
     m_pbrTestScenes = std::make_unique<AnitoPBRTestScenes>();
     m_pbrTestScenes->initialize(shader);
 
-    // Setup camera view for the first scene
-    std::cout << "[Scene Setup] Setting up camera..." << std::endl;
+    // Setup camera GameObject with FPS controls
+    std::cout << "[Scene Setup] Setting up FPS camera..." << std::endl;
     glm::vec3 cameraPos = m_pbrTestScenes->getCameraPositionForScene();
-    glm::vec3 lookAtPos = m_pbrTestScenes->getLookAtPositionForScene();
 
-    // Store camera position for per-frame uniform updates
-    m_currentCameraPos[0] = cameraPos.x;
-    m_currentCameraPos[1] = cameraPos.y;
-    m_currentCameraPos[2] = cameraPos.z;
+    // Create camera GameObject
+    m_cameraObject = AnitoGameObjectManager::getInstance()->createObject("MainCamera", AnitoGameObject::PrimitiveType::Camera);
+    m_cameraObject->setPosition(AnitoVector3D(cameraPos.x, cameraPos.y, cameraPos.z));
 
-    AnitoMatrix4x4 view = AnitoMatrix4x4::lookAt(
-        cameraPos,
-        lookAtPos,
-        glm::vec3(0.0f, 1.0f, 0.0f)
-    );
-
+    // Add camera component
+    m_camera = new AnitoCamera("MainCamera");
+    m_cameraObject->attachComponent(m_camera);
     float aspect = static_cast<float>(renderer->getWidth()) / static_cast<float>(renderer->getHeight());
-    AnitoMatrix4x4 proj = AnitoMatrix4x4::perspective(glm::radians(60.0f), aspect, 0.1f, 100.0f);
+    m_camera->setPerspective(glm::radians(60.0f), aspect, 0.1f, 100.0f);
 
-    bgfx::setViewTransform(renderer->getMainViewId(), view.data(), proj.data());
+    // Add FPS camera control component
+    auto* fpsControl = new AnitoFPSCameraControl("FPSControl");
+    m_cameraObject->attachComponent(fpsControl);
+    fpsControl->setMovementSpeed(5.0f);
+    fpsControl->setLookSensitivity(0.1f);
+
+    std::cout << "[Scene Setup] FPS Camera initialized at position: " 
+              << cameraPos.x << ", " << cameraPos.y << ", " << cameraPos.z << std::endl;
 
     // Set light direction (directional light from above-front-right)
     // Direction points FROM light source, intensity increased for PBR test visibility
@@ -196,8 +200,17 @@ void AnitoEngine::createTestScene() {
     std::cout << "[Scene Setup] PBR test scenes created successfully!" << std::endl;
     std::cout << "  - Current scene: " << m_pbrTestScenes->getCurrentSceneConfig().name << std::endl;
     std::cout << "  - Description: " << m_pbrTestScenes->getCurrentSceneConfig().description << std::endl;
-    std::cout << "  - Press SPACE to switch between test scenes" << std::endl;
-    std::cout << "  - Press Z to toggle IBL (Image-Based Lighting)" << std::endl;
+    std::cout << "\n========== CONTROLS ==========" << std::endl;
+    std::cout << "  Camera Movement:" << std::endl;
+    std::cout << "    - WASD: Move forward/left/backward/right" << std::endl;
+    std::cout << "    - Space/Left Ctrl: Move up/down" << std::endl;
+    std::cout << "    - Left Shift: Sprint (2x speed)" << std::endl;
+    std::cout << "    - Mouse: Look around" << std::endl;
+    std::cout << "    - Scroll Wheel: Adjust movement speed" << std::endl;
+    std::cout << "  Scene Controls:" << std::endl;
+    std::cout << "    - SPACE: Switch between test scenes" << std::endl;
+    std::cout << "    - Z: Toggle IBL (Image-Based Lighting)" << std::endl;
+    std::cout << "==============================" << std::endl;
     std::cout << "==================================================" << std::endl;
 }
 
@@ -287,27 +300,12 @@ void AnitoEngine::update(float deltaTime) {
         if (m_pbrTestScenes && AnitoInputManager::getInstance()->isKeyPressed(GLFW_KEY_SPACE)) {
             m_pbrTestScenes->switchToNextScene();
 
-            // Update camera for new scene
-            AnitoRenderer* renderer = AnitoRenderer::getInstance();
-            if (renderer) {
+            // Update camera position for new scene (but keep current orientation)
+            if (m_cameraObject) {
                 glm::vec3 cameraPos = m_pbrTestScenes->getCameraPositionForScene();
-                glm::vec3 lookAtPos = m_pbrTestScenes->getLookAtPositionForScene();
-
-                // Store updated camera position
-                m_currentCameraPos[0] = cameraPos.x;
-                m_currentCameraPos[1] = cameraPos.y;
-                m_currentCameraPos[2] = cameraPos.z;
-
-                AnitoMatrix4x4 view = AnitoMatrix4x4::lookAt(
-                    cameraPos,
-                    lookAtPos,
-                    glm::vec3(0.0f, 1.0f, 0.0f)
-                );
-
-                float aspect = static_cast<float>(renderer->getWidth()) / static_cast<float>(renderer->getHeight());
-                AnitoMatrix4x4 proj = AnitoMatrix4x4::perspective(glm::radians(60.0f), aspect, 0.1f, 100.0f);
-
-                bgfx::setViewTransform(renderer->getMainViewId(), view.data(), proj.data());
+                m_cameraObject->setPosition(AnitoVector3D(cameraPos.x, cameraPos.y, cameraPos.z));
+                std::cout << "[Engine] Camera repositioned to: " 
+                          << cameraPos.x << ", " << cameraPos.y << ", " << cameraPos.z << std::endl;
             }
         }
     }
@@ -317,7 +315,7 @@ void AnitoEngine::update(float deltaTime) {
         m_pbrTestScenes->update(deltaTime);
     }
 
-    // Update all game objects
+    // Update all game objects (includes camera with FPS controls)
     if (AnitoGameObjectManager::getInstance()) {
         AnitoGameObjectManager::getInstance()->updateAll(deltaTime);
     }
@@ -325,21 +323,24 @@ void AnitoEngine::update(float deltaTime) {
 
 void AnitoEngine::render() {
     AnitoRenderer* renderer = AnitoRenderer::getInstance();
-    if (!renderer) return;
+    if (!renderer || !m_camera) return;
 
     renderer->beginFrame();
 
+    // Get camera view and projection matrices
+    AnitoMatrix4x4 view = m_camera->getViewMatrix();
+    AnitoMatrix4x4 proj = m_camera->getProjectionMatrix();
+
+    // Set view-projection transform for the main view
+    bgfx::setViewTransform(renderer->getMainViewId(), view.data(), proj.data());
+
+    // Get camera position for uniforms
+    AnitoVector3D cameraPos = m_cameraObject->getPosition();
+    float cameraPosArray[3] = { cameraPos.x(), cameraPos.y(), cameraPos.z() };
+
     // STEP 1: Render skybox first (background)
     if (renderer->isIBLReady() && renderer->getEnableIBL()) {
-        // Calculate view-projection inverse matrix for skybox
-        glm::vec3 cameraPos(m_currentCameraPos[0], m_currentCameraPos[1], m_currentCameraPos[2]);
-        glm::vec3 lookAtPos(0.0f, 0.0f, 0.0f);
-        AnitoMatrix4x4 view = AnitoMatrix4x4::lookAt(cameraPos, lookAtPos, glm::vec3(0.0f, 1.0f, 0.0f));
-
-        float aspect = static_cast<float>(renderer->getWidth()) / static_cast<float>(renderer->getHeight());
-        AnitoMatrix4x4 proj = AnitoMatrix4x4::perspective(glm::radians(60.0f), aspect, 0.1f, 100.0f);
-
-        // Calculate view-projection matrix
+        // Calculate view-projection matrix for skybox
         glm::mat4 viewProj = glm::make_mat4(proj.data()) * glm::make_mat4(view.data());
         glm::mat4 viewProjInv = glm::inverse(viewProj);
 
@@ -350,7 +351,7 @@ void AnitoEngine::render() {
         }
 
         // Render skybox
-        renderer->renderSkybox(glm::value_ptr(viewProjInv), m_currentCameraPos);
+        renderer->renderSkybox(glm::value_ptr(viewProjInv), cameraPosArray);
     }
 
     // Set global lighting uniforms (must be set every frame for bgfx)
@@ -364,8 +365,8 @@ void AnitoEngine::render() {
             shader->setUniform("u_lightDir", lightDir);
 
             // Set camera position (needed for specular reflections and view direction)
-            float cameraPos[4] = { m_currentCameraPos[0], m_currentCameraPos[1], m_currentCameraPos[2], 1.0f };
-            shader->setUniform("u_cameraPos", cameraPos);
+            float cameraPosUniform[4] = { cameraPosArray[0], cameraPosArray[1], cameraPosArray[2], 1.0f };
+            shader->setUniform("u_cameraPos", cameraPosUniform);
 
             // Note: IBL textures are now bound per-mesh in AnitoMeshRenderer::render()
             // via AnitoRenderer::bindIBLTextures() to comply with bgfx per-draw-call requirements
