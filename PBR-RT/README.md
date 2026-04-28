@@ -63,6 +63,22 @@ Once running:
 - **Z** - Toggle IBL on/off
 - **ESC** - Quit
 
+### 4. Camera Controls
+
+Navigate the 3D scene with professional scene viewer-style controls:
+
+**Movement:**
+- **W/A/S/D** - Move forward/left/backward/right
+- **Space** - Move up
+- **Left Ctrl** - Move down
+- **Left Shift** - Sprint (2x speed)
+
+**Rotation:**
+- **Left Mouse Button + Drag** - Rotate camera (scene viewer style)
+- **Scroll Wheel** - Adjust movement speed
+
+📘 See **[docs/guides/FPS_CAMERA_QUICK_REFERENCE.md](docs/guides/FPS_CAMERA_QUICK_REFERENCE.md)** for detailed controls.
+
 ---
 
 ## Build System
@@ -128,6 +144,7 @@ Build.bat rebuild Release          # Clean and rebuild Release
 
 | Guide | Description |
 |-------|-------------|
+| **[FPS_CAMERA_QUICK_REFERENCE.md](docs/guides/FPS_CAMERA_QUICK_REFERENCE.md)** | Camera controls and navigation |
 | **[IBL_SETUP.md](docs/guides/IBL_SETUP.md)** | Image-Based Lighting guide and troubleshooting |
 
 ### 🤖 AI Development

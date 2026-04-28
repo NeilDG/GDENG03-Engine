@@ -22,6 +22,14 @@ AnitoMeshRenderer::~AnitoMeshRenderer() {
 }
 
 void AnitoMeshRenderer::render() {
+    AnitoRenderer* renderer = AnitoRenderer::getInstance();
+    if (!renderer) return;
+
+    // Use main view for forward rendering
+    renderToView(renderer->getMainViewId());
+}
+
+void AnitoMeshRenderer::renderToView(bgfx::ViewId viewId) {
     if (!m_vertexBuffer || !m_indexBuffer || !m_material) return;
     if (!m_material->getShader() || !m_material->getShader()->isValid()) return;
 
@@ -39,11 +47,12 @@ void AnitoMeshRenderer::render() {
     m_indexBuffer->bind();
 
     // Bind material (PBR parameters)
-    m_material->bind(renderer->getMainViewId());
+    m_material->bind(viewId);
 
     // CRITICAL: Bind IBL textures per-draw-call (bgfx requirement)
     // This must be done AFTER material bind and BEFORE setState/submit
-    if (renderer->isIBLReady()) {
+    // Only for forward rendering (View 1) - deferred rendering doesn't need IBL here
+    if (viewId == renderer->getMainViewId() && renderer->isIBLReady()) {
         renderer->bindIBLTextures(m_material->getShader());
     }
 
@@ -58,8 +67,8 @@ void AnitoMeshRenderer::render() {
 
     bgfx::setState(state);
 
-    // Submit draw call
-    bgfx::submit(renderer->getMainViewId(), m_material->getShader()->getProgram());
+    // Submit draw call to the specified view
+    bgfx::submit(viewId, m_material->getShader()->getProgram());
 }
 
 } // namespace Anito

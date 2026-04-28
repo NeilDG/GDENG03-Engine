@@ -10,8 +10,10 @@ class AnitoGameObjectManager;
 class AnitoPBRTestScenes;
 class AnitoFrameCaptureRecorder;
 class AnitoGBuffer;
+class AnitoDeferredRenderer;
 class AnitoGameObject;
 class AnitoCamera;
+class AnitoShader;
 
 /**
  * AnitoEngine - Main engine class
@@ -31,6 +33,8 @@ public:
 private:
     void update(float deltaTime);
     void render();
+    void renderForward();   // Forward rendering path
+    void renderDeferred();  // Deferred rendering path (Step 7)
     void createTestScene();
 
     static AnitoEngine* s_instance;
@@ -53,8 +57,12 @@ private:
     AnitoGameObject* m_cameraObject;
     AnitoCamera* m_camera;
 
-    // Deferred rendering G-Buffer (Step 1-3 test)
-    std::unique_ptr<AnitoGBuffer> m_gBuffer;
+    // Deferred rendering system (Step 1-7)
+    std::unique_ptr<AnitoDeferredRenderer> m_deferredRenderer;
+    bool m_useDeferredRendering;  // Toggle between forward and deferred
+
+    // G-Buffer shader (for deferred rendering)
+    std::shared_ptr<AnitoShader> m_gbufferShader;
 
     // TODO: Add other subsystems as we implement them
 };

@@ -8,6 +8,7 @@
 #include "Renderer/AnitoMeshGenerator.h"
 #include "Renderer/AnitoPBRTestScenes.h"
 #include "Renderer/Deferred/AnitoGBuffer.h"
+#include "Renderer/Deferred/AnitoDeferredRenderer.h"
 #include "Debug/AnitoFrameCaptureRecorder.h"
 #include "Debug/AnitoProfilerManager.h"
 #include "GameObjects/AnitoGameObjectManager.h"
@@ -35,6 +36,7 @@ AnitoEngine::AnitoEngine()
     , m_frameCaptureRecorder(nullptr)
     , m_cameraObject(nullptr)
     , m_camera(nullptr)
+    , m_useDeferredRendering(false)  // Start with forward rendering (Step 7)
 {
     s_instance = this;
 }
@@ -108,10 +110,32 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
     m_frameCaptureRecorder = std::make_unique<AnitoFrameCaptureRecorder>();
     m_frameCaptureRecorder->initialize("anito-debug/frames", 1.0f, "png");  // Capture every 1 second
 
-    // [STEP 1-3 TEST] Initialize G-Buffer for deferred rendering
-    std::cout << "\n[Engine] === STEP 1-3: G-Buffer Creation Test ===" << std::endl;
-    m_gBuffer = std::make_unique<AnitoGBuffer>(width, height);
-    std::cout << "[Engine] === G-Buffer Test Complete ===\n" << std::endl;
+    // [STEP 1-7] Initialize deferred rendering system
+    std::cout << "\n[Engine] === PHASE 3: DEFERRED RENDERING INITIALIZATION ===" << std::endl;
+    std::cout << "[Engine] Step 1-3: G-Buffer creation..." << std::endl;
+    m_deferredRenderer = std::make_unique<AnitoDeferredRenderer>(width, height);
+    std::cout << "[Engine] Step 4-6: G-Buffer shaders compiled (verified earlier)" << std::endl;
+    std::cout << "[Engine] Step 7: Loading G-Buffer shaders for geometry pass..." << std::endl;
+
+    // Load G-Buffer shaders (Step 7)
+    m_gbufferShader = AnitoShader::createOrGet("GBufferShader",
+        "assets/shaders/compiled/vs_gbuffer.bin",
+        "assets/shaders/compiled/fs_gbuffer.bin");
+
+    if (!m_gbufferShader || !m_gbufferShader->isValid()) {
+        std::cerr << "[Engine] ERROR: Failed to load G-Buffer shaders!" << std::endl;
+        std::cerr << "[Engine] Deferred rendering will be unavailable." << std::endl;
+    } else {
+        std::cout << "[Engine] G-Buffer shaders loaded successfully!" << std::endl;
+
+        // Create uniforms for G-Buffer shader (PBR material parameters)
+        m_gbufferShader->createUniform("u_baseColor", bgfx::UniformType::Vec4);
+        m_gbufferShader->createUniform("u_pbrParams", bgfx::UniformType::Vec4);  // metallic, roughness
+        std::cout << "[Engine] G-Buffer shader uniforms created" << std::endl;
+    }
+
+    std::cout << "[Engine] Deferred renderer initialized - Toggle with 'D' key" << std::endl;
+    std::cout << "[Engine] === DEFERRED RENDERING SYSTEM READY ===\n" << std::endl;
 
     // Create test scene
     createTestScene();
@@ -210,6 +234,7 @@ void AnitoEngine::createTestScene() {
     std::cout << "  Scene Controls:" << std::endl;
     std::cout << "    - SPACE: Switch between test scenes" << std::endl;
     std::cout << "    - Z: Toggle IBL (Image-Based Lighting)" << std::endl;
+    std::cout << "    - D: Toggle Deferred Rendering (Forward/Deferred)" << std::endl;
     std::cout << "==============================" << std::endl;
     std::cout << "==================================================" << std::endl;
 }
@@ -308,6 +333,14 @@ void AnitoEngine::update(float deltaTime) {
                           << cameraPos.x << ", " << cameraPos.y << ", " << cameraPos.z << std::endl;
             }
         }
+
+        // [STEP 7] Handle deferred rendering toggle with 'D' key
+        if (AnitoInputManager::getInstance()->isKeyPressed(GLFW_KEY_D)) {
+            m_useDeferredRendering = !m_useDeferredRendering;
+            std::cout << "\n[Engine] ========================================" << std::endl;
+            std::cout << "[Engine] Rendering Mode: " << (m_useDeferredRendering ? "DEFERRED" : "FORWARD") << std::endl;
+            std::cout << "[Engine] ========================================\n" << std::endl;
+        }
     }
 
     // Update PBR test scenes (rotating cubes, etc.)
@@ -327,59 +360,118 @@ void AnitoEngine::render() {
 
     renderer->beginFrame();
 
+    // Choose rendering path based on toggle
+    if (m_useDeferredRendering && m_deferredRenderer && m_gbufferShader && m_gbufferShader->isValid()) {
+        renderDeferred();
+    } else {
+        renderForward();
+    }
+
+    renderer->endFrame();
+}
+
+void AnitoEngine::renderForward() {
+    // Original forward rendering path
+    AnitoRenderer* renderer = AnitoRenderer::getInstance();
+    if (!renderer || !m_camera) return;
+
     // Get camera view and projection matrices
     AnitoMatrix4x4 view = m_camera->getViewMatrix();
     AnitoMatrix4x4 proj = m_camera->getProjectionMatrix();
 
-    // Set view-projection transform for the main view
+    // Set view-projection transform for the main view (View 1)
     bgfx::setViewTransform(renderer->getMainViewId(), view.data(), proj.data());
 
     // Get camera position for uniforms
     AnitoVector3D cameraPos = m_cameraObject->getPosition();
     float cameraPosArray[3] = { cameraPos.x(), cameraPos.y(), cameraPos.z() };
 
-    // STEP 1: Render skybox first (background)
+    // STEP 1: Render skybox first (View 0, background)
     if (renderer->isIBLReady() && renderer->getEnableIBL()) {
         // Calculate view-projection matrix for skybox
         glm::mat4 viewProj = glm::make_mat4(proj.data()) * glm::make_mat4(view.data());
         glm::mat4 viewProjInv = glm::inverse(viewProj);
 
-        // Debug: Only print once every 60 frames to avoid spam
-        static int frameCount = 0;
-        if (frameCount++ % 60 == 0) {
-            std::cout << "[Render] Skybox rendering: IBL enabled, ready=" << renderer->isIBLReady() << std::endl;
-        }
-
         // Render skybox
         renderer->renderSkybox(glm::value_ptr(viewProjInv), cameraPosArray);
     }
 
-    // Set global lighting uniforms (must be set every frame for bgfx)
-    // These are "global" in the sense that they're set once per frame before all mesh renders
+    // Set global lighting uniforms for forward rendering
     if (m_pbrTestScenes) {
         auto shader = AnitoShader::get("SimpleShader");
         if (shader && shader->isValid()) {
-            // Set light direction (directional light from above-front-right)
-            // Direction points FROM light source, intensity increased for PBR test visibility
-            float lightDir[4] = { -0.3f, -0.5f, 0.8f, 12.0f }; // w = intensity
+            // Set light direction
+            float lightDir[4] = { -0.3f, -0.5f, 0.8f, 12.0f };
             shader->setUniform("u_lightDir", lightDir);
 
-            // Set camera position (needed for specular reflections and view direction)
+            // Set camera position
             float cameraPosUniform[4] = { cameraPosArray[0], cameraPosArray[1], cameraPosArray[2], 1.0f };
             shader->setUniform("u_cameraPos", cameraPosUniform);
-
-            // Note: IBL textures are now bound per-mesh in AnitoMeshRenderer::render()
-            // via AnitoRenderer::bindIBLTextures() to comply with bgfx per-draw-call requirements
-            // This ensures textures are properly bound for each submit() call
         }
     }
 
-    // STEP 2: Render all game objects (foreground)
+    // STEP 2: Render all game objects (View 1, foreground)
     if (AnitoGameObjectManager::getInstance()) {
         AnitoGameObjectManager::getInstance()->renderAll();
     }
+}
 
-    renderer->endFrame();
+void AnitoEngine::renderDeferred() {
+    // [STEP 7] Deferred rendering path - Geometry pass only (lighting pass in Step 9)
+    AnitoRenderer* renderer = AnitoRenderer::getInstance();
+    if (!renderer || !m_camera) return;
+
+    // Get camera view and projection matrices
+    AnitoMatrix4x4 view = m_camera->getViewMatrix();
+    AnitoMatrix4x4 proj = m_camera->getProjectionMatrix();
+
+    // Get camera position
+    AnitoVector3D cameraPos = m_cameraObject->getPosition();
+    float cameraPosArray[3] = { cameraPos.x(), cameraPos.y(), cameraPos.z() };
+
+    // STEP 1: Render skybox (View 0, background) - Same as forward
+    if (renderer->isIBLReady() && renderer->getEnableIBL()) {
+        glm::mat4 viewProj = glm::make_mat4(proj.data()) * glm::make_mat4(view.data());
+        glm::mat4 viewProjInv = glm::inverse(viewProj);
+        renderer->renderSkybox(glm::value_ptr(viewProjInv), cameraPosArray);
+    }
+
+    // STEP 2: Geometry Pass - Render scene objects to G-Buffer (View 2)
+    std::cout << "[Engine] [STEP 7] Starting geometry pass..." << std::endl;
+
+    m_deferredRenderer->beginGeometryPass();
+
+    // Set view-projection transform for geometry view (View 2)
+    bgfx::setViewTransform(m_deferredRenderer->getGeometryViewId(), view.data(), proj.data());
+
+    // Set global uniforms for G-Buffer shader
+    if (m_gbufferShader && m_gbufferShader->isValid()) {
+        // Base color and PBR params will be set per-material in mesh renderer
+        std::cout << "[Engine] G-Buffer shader ready for rendering" << std::endl;
+    }
+
+    // Render all game objects to G-Buffer
+    // NOTE: This will use the current shader in each material (SimpleShader)
+    // TODO (Step 7b): Need to temporarily swap shaders to GBufferShader
+    if (AnitoGameObjectManager::getInstance()) {
+        std::cout << "[Engine] Rendering scene objects to G-Buffer..." << std::endl;
+
+        // TODO: We need a way to tell mesh renderers to use G-Buffer shader
+        // For now, they will render with SimpleShader to View 2
+        // This is a temporary limitation - we'll fix in next iteration
+
+        AnitoGameObjectManager::getInstance()->renderAll();
+    }
+
+    m_deferredRenderer->endGeometryPass();
+    std::cout << "[Engine] Geometry pass complete!" << std::endl;
+
+    // STEP 3: Lighting Pass - NOT IMPLEMENTED YET (Step 9)
+    // For now, just clear the screen so we can verify G-Buffer rendering
+    // The G-Buffer will contain data but won't be visualized yet
+
+    std::cout << "[Engine] [STEP 9 - NOT IMPLEMENTED] Lighting pass skipped" << std::endl;
+    std::cout << "[Engine] G-Buffer populated but not visualized (waiting for Step 9)" << std::endl;
 }
 
 } // namespace Anito

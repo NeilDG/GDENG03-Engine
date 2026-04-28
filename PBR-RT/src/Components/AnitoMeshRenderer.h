@@ -13,6 +13,7 @@ class AnitoMaterial;
 
 /**
  * AnitoMeshRenderer - Renders a mesh with a material
+ * Supports both forward and deferred rendering
  */
 class AnitoMeshRenderer : public AnitoComponent {
 public:
@@ -20,6 +21,7 @@ public:
     ~AnitoMeshRenderer() override;
 
     void render() override;
+    void renderToView(bgfx::ViewId viewId);  // Render to specific view (for deferred)
 
     void setVertexBuffer(std::shared_ptr<AnitoVertexBuffer> vb) { m_vertexBuffer = vb; }
     void setIndexBuffer(std::shared_ptr<AnitoIndexBuffer> ib) { m_indexBuffer = ib; }
