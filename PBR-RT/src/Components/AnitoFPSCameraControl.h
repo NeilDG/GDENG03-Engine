@@ -47,6 +47,16 @@ public:
     float getYaw() const { return m_yaw; }
     float getPitch() const { return m_pitch; }
 
+    // Set orientation (useful for initialization)
+    void setYaw(float yaw) { m_yaw = yaw; }
+    void setPitch(float pitch) { 
+        // Constrain pitch to prevent gimbal lock
+        const float maxPitch = 89.0f;
+        m_pitch = pitch;
+        if (m_pitch > maxPitch) m_pitch = maxPitch;
+        if (m_pitch < -maxPitch) m_pitch = -maxPitch;
+    }
+
     // Enable/disable controls
     void setEnabled(bool enabled) { m_enabled = enabled; }
     bool isEnabled() const { return m_enabled; }

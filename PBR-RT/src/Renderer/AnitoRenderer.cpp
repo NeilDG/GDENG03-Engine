@@ -6,7 +6,7 @@
 #include <bx/bx.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "../../external/stb/stb_image.h"
+#include "../../external/bgfx/bimg/3rdparty/stb/stb_image.h"
 
 namespace Anito {
 
@@ -516,7 +516,7 @@ void AnitoRenderer::generateIrradianceMap(bgfx::TextureHandle envCubemap) {
         }
 
         // Set view for this face
-        bgfx::ViewId convolutionView = 16 + face; // Use views 16-21 for irradiance
+        bgfx::ViewId convolutionView = 16 + face; // Use views 16-21 for irradiadiance
         bgfx::setViewFrameBuffer(convolutionView, faceFramebuffer);
         bgfx::setViewRect(convolutionView, 0, 0, irradianceSize, irradianceSize);
         bgfx::setViewClear(convolutionView, BGFX_CLEAR_COLOR, 0x000000ff, 1.0f, 0);

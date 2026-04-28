@@ -196,6 +196,7 @@ void AnitoEngine::createTestScene() {
     // Setup camera GameObject with FPS controls
     std::cout << "[Scene Setup] Setting up FPS camera..." << std::endl;
     glm::vec3 cameraPos = m_pbrTestScenes->getCameraPositionForScene();
+    glm::vec3 lookAtPos = m_pbrTestScenes->getLookAtPositionForScene();
 
     // Create camera GameObject
     m_cameraObject = AnitoGameObjectManager::getInstance()->createObject("MainCamera", AnitoGameObject::PrimitiveType::Camera);
@@ -207,14 +208,24 @@ void AnitoEngine::createTestScene() {
     float aspect = static_cast<float>(renderer->getWidth()) / static_cast<float>(renderer->getHeight());
     m_camera->setPerspective(glm::radians(60.0f), aspect, 0.1f, 100.0f);
 
-    // Add FPS camera control component
+    // Add FPS camera control component and initialize orientation to look at scene
     auto* fpsControl = new AnitoFPSCameraControl("FPSControl");
     m_cameraObject->attachComponent(fpsControl);
     fpsControl->setMovementSpeed(5.0f);
     fpsControl->setLookSensitivity(0.1f);
 
+    // Calculate initial yaw and pitch to look at scene center
+    glm::vec3 direction = glm::normalize(lookAtPos - cameraPos);
+    float yaw = glm::degrees(atan2(direction.x, direction.z));
+    float pitch = glm::degrees(asin(-direction.y));
+    fpsControl->setYaw(yaw);
+    fpsControl->setPitch(pitch);
+
     std::cout << "[Scene Setup] FPS Camera initialized at position: " 
               << cameraPos.x << ", " << cameraPos.y << ", " << cameraPos.z << std::endl;
+    std::cout << "[Scene Setup] Looking at: " 
+              << lookAtPos.x << ", " << lookAtPos.y << ", " << lookAtPos.z << std::endl;
+    std::cout << "[Scene Setup] Initial orientation - Yaw: " << yaw << "°, Pitch: " << pitch << "°" << std::endl;
 
     // Set light direction (directional light from above-front-right)
     // Direction points FROM light source, intensity increased for PBR test visibility
@@ -325,10 +336,22 @@ void AnitoEngine::update(float deltaTime) {
         if (m_pbrTestScenes && AnitoInputManager::getInstance()->isKeyPressed(GLFW_KEY_SPACE)) {
             m_pbrTestScenes->switchToNextScene();
 
-            // Update camera position for new scene (but keep current orientation)
+            // Update camera position and orientation for new scene
             if (m_cameraObject) {
                 glm::vec3 cameraPos = m_pbrTestScenes->getCameraPositionForScene();
+                glm::vec3 lookAtPos = m_pbrTestScenes->getLookAtPositionForScene();
                 m_cameraObject->setPosition(AnitoVector3D(cameraPos.x, cameraPos.y, cameraPos.z));
+
+                // Update FPS camera control orientation
+                auto* fpsControl = m_cameraObject->getComponent<AnitoFPSCameraControl>();
+                if (fpsControl) {
+                    glm::vec3 direction = glm::normalize(lookAtPos - cameraPos);
+                    float yaw = glm::degrees(atan2(direction.x, direction.z));
+                    float pitch = glm::degrees(asin(-direction.y));
+                    fpsControl->setYaw(yaw);
+                    fpsControl->setPitch(pitch);
+                }
+
                 std::cout << "[Engine] Camera repositioned to: " 
                           << cameraPos.x << ", " << cameraPos.y << ", " << cameraPos.z << std::endl;
             }

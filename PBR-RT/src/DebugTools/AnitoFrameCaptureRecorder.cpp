@@ -8,7 +8,7 @@
 #include <vector>
 
 // STB Image for reading TGA files (NO IMPLEMENTATION - already defined in AnitoRenderer.cpp)
-#include "../../external/stb/stb_image.h"
+#include "../../external/bgfx/bimg/3rdparty/stb/stb_image.h"
 
 // STB Image Write for saving PNG/JPG
 #define STB_IMAGE_WRITE_IMPLEMENTATION
