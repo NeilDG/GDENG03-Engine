@@ -222,20 +222,20 @@ set(ANITO_CONFIG_SOURCES
 
 # Debug Tools & Profilers
 set(ANITO_DEBUG_SOURCES
-    src/Debug/AnitoFrameCaptureRecorder.cpp
-    src/Debug/AnitoFrameCaptureRecorder.h
-    src/Debug/AnitoConsoleLogger.cpp
-    src/Debug/AnitoConsoleLogger.h
-    src/Debug/AnitoPerformanceProfiler.cpp
-    src/Debug/AnitoPerformanceProfiler.h
-    src/Debug/AnitoGPUProfiler.cpp
-    src/Debug/AnitoGPUProfiler.h
-    src/Debug/AnitoMemoryProfiler.cpp
-    src/Debug/AnitoMemoryProfiler.h
-    src/Debug/AnitoCrashReporter.cpp
-    src/Debug/AnitoCrashReporter.h
-    src/Debug/AnitoProfilerManager.cpp
-    src/Debug/AnitoProfilerManager.h
+    src/DebugTools/AnitoFrameCaptureRecorder.cpp
+    src/DebugTools/AnitoFrameCaptureRecorder.h
+    src/DebugTools/AnitoConsoleLogger.cpp
+    src/DebugTools/AnitoConsoleLogger.h
+    src/DebugTools/AnitoPerformanceProfiler.cpp
+    src/DebugTools/AnitoPerformanceProfiler.h
+    src/DebugTools/AnitoGPUProfiler.cpp
+    src/DebugTools/AnitoGPUProfiler.h
+    src/DebugTools/AnitoMemoryProfiler.cpp
+    src/DebugTools/AnitoMemoryProfiler.h
+    src/DebugTools/AnitoCrashReporter.cpp
+    src/DebugTools/AnitoCrashReporter.h
+    src/DebugTools/AnitoProfilerManager.cpp
+    src/DebugTools/AnitoProfilerManager.h
 )
 
 # Main Application
