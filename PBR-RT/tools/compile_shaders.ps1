@@ -143,6 +143,21 @@ $prefilterVarying = Join-Path $ShaderSrcDir "varying_prefilter_envmap.def.sc"
 Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "vs_prefilter_envmap.sc") -Type "vertex" -OutputName "vs_prefilter_envmap" -VaryingDefOverride $prefilterVarying
 Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "fs_prefilter_envmap.sc") -Type "fragment" -OutputName "fs_prefilter_envmap" -VaryingDefOverride $prefilterVarying
 
+# G-Buffer shaders (deferred rendering - geometry pass)
+$gbufferVarying = Join-Path $ShaderSrcDir "varying_gbuffer.def.sc"
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "vs_gbuffer.sc") -Type "vertex" -OutputName "vs_gbuffer" -VaryingDefOverride $gbufferVarying
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "fs_gbuffer.sc") -Type "fragment" -OutputName "fs_gbuffer" -VaryingDefOverride $gbufferVarying
+
+# Deferred lighting shaders (deferred rendering - lighting pass)
+$deferredLightVarying = Join-Path $ShaderSrcDir "varying_deferred_light.def.sc"
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "vs_deferred_light.sc") -Type "vertex" -OutputName "vs_deferred_light" -VaryingDefOverride $deferredLightVarying
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "fs_deferred_light.sc") -Type "fragment" -OutputName "fs_deferred_light" -VaryingDefOverride $deferredLightVarying
+
+# G-Buffer debug visualization shaders (Step 10)
+$gbufferDebugVarying = Join-Path $ShaderSrcDir "varying_gbuffer_debug.def.sc"
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "vs_gbuffer_debug.sc") -Type "vertex" -OutputName "vs_gbuffer_debug" -VaryingDefOverride $gbufferDebugVarying
+Compile-Shader -ShaderFile (Join-Path $ShaderSrcDir "fs_gbuffer_debug.sc") -Type "fragment" -OutputName "fs_gbuffer_debug" -VaryingDefOverride $gbufferDebugVarying
+
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Shader compilation complete!" -ForegroundColor Green

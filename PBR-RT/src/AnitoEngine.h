@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <bgfx/bgfx.h>
 
 namespace Anito {
 
@@ -61,8 +62,20 @@ private:
     std::unique_ptr<AnitoDeferredRenderer> m_deferredRenderer;
     bool m_useDeferredRendering;  // Toggle between forward and deferred
 
-    // G-Buffer shader (for deferred rendering)
+    // G-Buffer shader (for deferred rendering - geometry pass)
     std::shared_ptr<AnitoShader> m_gbufferShader;
+
+    // Deferred lighting shader (for deferred rendering - lighting pass, Step 9)
+    bgfx::ProgramHandle m_deferredLightingProgram;
+    bgfx::ProgramHandle m_gbufferDebugProgram;  // Step 10: Debug visualization
+    bgfx::UniformHandle m_u_cameraPos;
+    bgfx::UniformHandle m_s_gbuffer0;
+    bgfx::UniformHandle m_s_gbuffer1;
+    bgfx::UniformHandle m_s_gbuffer2;
+    bgfx::UniformHandle m_s_gbuffer3;
+    bgfx::UniformHandle m_s_irradianceMap;
+    bgfx::UniformHandle m_s_prefilterMap;
+    bgfx::UniformHandle m_s_brdfLUT;
 
     // TODO: Add other subsystems as we implement them
 };

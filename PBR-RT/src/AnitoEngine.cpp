@@ -37,6 +37,16 @@ AnitoEngine::AnitoEngine()
     , m_cameraObject(nullptr)
     , m_camera(nullptr)
     , m_useDeferredRendering(false)  // Start with forward rendering (Step 7)
+    , m_deferredLightingProgram(BGFX_INVALID_HANDLE)
+    , m_gbufferDebugProgram(BGFX_INVALID_HANDLE)
+    , m_u_cameraPos(BGFX_INVALID_HANDLE)
+    , m_s_gbuffer0(BGFX_INVALID_HANDLE)
+    , m_s_gbuffer1(BGFX_INVALID_HANDLE)
+    , m_s_gbuffer2(BGFX_INVALID_HANDLE)
+    , m_s_gbuffer3(BGFX_INVALID_HANDLE)
+    , m_s_irradianceMap(BGFX_INVALID_HANDLE)
+    , m_s_prefilterMap(BGFX_INVALID_HANDLE)
+    , m_s_brdfLUT(BGFX_INVALID_HANDLE)
 {
     s_instance = this;
 }
@@ -134,7 +144,66 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
         std::cout << "[Engine] G-Buffer shader uniforms created" << std::endl;
     }
 
+    // [STEP 8-9] Load deferred lighting shaders
+    std::cout << "[Engine] Step 8-9: Loading deferred lighting shaders..." << std::endl;
+
+    // Create lighting program directly using bgfx (not AnitoShader wrapper)
+    AnitoRenderer* renderer = AnitoRenderer::getInstance();
+    if (renderer) {
+        bgfx::ShaderHandle vsDeferred = renderer->createShader("assets/shaders/compiled/vs_deferred_light.bin");
+        bgfx::ShaderHandle fsDeferred = renderer->createShader("assets/shaders/compiled/fs_deferred_light.bin");
+
+        if (bgfx::isValid(vsDeferred) && bgfx::isValid(fsDeferred)) {
+            m_deferredLightingProgram = bgfx::createProgram(vsDeferred, fsDeferred, true);
+
+            if (bgfx::isValid(m_deferredLightingProgram)) {
+                std::cout << "[Engine] Deferred lighting shaders loaded successfully!" << std::endl;
+
+                // Create uniforms for lighting pass
+                m_u_cameraPos = bgfx::createUniform("u_cameraPos", bgfx::UniformType::Vec4);
+                m_s_gbuffer0 = bgfx::createUniform("s_gbuffer0", bgfx::UniformType::Sampler);
+                m_s_gbuffer1 = bgfx::createUniform("s_gbuffer1", bgfx::UniformType::Sampler);
+                m_s_gbuffer2 = bgfx::createUniform("s_gbuffer2", bgfx::UniformType::Sampler);
+                m_s_gbuffer3 = bgfx::createUniform("s_gbuffer3", bgfx::UniformType::Sampler);
+                m_s_irradianceMap = bgfx::createUniform("s_irradianceMap", bgfx::UniformType::Sampler);
+                m_s_prefilterMap = bgfx::createUniform("s_prefilterMap", bgfx::UniformType::Sampler);
+                m_s_brdfLUT = bgfx::createUniform("s_brdfLUT", bgfx::UniformType::Sampler);
+
+                std::cout << "[Engine] Deferred lighting uniforms created" << std::endl;
+
+                // Configure deferred renderer with shader and uniforms
+                m_deferredRenderer->setLightingShader(m_deferredLightingProgram);
+                m_deferredRenderer->setGBufferUniforms(m_s_gbuffer0, m_s_gbuffer1, m_s_gbuffer2, m_s_gbuffer3);
+                m_deferredRenderer->setCameraUniforms(m_u_cameraPos);
+                m_deferredRenderer->setIBLUniforms(m_s_irradianceMap, m_s_prefilterMap, m_s_brdfLUT);
+            } else {
+                std::cerr << "[Engine] ERROR: Failed to create deferred lighting program!" << std::endl;
+            }
+        } else {
+            std::cerr << "[Engine] ERROR: Failed to load deferred lighting shaders!" << std::endl;
+        }
+
+        // [STEP 10] Load G-Buffer debug visualization shaders
+        std::cout << "[Engine] Step 10: Loading G-Buffer debug visualization shaders..." << std::endl;
+        bgfx::ShaderHandle vsDebug = renderer->createShader("assets/shaders/compiled/vs_gbuffer_debug.bin");
+        bgfx::ShaderHandle fsDebug = renderer->createShader("assets/shaders/compiled/fs_gbuffer_debug.bin");
+
+        if (bgfx::isValid(vsDebug) && bgfx::isValid(fsDebug)) {
+            m_gbufferDebugProgram = bgfx::createProgram(vsDebug, fsDebug, true);
+
+            if (bgfx::isValid(m_gbufferDebugProgram)) {
+                std::cout << "[Engine] G-Buffer debug shaders loaded successfully!" << std::endl;
+                m_deferredRenderer->setDebugShader(m_gbufferDebugProgram);
+            } else {
+                std::cerr << "[Engine] ERROR: Failed to create G-Buffer debug program!" << std::endl;
+            }
+        } else {
+            std::cerr << "[Engine] ERROR: Failed to load G-Buffer debug shaders!" << std::endl;
+        }
+    }
+
     std::cout << "[Engine] Deferred renderer initialized - Toggle with 'D' key" << std::endl;
+    std::cout << "[Engine] G-Buffer debug visualization - Toggle with 'G' key" << std::endl;
     std::cout << "[Engine] === DEFERRED RENDERING SYSTEM READY ===\n" << std::endl;
 
     // Create test scene
@@ -246,6 +315,7 @@ void AnitoEngine::createTestScene() {
     std::cout << "    - SPACE: Switch between test scenes" << std::endl;
     std::cout << "    - Z: Toggle IBL (Image-Based Lighting)" << std::endl;
     std::cout << "    - D: Toggle Deferred Rendering (Forward/Deferred)" << std::endl;
+    std::cout << "    - G: Toggle G-Buffer Debug Visualization" << std::endl;
     std::cout << "==============================" << std::endl;
     std::cout << "==================================================" << std::endl;
 }
@@ -294,6 +364,22 @@ void AnitoEngine::run() {
 
 void AnitoEngine::shutdown() {
     std::cout << "\n[Engine] Shutting down Anito Engine..." << std::endl;
+
+    // Destroy deferred rendering resources BEFORE bgfx shutdown
+    if (bgfx::isValid(m_deferredLightingProgram)) {
+        bgfx::destroy(m_deferredLightingProgram);
+    }
+    if (bgfx::isValid(m_gbufferDebugProgram)) {
+        bgfx::destroy(m_gbufferDebugProgram);
+    }
+    if (bgfx::isValid(m_u_cameraPos)) bgfx::destroy(m_u_cameraPos);
+    if (bgfx::isValid(m_s_gbuffer0)) bgfx::destroy(m_s_gbuffer0);
+    if (bgfx::isValid(m_s_gbuffer1)) bgfx::destroy(m_s_gbuffer1);
+    if (bgfx::isValid(m_s_gbuffer2)) bgfx::destroy(m_s_gbuffer2);
+    if (bgfx::isValid(m_s_gbuffer3)) bgfx::destroy(m_s_gbuffer3);
+    if (bgfx::isValid(m_s_irradianceMap)) bgfx::destroy(m_s_irradianceMap);
+    if (bgfx::isValid(m_s_prefilterMap)) bgfx::destroy(m_s_prefilterMap);
+    if (bgfx::isValid(m_s_brdfLUT)) bgfx::destroy(m_s_brdfLUT);
 
     // Destroy PBR test scenes and frame capture recorder BEFORE bgfx shutdown
     // These hold bgfx resources (uniforms, textures, etc.) that must be destroyed before bgfx::shutdown()
@@ -363,6 +449,17 @@ void AnitoEngine::update(float deltaTime) {
             std::cout << "\n[Engine] ========================================" << std::endl;
             std::cout << "[Engine] Rendering Mode: " << (m_useDeferredRendering ? "DEFERRED" : "FORWARD") << std::endl;
             std::cout << "[Engine] ========================================\n" << std::endl;
+        }
+
+        // [STEP 10] Handle G-Buffer debug visualization toggle with 'G' key
+        if (AnitoInputManager::getInstance()->isKeyPressed(GLFW_KEY_G)) {
+            if (m_deferredRenderer) {
+                bool debugMode = !m_deferredRenderer->getDebugMode();
+                m_deferredRenderer->setDebugMode(debugMode);
+                std::cout << "\n[Engine] ========================================" << std::endl;
+                std::cout << "[Engine] G-Buffer Debug Mode: " << (debugMode ? "ON" : "OFF") << std::endl;
+                std::cout << "[Engine] ========================================\n" << std::endl;
+            }
         }
     }
 
@@ -489,12 +586,40 @@ void AnitoEngine::renderDeferred() {
     m_deferredRenderer->endGeometryPass();
     std::cout << "[Engine] Geometry pass complete!" << std::endl;
 
-    // STEP 3: Lighting Pass - NOT IMPLEMENTED YET (Step 9)
-    // For now, just clear the screen so we can verify G-Buffer rendering
-    // The G-Buffer will contain data but won't be visualized yet
+    // STEP 3: Lighting Pass (Step 9) OR Debug Visualization (Step 10)
+    if (m_deferredRenderer->getDebugMode()) {
+        // [STEP 10] Render G-Buffer debug visualization
+        std::cout << "[Engine] [STEP 10] Rendering G-Buffer debug visualization..." << std::endl;
+        m_deferredRenderer->renderDebugVisualization();
+    } else {
+        // [STEP 9] Normal lighting pass
+        std::cout << "[Engine] [STEP 9] Starting lighting pass..." << std::endl;
 
-    std::cout << "[Engine] [STEP 9 - NOT IMPLEMENTED] Lighting pass skipped" << std::endl;
-    std::cout << "[Engine] G-Buffer populated but not visualized (waiting for Step 9)" << std::endl;
+        m_deferredRenderer->beginLightingPass();
+
+        // Set view transform for lighting pass (identity - fullscreen pass)
+        float identity[16] = {
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+        };
+        bgfx::setViewTransform(m_deferredRenderer->getLightingViewId(), identity, identity);
+
+        // Set camera position uniform
+        float cameraPosVec4[4] = { cameraPos.x(), cameraPos.y(), cameraPos.z(), 1.0f };
+        bgfx::setUniform(m_u_cameraPos, cameraPosVec4);
+
+        // Bind IBL textures if available
+        if (renderer && renderer->isIBLReady()) {
+            bgfx::setTexture(4, m_s_irradianceMap, renderer->getIrradianceMap());
+            bgfx::setTexture(5, m_s_prefilterMap, renderer->getPrefilterMap());
+            // Note: s_brdfLUT not implemented yet (would need BRDF LUT texture generation)
+        }
+
+        m_deferredRenderer->endLightingPass();
+        std::cout << "[Engine] Lighting pass complete!" << std::endl;
+    }
 }
 
 } // namespace Anito
