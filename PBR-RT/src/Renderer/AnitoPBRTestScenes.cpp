@@ -120,12 +120,17 @@ void AnitoPBRTestScenes::update(float deltaTime) {
 
 glm::vec3 AnitoPBRTestScenes::getCameraPositionForScene() const {
     const SceneConfig& config = m_sceneConfigs[m_currentSceneIndex];
-    
-    // Calculate camera distance based on grid size
-    float maxDim = glm::max(config.gridSizeX, config.gridSizeY);
-    float distance = maxDim * config.spacing * 0.8f + 5.0f;
-    
-    return glm::vec3(0.0f, maxDim * config.spacing * 0.3f, distance);
+
+    // Calculate camera distance based on grid extent (grid is centered at origin)
+    float gridExtentX = (config.gridSizeX - 1) * config.spacing;
+    float gridExtentY = (config.gridSizeY - 1) * config.spacing;
+    float maxExtent = glm::max(gridExtentX, gridExtentY);
+
+    // Position camera to view entire grid with some margin
+    float distance = maxExtent * 0.75f + 8.0f;
+    float height = maxExtent * 0.25f;
+
+    return glm::vec3(0.0f, height, distance);
 }
 
 glm::vec3 AnitoPBRTestScenes::getLookAtPositionForScene() const {
@@ -195,9 +200,9 @@ void AnitoPBRTestScenes::createSphereGridScene() {
             std::string objName = "Sphere_" + std::to_string(x) + "_" + std::to_string(y);
             auto* sphere = new AnitoGameObject(objName, AnitoGameObject::PrimitiveType::Sphere);
 
-            // Position in grid
-            float posX = (x - config.gridSizeX / 2.0f) * config.spacing;
-            float posY = (y - config.gridSizeY / 2.0f) * config.spacing;
+            // Position in grid (centered around origin)
+            float posX = (x - (config.gridSizeX - 1) / 2.0f) * config.spacing;
+            float posY = (y - (config.gridSizeY - 1) / 2.0f) * config.spacing;
             sphere->setPosition(posX, posY, 0.0f);
 
             // Add mesh renderer
@@ -238,9 +243,9 @@ void AnitoPBRTestScenes::createCubeGridScene() {
             std::string objName = "Cube_" + std::to_string(x) + "_" + std::to_string(y);
             auto* cube = new AnitoGameObject(objName, AnitoGameObject::PrimitiveType::Cube);
 
-            // Position in grid
-            float posX = (x - config.gridSizeX / 2.0f) * config.spacing;
-            float posY = (y - config.gridSizeY / 2.0f) * config.spacing;
+            // Position in grid (centered around origin)
+            float posX = (x - (config.gridSizeX - 1) / 2.0f) * config.spacing;
+            float posY = (y - (config.gridSizeY - 1) / 2.0f) * config.spacing;
             cube->setPosition(posX, posY, 0.0f);
 
             // Set random initial rotation
@@ -295,9 +300,9 @@ void AnitoPBRTestScenes::createMixedMaterialsScene() {
                 isSphere ? AnitoGameObject::PrimitiveType::Sphere : AnitoGameObject::PrimitiveType::Cube
             );
 
-            // Position
-            float posX = (x - config.gridSizeX / 2.0f) * config.spacing;
-            float posY = (y - config.gridSizeY / 2.0f) * config.spacing;
+            // Position (centered around origin)
+            float posX = (x - (config.gridSizeX - 1) / 2.0f) * config.spacing;
+            float posY = (y - (config.gridSizeY - 1) / 2.0f) * config.spacing;
             obj->setPosition(posX, posY, 0.0f);
 
             // Random rotation for cubes
@@ -365,9 +370,9 @@ void AnitoPBRTestScenes::createMetallicShowcaseScene() {
             std::string objName = "Metal_" + metals[metalIndex].first + "_" + std::to_string(y) + "_" + std::to_string(x);
             auto* sphere = new AnitoGameObject(objName, AnitoGameObject::PrimitiveType::Sphere);
 
-            // Position
-            float posX = (x - config.gridSizeX / 2.0f) * config.spacing;
-            float posY = (y - config.gridSizeY / 2.0f) * config.spacing;
+            // Position (centered around origin)
+            float posX = (x - (config.gridSizeX - 1) / 2.0f) * config.spacing;
+            float posY = (y - (config.gridSizeY - 1) / 2.0f) * config.spacing;
             sphere->setPosition(posX, posY, 0.0f);
 
             // Add renderer
@@ -427,9 +432,9 @@ void AnitoPBRTestScenes::createDielectricShowcaseScene() {
             std::string objName = "Dielec_" + dielectrics[dielectricIndex].first + "_" + std::to_string(y) + "_" + std::to_string(x);
             auto* sphere = new AnitoGameObject(objName, AnitoGameObject::PrimitiveType::Sphere);
 
-            // Position
-            float posX = (x - config.gridSizeX / 2.0f) * config.spacing;
-            float posY = (y - config.gridSizeY / 2.0f) * config.spacing;
+            // Position (centered around origin)
+            float posX = (x - (config.gridSizeX - 1) / 2.0f) * config.spacing;
+            float posY = (y - (config.gridSizeY - 1) / 2.0f) * config.spacing;
             sphere->setPosition(posX, posY, 0.0f);
 
             // Add renderer
