@@ -1,98 +1,46 @@
 # Anito Engine - Development TODO List
 
-## Immediate Priorities (This Week)
-
-### 🔥 Critical Path: Get Visual Output
-- [ ] **Set up bgfx shader compilation**
-  - [ ] Install shaderc tool from bgfx
-  - [ ] Create shader build pipeline
-  - [ ] Set up varying.def.sc for vertex attributes
-
-- [ ] **Create Basic Shaders**
-  - [ ] Simple vertex shader (transform vertices)
-  - [ ] Simple fragment shader (solid color or basic lighting)
-  - [ ] Test shader loading with AnitoRenderer::createProgram()
-
-- [ ] **Procedural Geometry**
-  - [ ] Create cube mesh generator (8 vertices, 36 indices)
-  - [ ] Create sphere mesh generator (UV sphere)
-  - [ ] Create plane mesh generator
-  - [ ] Wrap in AnitoVertexBuffer/AnitoIndexBuffer
-
-- [ ] **First Render Test**
-  - [ ] Create test cube GameObject
-  - [ ] Add MeshRenderer component
-  - [ ] Implement MeshRenderer::render() with actual draw calls
-  - [ ] See rotating cube on screen!
+**Last Updated:** April 29, 2026  
+**Current Status:** Phase 3 Complete - Deferred Rendering with PBR + IBL
 
 ---
 
-## Phase 3A: Core Rendering (Week 1-2)
+## ✅ **COMPLETED: Phase 3 - Deferred Rendering & PBR**
 
-### Rendering Pipeline
-- [ ] **Complete AnitoShader**
-  - [ ] Shader compilation from .sc files
-  - [ ] Uniform management
-  - [ ] Shader program caching
+All Phase 3 objectives have been successfully completed:
 
-- [ ] **Complete AnitoTexture**
-  - [ ] Image loading (STB image or similar)
-  - [ ] Texture creation and management
-  - [ ] Sampler state configuration
-  - [ ] Default white texture
+### ✅ Phase 3A: Core Rendering
+- ✅ **bgfx shader compilation** - Integrated into Build.bat
+- ✅ **Basic shaders** - Complete PBR shader suite
+- ✅ **Procedural geometry** - Sphere, cube generators
+- ✅ **AnitoShader** - Full shader compilation and caching
+- ✅ **AnitoTexture** - HDR, cubemap, 2D texture support
+- ✅ **AnitoMaterial** - PBR material system
+- ✅ **Camera controller** - FPS camera with left-click rotation
 
-- [ ] **Complete AnitoMaterial**
-  - [ ] PBR parameter storage (albedo, metallic, roughness, etc.)
-  - [ ] Texture slot management
-  - [ ] Uniform binding
-  - [ ] Material instances
+### ✅ Phase 3B: Deferred Rendering
+- ✅ **AnitoGBuffer** - Full G-Buffer implementation with MRT
+- ✅ **G-Buffer shaders** - Geometry pass with material encoding
+- ✅ **AnitoDeferredRenderer** - Geometry + lighting pass system
+- ✅ **Debug visualization** - G-Buffer debug view
 
-- [ ] **Camera Controller**
-  - [ ] Orbit camera (mouse drag to rotate)
-  - [ ] Zoom with mouse wheel
-  - [ ] Pan with middle mouse button
-  - [ ] WASD free-fly mode
+### ✅ Phase 3C: PBR Lighting & IBL
+- ✅ **Cook-Torrance BRDF** - Full PBR lighting implementation
+- ✅ **Directional light** - Single directional light support
+- ✅ **Image-Based Lighting** - HDR environment, irradiance, prefilter maps
+- ✅ **Test scenes** - 5 interactive PBR test scenes
+- ✅ **Profiling suite** - CPU, GPU, memory profiling
+- ✅ **Benchmarking system** - Multi-resolution automated testing
 
----
-
-## Phase 3B: Deferred Rendering (Week 2-3)
-
-### G-Buffer Implementation
-- [ ] **Complete AnitoGBuffer**
-  - [ ] Create render target textures (RGBA16F, RGB10A2, etc.)
-  - [ ] Create framebuffer with multiple render targets
-  - [ ] Implement bind() and resize()
-  - [ ] Debug visualization of G-Buffer contents
-
-- [ ] **G-Buffer Write Shaders**
-  - [ ] Vertex shader (world space position/normal)
-  - [ ] Fragment shader (pack material data to G-Buffer)
-  - [ ] Support for PBR textures
-
-- [ ] **Complete AnitoDeferredRenderer**
-  - [ ] Geometry pass implementation
-  - [ ] Lighting pass (fullscreen quad)
-  - [ ] Forward pass for transparencies
-  - [ ] Proper view management for each pass
+**See:** `IMPLEMENTATION_STATUS.md`, `ROADMAP.md` for complete details
 
 ---
 
-## Phase 3C: Lighting System (Week 3-4)
+## 🚀 **NEXT: Phase 4 - Advanced Rendering Features**
 
-### PBR Lighting
-- [ ] **Lighting Shaders**
-  - [ ] PBR BRDF implementation (Cook-Torrance)
-  - [ ] Directional light support
-  - [ ] Point light support
-  - [ ] Spot light support
+Priority features for the next development phase:
 
-- [ ] **Light Management**
-  - [ ] Light uniform buffer
-  - [ ] Light culling (for deferred)
-  - [ ] Light volume rendering
-  - [ ] Debug light visualization
-
-### Shadow Mapping
+### Shadow Mapping (High Priority)
 - [ ] **Complete AnitoShadowMap**
   - [ ] Create shadow framebuffer
   - [ ] Depth texture creation
@@ -110,41 +58,30 @@
   - [ ] Cascade selection in shader
   - [ ] Debug cascade visualization
 
+### Point & Spot Lights
+- [ ] **Point light support** - Omnidirectional shadow maps
+- [ ] **Spot light support** - Cone-based shadow projection
+- [ ] **Light management system** - Dynamic light addition/removal
+
 ---
 
-## Phase 4: Object Picking (Week 4-5)
+## Phase 5: Scene Management & Editor Tools
 
-### GPU Picking
-- [ ] **ID Render Pass**
-  - [ ] Create ID render target (R32UI)
-  - [ ] Render objects with unique IDs
-  - [ ] Read pixel at mouse position
-  - [ ] Map ID back to GameObject
+### Object Picking
+- [ ] **GPU Picking**
+  - [ ] ID render pass with unique object IDs
+  - [ ] Pixel readback at mouse position
+  - [ ] Map ID to GameObject
 
-- [ ] **CPU Ray Casting**
-  - [ ] Screen to world ray calculation
-  - [ ] AABB intersection tests
-  - [ ] Triangle intersection (for precise picking)
-  - [ ] Gizmo interaction
-
-### Selection System
 - [ ] **Visual Feedback**
   - [ ] Outline rendering (stencil or post-process)
   - [ ] Highlight color
   - [ ] Bounding box display
   - [ ] Selection persistence
 
----
-
-## Phase 5: Editor Tools (Week 5-6)
-
-### ImGui Integration
-- [ ] **Set up ImGui**
-  - [ ] Initialize with bgfx backend
-  - [ ] Configure for GLFW input
-  - [ ] Set up docking layout
-
-- [ ] **Core Panels**
+### ImGui Integration (Already Partially Implemented)
+- [x] **ImGui initialized** - Basic setup complete
+- [ ] **Enhanced UI Panels**
   - [ ] Scene Hierarchy
     - [ ] Tree view of GameObjects
     - [ ] Drag-drop parenting (when hierarchy implemented)
@@ -173,7 +110,32 @@
 
 ---
 
-## Phase 6: Advanced Features (Week 6+)
+## Phase 6: Post-Processing & Visual Effects
+
+### Post-Processing Pipeline
+- [ ] **Post-process framework**
+  - [ ] Render to intermediate buffer
+  - [ ] Post-process pass system
+  - [ ] Effect stacking
+- [ ] Tone mapping (ACES, Reinhard, etc.)
+- [ ] Bloom
+- [ ] SSAO (Screen Space Ambient Occlusion)
+- [ ] Anti-aliasing (FXAA, TAA)
+- [ ] Color grading
+- [ ] Exposure control
+
+### Advanced Visual Effects
+- [ ] **Screen-space effects**
+  - [ ] Screen-space reflections (SSR)
+  - [ ] Contact shadows
+- [ ] **Volumetric effects**
+  - [ ] Fog system
+  - [ ] Volumetric lighting
+  - [ ] Particle systems
+
+---
+
+## Phase 7: Asset Pipeline & Scene Management
 
 ### Scene Management
 - [ ] Scene loading/saving
@@ -188,22 +150,27 @@
 - [ ] Asset browser panel
 - [ ] Material editor
 
-### Physics Integration
-- [ ] Initialize Bullet Physics
-- [ ] Rigidbody component
-- [ ] Collider components (box, sphere, capsule, mesh)
-- [ ] Physics debug rendering
-- [ ] Physics material properties
+---
 
-### Post-Processing
-- [ ] Tone mapping (ACES, Reinhard, etc.)
-- [ ] Bloom
-- [ ] SSAO (Screen Space Ambient Occlusion)
-- [ ] Anti-aliasing (FXAA, TAA)
-- [ ] Color grading
-- [ ] Exposure control
+## Phase 8: Physics Integration (Bullet Physics Already Integrated)
 
-### Performance Optimization
+### Physics System Enhancement
+- [x] **Bullet Physics** - Base integration complete
+- [ ] **Enhanced components**
+  - [ ] Rigidbody component with full API
+  - [ ] Collider components (box, sphere, capsule, mesh)
+  - [ ] Physics material properties
+  - [ ] Constraint system
+- [ ] **Debug tools**
+  - [ ] Physics debug rendering
+  - [ ] Collision visualization
+  - [ ] Performance profiling
+
+---
+
+## Phase 9: Performance Optimization & Quality Improvements
+
+### Rendering Optimizations
 - [ ] Frustum culling
 - [ ] Occlusion culling
 - [ ] Level of detail (LOD)
@@ -211,16 +178,12 @@
 - [ ] Batch rendering
 - [ ] Instance rendering
 
----
-
-## Quality of Life Improvements
-
-### Developer Tools
-- [ ] Performance profiler
-- [ ] Memory tracker
+### Developer Tools (Partially Complete)
+- [x] **Performance profiler** - CPU, GPU, memory profiling complete
+- [x] **Crash reporter** - Windows minidump system
 - [ ] Shader hot-reload
 - [ ] Asset hot-reload
-- [ ] Build configurations (Debug, Release, Profile)
+- [ ] Build configurations enhancement
 
 ### Documentation
 - [ ] Code comments for complex algorithms
@@ -229,14 +192,15 @@
 - [ ] Example scenes
 
 ### Testing
+- [x] **Profiling suite** - Complete with JSON/CSV export
+- [x] **Automated benchmarks** - Multi-resolution testing system
 - [ ] Unit tests for math library
 - [ ] Integration tests for subsystems
 - [ ] Render comparison tests
-- [ ] Performance benchmarks
 
 ---
 
-## Android Port (Later)
+## Phase 10: Android Port
 
 ### Mobile Optimization
 - [ ] Touch input support
@@ -248,9 +212,11 @@
 
 ---
 
-## Research & Publications
+## Phase 11: Research & Publications (DOST-PCIEERD Deliverables)
 
-### Benchmarking
+### Benchmarking (In Progress)
+- [x] **Automated benchmark system** - Phase 3 Step 12-13 complete
+- [x] **JSON/CSV data export** - AI-ready format
 - [ ] Performance comparison (vs Unity, Unreal, custom engines)
 - [ ] API overhead measurement (bgfx vs raw Vulkan)
 - [ ] Mobile performance profiling
@@ -282,24 +248,36 @@
 
 ## Progress Tracking
 
-### Milestones
-- **M1**: First rendered object (cube/sphere)
-- **M2**: PBR lighting working
-- **M3**: Shadow mapping functional
+### Completed Milestones ✅
+- **M1**: ✅ First rendered object (sphere with PBR)
+- **M2**: ✅ PBR lighting working (Cook-Torrance BRDF)
+- **M2.5**: ✅ IBL working (irradiance + prefilter)
+- **M2.6**: ✅ Deferred rendering complete
+- **M2.7**: ✅ Automated benchmarking system
+
+### Current Phase
+**Phase 3 Complete** - Deferred Rendering with PBR + IBL
+
+### Next Milestones
+- **M3**: Shadow mapping functional (Directional lights)
 - **M4**: Object picking operational
-- **M5**: ImGui editor usable
+- **M5**: ImGui editor enhanced
 - **M6**: Demo scene complete
 - **M7**: Android build working
 - **M8**: Publication submitted
 
-### Current Status
-- ✅ Architecture complete
-- ✅ Build system ready
-- ⚠️ Rendering in progress (M1 next)
-- 📋 Lighting planned
-- 📋 Shadows planned
-- 📋 Picking planned
-- 📋 Editor planned
+### Overall Status
+- ✅ **Architecture** - Complete and stable
+- ✅ **Build system** - Unified Build.bat system
+- ✅ **Foundation rendering** - PBR + IBL + Deferred complete
+- ✅ **Profiling suite** - CPU/GPU/Memory + Benchmarking
+- 🚀 **Shadow mapping** - Next priority (Phase 4)
+- 📋 **Object picking** - Planned (Phase 5)
+- 📋 **Editor enhancement** - Planned (Phase 5)
+- 📋 **Android port** - Planned (Phase 10)
+
+**Last Updated:** April 29, 2026  
+**For detailed status, see:** `IMPLEMENTATION_STATUS.md`, `ROADMAP.md`
 
 ---
 

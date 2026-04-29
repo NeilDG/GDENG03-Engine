@@ -159,6 +159,15 @@ Build.bat rebuild Release          # Clean and rebuild Release
 |----------|-------------|
 | **[TODO.md](TODO.md)** | Development task tracking |
 | **[IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)** | Current implementation status |
+| **[CHANGELOG.md](CHANGELOG.md)** | Version history and changes |
+
+### 🔍 Code Quality & Reviews
+
+| Document | Description |
+|----------|-------------|
+| **[CODE_REVIEW_CLEANUP_REPORT_APR_2026.md](docs/CODE_REVIEW_CLEANUP_REPORT_APR_2026.md)** | Latest comprehensive code review |
+| **[CLEANUP_REPORT_JAN_2025.md](docs/CLEANUP_REPORT_JAN_2025.md)** | Previous cleanup report |
+| **[archive/INDEX.md](docs/archive/INDEX.md)** | Historical documentation archive index |
 
 ---
 
