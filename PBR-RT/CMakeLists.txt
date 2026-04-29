@@ -238,6 +238,12 @@ set(ANITO_DEBUG_SOURCES
     src/DebugTools/AnitoProfilerManager.h
 )
 
+# Benchmarking System
+set(ANITO_BENCHMARK_SOURCES
+    src/Benchmarking/AnitoBenchmarkTest.cpp
+    src/Benchmarking/AnitoBenchmarkTest.h
+)
+
 # Main Application
 set(ANITO_APP_SOURCES
     src/main.cpp
@@ -256,6 +262,7 @@ set(ANITO_ALL_SOURCES
     ${ANITO_WINDOW_SOURCES}
     ${ANITO_CONFIG_SOURCES}
     ${ANITO_DEBUG_SOURCES}
+    ${ANITO_BENCHMARK_SOURCES}
     ${ANITO_APP_SOURCES}
 )
 

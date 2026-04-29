@@ -31,6 +31,12 @@ public:
 
     static AnitoEngine* getInstance() { return s_instance; }
 
+    // [STEP 12] Benchmark access methods
+    AnitoWindow* getWindow() { return m_window; }
+    AnitoFrameCaptureRecorder* getFrameCaptureRecorder() { return m_frameCaptureRecorder.get(); }
+    bool isRunning() const { return m_running; }
+    void stopRunning() { m_running = false; }
+
 private:
     void update(float deltaTime);
     void render();
@@ -77,7 +83,8 @@ private:
     bgfx::UniformHandle m_s_prefilterMap;
     bgfx::UniformHandle m_s_brdfLUT;
 
-    // TODO: Add other subsystems as we implement them
+    // [STEP 12] Benchmark mode (Phase 3)
+    bool m_benchmarkMode;  // If true, run benchmarks instead of normal execution
 };
 
 } // namespace Anito

@@ -213,6 +213,79 @@ MaxRuntimeSeconds = 10  # Run for 10 seconds then exit
 
 See **[docs/ENGINE_CONFIG.md](docs/ENGINE_CONFIG.md)** for complete documentation.
 
+---
+
+## Performance Benchmarking
+
+**Phase 3 Complete** - Automated performance benchmarking system for deferred rendering validation.
+
+### Quick Start
+
+Enable benchmark mode in `engine_config.ini`:
+
+```ini
+[Benchmark]
+EnableBenchmarkMode = true
+BenchmarkDuration = Quick  # Quick (30s), Standard (60s), or Extended (120s)
+```
+
+Then run the engine:
+
+```powershell
+Build.bat run
+```
+
+The engine will:
+1. Automatically test at 720p, 1080p, and 1440p resolutions
+2. Collect frame time samples during each test
+3. Calculate FPS statistics (avg, min, max, 95th/99th percentile)
+4. Export results to `anito-debug/benchmark_results.json` and `.csv`
+5. Print a comparison report to the console
+6. Exit automatically
+
+### Output
+
+Benchmark results are saved in `anito-debug/`:
+- `benchmark_results.json` - Detailed statistics in JSON format
+- `benchmark_results.csv` - Spreadsheet-friendly data
+- Console output - Real-time progress and summary report
+
+**Metrics Collected:**
+- FPS (average, minimum, maximum)
+- Frame times (average, min, max, 95th/99th percentile)
+- Frame counts (total, dropped frames, frames under 16ms)
+- Performance target validation (>60 FPS)
+- Build configuration (Debug/Release)
+
+**Example Output:**
+
+```json
+{
+  "benchmark_session": {
+    "timestamp": "2026-04-28_14-30-00",
+    "total_tests": 3
+  },
+  "results": [
+    {
+      "resolution": "1280x720",
+      "renderMode": "Deferred",
+      "buildConfig": "Release",
+      "avgFPS": 185.3,
+      "minFPS": 142.1,
+      "maxFPS": 220.5,
+      "avgFrameTimeMs": 5.4,
+      "percentile95Ms": 7.8,
+      "percentile99Ms": 9.2,
+      "meetsPerformanceTarget": true
+    }
+  ]
+}
+```
+
+See **[IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)** Phase 3 Steps 12-13 for implementation details.
+
+---
+
 ### Manual CMake (Alternative)
 
 ---

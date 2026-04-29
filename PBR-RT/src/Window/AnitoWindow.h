@@ -22,6 +22,7 @@ public:
     GLFWwindow* getGLFWWindow() const { return m_window; }
 
     void setResizeCallback(void (*callback)(uint32_t, uint32_t));
+    void resize(uint32_t width, uint32_t height);  // [STEP 12] For benchmarking
 
 private:
     AnitoWindow(const std::string& title, uint32_t width, uint32_t height);

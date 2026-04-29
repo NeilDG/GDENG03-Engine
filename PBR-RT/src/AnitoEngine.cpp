@@ -11,6 +11,7 @@
 #include "Renderer/Deferred/AnitoDeferredRenderer.h"
 #include "DebugTools/AnitoFrameCaptureRecorder.h"
 #include "DebugTools/AnitoProfilerManager.h"
+#include "Benchmarking/AnitoBenchmarkTest.h"
 #include "GameObjects/AnitoGameObjectManager.h"
 #include "GameObjects/AnitoGameObject.h"
 #include "Components/AnitoMeshRenderer.h"
@@ -47,6 +48,7 @@ AnitoEngine::AnitoEngine()
     , m_s_irradianceMap(BGFX_INVALID_HANDLE)
     , m_s_prefilterMap(BGFX_INVALID_HANDLE)
     , m_s_brdfLUT(BGFX_INVALID_HANDLE)
+    , m_benchmarkMode(false)  // [STEP 12] Default to normal operation
 {
     s_instance = this;
 }
@@ -66,6 +68,29 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
     // Load configuration file
     std::cout << "[Engine] Loading configuration..." << std::endl;
     AnitoEngineConfig::load("engine_config.ini");
+
+    // [STEP 12] Check if benchmark mode is enabled
+    m_benchmarkMode = AnitoEngineConfig::getBool("Benchmark.EnableBenchmarkMode", false);
+
+    if (m_benchmarkMode) {
+        std::cout << "\n========================================================" << std::endl;
+        std::cout << "  [BENCHMARK MODE] Phase 3, Step 12" << std::endl;
+        std::cout << "  Automated Performance Testing - Deferred Rendering" << std::endl;
+        std::cout << "========================================================\n" << std::endl;
+
+        // Parse benchmark duration from config
+        std::string durationStr = AnitoEngineConfig::getString("Benchmark.BenchmarkDuration", "Quick");
+        BenchmarkDuration duration = BenchmarkDuration::Quick;
+        if (durationStr == "Standard") {
+            duration = BenchmarkDuration::Standard;
+        } else if (durationStr == "Extended") {
+            duration = BenchmarkDuration::Extended;
+        }
+
+        // Force deferred rendering for benchmarking (as user requested)
+        m_useDeferredRendering = true;
+        std::cout << "[Benchmark] Forcing deferred rendering mode (runtime toggle is buggy)" << std::endl;
+    }
 
     // Get runtime duration setting
     m_maxRuntimeSeconds = AnitoEngineConfig::getFloat("Runtime.MaxRuntimeSeconds", 0.0f);
@@ -214,6 +239,61 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
 
     std::cout << "Anito Engine initialized successfully!" << std::endl;
     std::cout << "==================================================" << std::endl;
+
+    // [STEP 12] If benchmark mode is enabled, run benchmarks and return
+    if (m_benchmarkMode) {
+        std::cout << "\n[Benchmark] Starting benchmark execution..." << std::endl;
+
+        // Parse benchmark duration from config
+        std::string durationStr = AnitoEngineConfig::getString("Benchmark.BenchmarkDuration", "Quick");
+        BenchmarkDuration duration = BenchmarkDuration::Quick;
+        if (durationStr == "Standard") {
+            duration = BenchmarkDuration::Standard;
+        } else if (durationStr == "Extended") {
+            duration = BenchmarkDuration::Extended;
+        }
+
+        // Detect build configuration
+#ifdef _DEBUG
+        std::string buildConfig = "Debug";
+#else
+        std::string buildConfig = "Release";
+#endif
+
+        // Create and run benchmark
+        AnitoBenchmarkTest benchmark;
+        BenchmarkConfig config;
+        config.duration = duration;
+        config.buildConfig = buildConfig;
+        config.targetGPU = "RTX 4060 Ti 16GB";  // As specified in requirements
+        config.testResolutions = {
+            Resolution(1280, 720),   // 720p
+            Resolution(1920, 1080),  // 1080p
+            Resolution(2560, 1440)   // 1440p
+        };
+
+        std::cout << "[Benchmark] Configuration:" << std::endl;
+        std::cout << "  - Duration: " << durationStr << " (" << config.getDurationSeconds() << "s per test)" << std::endl;
+        std::cout << "  - Build: " << buildConfig << std::endl;
+        std::cout << "  - Target GPU: " << config.targetGPU << std::endl;
+        std::cout << "  - Resolutions: 720p, 1080p, 1440p" << std::endl;
+
+        // Run benchmarks (this will handle engine restart between resolutions)
+        auto results = benchmark.runBenchmark(config, this);
+
+        // Export results
+        std::cout << "\n[Benchmark] Exporting results..." << std::endl;
+        benchmark.exportToJSON(results, "anito-debug/benchmark_results.json");
+        benchmark.exportToCSV(results, "anito-debug/benchmark_results.csv");
+        benchmark.printComparisonReport(results);
+
+        std::cout << "\n[Benchmark] Benchmark complete! Results saved to anito-debug/" << std::endl;
+        std::cout << "[Benchmark] Engine will now exit." << std::endl;
+
+        m_running = false;  // Prevent normal run() loop
+        return true;  // Initialization succeeded, but we're in benchmark mode
+    }
+
     return true;
 }
 

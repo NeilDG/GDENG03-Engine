@@ -116,6 +116,34 @@ public:
     void setEnabled(bool enabled) { m_enabled = enabled; }
     bool isEnabled() const { return m_enabled; }
 
+    /**
+     * Begin a benchmark session
+     * @param resolution Screen resolution string (e.g., "1920x1080")
+     * @param renderMode Render mode string ("Forward" or "Deferred")
+     * @param buildConfig Build configuration ("Debug" or "Release")
+     */
+    void beginBenchmarkSession(
+        const std::string& resolution,
+        const std::string& renderMode,
+        const std::string& buildConfig
+    );
+
+    /**
+     * End benchmark session and return frame time samples for analysis
+     * @return Vector of all frame times in milliseconds
+     */
+    std::vector<double> endBenchmarkSession();
+
+    /**
+     * Get frame time samples for percentile calculation
+     */
+    std::vector<double> getFrameTimeSamples() const;
+
+    /**
+     * Check if currently in benchmark session
+     */
+    bool isInBenchmarkSession() const { return m_inBenchmarkSession; }
+
 private:
     AnitoPerformanceProfiler();
     ~AnitoPerformanceProfiler();
@@ -156,6 +184,13 @@ private:
 
     bool m_enabled;
     bool m_inFrame;
+
+    // Benchmark session tracking
+    bool m_inBenchmarkSession;
+    std::string m_benchmarkResolution;
+    std::string m_benchmarkRenderMode;
+    std::string m_benchmarkBuildConfig;
+    std::vector<double> m_frameTimeSamples; // For percentile calculation
 };
 
 /**

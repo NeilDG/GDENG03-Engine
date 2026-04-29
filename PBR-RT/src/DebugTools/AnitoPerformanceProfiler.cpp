@@ -43,6 +43,7 @@ AnitoPerformanceProfiler::AnitoPerformanceProfiler()
     , m_totalFrames(0)
     , m_enabled(true)
     , m_inFrame(false)
+    , m_inBenchmarkSession(false)
 {
 }
 
@@ -144,6 +145,11 @@ void AnitoPerformanceProfiler::endFrame() {
     m_currentFrameTime = std::chrono::duration<double, std::milli>(frameEndTime - m_frameStartTime).count();
 
     updateFrameStats();
+
+    // Collect frame time sample for benchmark session
+    if (m_inBenchmarkSession) {
+        m_frameTimeSamples.push_back(m_currentFrameTime);
+    }
 
     // Store frame history
     if (m_frameHistory.size() >= MAX_FRAME_HISTORY) {
@@ -333,6 +339,46 @@ void AnitoPerformanceProfiler::ensureOutputDirectoryExists(const std::string& pa
     catch (const std::exception& e) {
         std::cerr << "[PerformanceProfiler] Failed to create output directory: " << e.what() << std::endl;
     }
+}
+
+// Benchmark session methods
+void AnitoPerformanceProfiler::beginBenchmarkSession(
+    const std::string& resolution,
+    const std::string& renderMode,
+    const std::string& buildConfig
+) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    m_inBenchmarkSession = true;
+    m_benchmarkResolution = resolution;
+    m_benchmarkRenderMode = renderMode;
+    m_benchmarkBuildConfig = buildConfig;
+    m_frameTimeSamples.clear();
+    m_frameTimeSamples.reserve(10000); // Reserve for ~3 minutes at 60 FPS
+
+    std::cout << "[PerformanceProfiler] Benchmark session started: "
+              << resolution << " | " << renderMode << " | " << buildConfig << std::endl;
+}
+
+std::vector<double> AnitoPerformanceProfiler::endBenchmarkSession() {
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (!m_inBenchmarkSession) {
+        std::cerr << "[PerformanceProfiler] No active benchmark session!" << std::endl;
+        return std::vector<double>();
+    }
+
+    m_inBenchmarkSession = false;
+
+    std::cout << "[PerformanceProfiler] Benchmark session ended. "
+              << "Collected " << m_frameTimeSamples.size() << " frame samples." << std::endl;
+
+    return m_frameTimeSamples;
+}
+
+std::vector<double> AnitoPerformanceProfiler::getFrameTimeSamples() const {
+    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m_mutex));
+    return m_frameTimeSamples;
 }
 
 } // namespace Anito

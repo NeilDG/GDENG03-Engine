@@ -88,4 +88,18 @@ void AnitoWindow::framebufferSizeCallback(GLFWwindow* window, int width, int hei
     }
 }
 
+// [STEP 12] Resize window for benchmarking
+void AnitoWindow::resize(uint32_t width, uint32_t height) {
+    if (m_window) {
+        glfwSetWindowSize(m_window, width, height);
+        m_width = width;
+        m_height = height;
+
+        // Trigger the resize callback
+        if (m_resizeCallback) {
+            m_resizeCallback(width, height);
+        }
+    }
+}
+
 } // namespace Anito

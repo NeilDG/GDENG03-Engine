@@ -203,6 +203,39 @@ Build.bat setup
 #### ❌ Issue: "Generator 'Visual Studio 18 2026' not found"
 **Solution:** Install Visual Studio 2026 or update Build.bat to use your VS version
 
+### Build Environment Status
+
+If you encounter CMake or Visual Studio detection issues, verify your environment:
+
+**CMake Version Check:**
+```powershell
+cmake --version
+```
+- **Minimum:** 3.10
+- **Recommended:** 4.0.0+ for best VS 2026 support
+- **Download:** https://cmake.org/download/
+
+**Visual Studio 2026 Detection:**
+```powershell
+# Check if VS 2026 is installed
+Test-Path "C:\Program Files\Microsoft Visual Studio\18\Community\"
+```
+- **Expected path:** `C:\Program Files\Microsoft Visual Studio\18\Community\`
+- **Required version:** 18.x (Visual Studio 2026)
+
+**Recommended Build Strategy:**
+1. **Use Visual Studio 2026's built-in CMake support** (File > Open > Folder)
+   - VS 2026 has native CMake integration
+   - No need for external generator specification
+   - Automatically handles CMake configuration
+
+2. **Alternative:** Use `Build.bat` which wraps CMake with proper generator settings
+
+**Notes:**
+- If CMake version is too old, upgrade from cmake.org
+- System-wide PATH updates may require administrator privileges
+- Visual Studio 2026 CMake generation may take a few minutes on first run
+
 ---
 
 ## Advanced Usage
