@@ -22,6 +22,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include <algorithm>
+#include <numeric>
 
 namespace Anito {
 
@@ -240,58 +242,13 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
     std::cout << "Anito Engine initialized successfully!" << std::endl;
     std::cout << "==================================================" << std::endl;
 
-    // [STEP 12] If benchmark mode is enabled, run benchmarks and return
+    // [STEP 12] If benchmark mode is enabled, DON'T run benchmarks in initialize()
+    // Instead, set a flag and let run() handle it
     if (m_benchmarkMode) {
-        std::cout << "\n[Benchmark] Starting benchmark execution..." << std::endl;
-
-        // Parse benchmark duration from config
-        std::string durationStr = AnitoEngineConfig::getString("Benchmark.BenchmarkDuration", "Quick");
-        BenchmarkDuration duration = BenchmarkDuration::Quick;
-        if (durationStr == "Standard") {
-            duration = BenchmarkDuration::Standard;
-        } else if (durationStr == "Extended") {
-            duration = BenchmarkDuration::Extended;
-        }
-
-        // Detect build configuration
-#ifdef _DEBUG
-        std::string buildConfig = "Debug";
-#else
-        std::string buildConfig = "Release";
-#endif
-
-        // Create and run benchmark
-        AnitoBenchmarkTest benchmark;
-        BenchmarkConfig config;
-        config.duration = duration;
-        config.buildConfig = buildConfig;
-        config.targetGPU = "RTX 4060 Ti 16GB";  // As specified in requirements
-        config.testResolutions = {
-            Resolution(1280, 720),   // 720p
-            Resolution(1920, 1080),  // 1080p
-            Resolution(2560, 1440)   // 1440p
-        };
-
-        std::cout << "[Benchmark] Configuration:" << std::endl;
-        std::cout << "  - Duration: " << durationStr << " (" << config.getDurationSeconds() << "s per test)" << std::endl;
-        std::cout << "  - Build: " << buildConfig << std::endl;
-        std::cout << "  - Target GPU: " << config.targetGPU << std::endl;
-        std::cout << "  - Resolutions: 720p, 1080p, 1440p" << std::endl;
-
-        // Run benchmarks (this will handle engine restart between resolutions)
-        auto results = benchmark.runBenchmark(config, this);
-
-        // Export results
-        std::cout << "\n[Benchmark] Exporting results..." << std::endl;
-        benchmark.exportToJSON(results, "anito-debug/benchmark_results.json");
-        benchmark.exportToCSV(results, "anito-debug/benchmark_results.csv");
-        benchmark.printComparisonReport(results);
-
-        std::cout << "\n[Benchmark] Benchmark complete! Results saved to anito-debug/" << std::endl;
-        std::cout << "[Benchmark] Engine will now exit." << std::endl;
-
-        m_running = false;  // Prevent normal run() loop
-        return true;  // Initialization succeeded, but we're in benchmark mode
+        std::cout << "\n========================================================" << std::endl;
+        std::cout << "  [BENCHMARK MODE ENABLED]" << std::endl;
+        std::cout << "  Benchmarks will run after initialization" << std::endl;
+        std::cout << "========================================================\n" << std::endl;
     }
 
     return true;
@@ -403,10 +360,24 @@ void AnitoEngine::createTestScene() {
 void AnitoEngine::run() {
     std::cout << "\n[Engine] Starting main loop..." << std::endl;
 
+    // [STEP 12] If benchmark mode is enabled, run benchmarks instead
+    if (m_benchmarkMode) {
+        runBenchmarkMode();
+        return;
+    }
+
     // Reset elapsed runtime
     m_elapsedRuntime = 0.0f;
 
+    // Get CPU profiler for frame timing
+    auto* cpuProfiler = AnitoProfilerManager::getCPUProfiler();
+
     while (m_running && !m_window->shouldClose()) {
+        // Begin frame profiling
+        if (cpuProfiler) {
+            cpuProfiler->beginFrame();
+        }
+
         // Calculate delta time
         float currentTime = static_cast<float>(glfwGetTime());
         float deltaTime = currentTime - m_lastFrameTime;
@@ -436,10 +407,212 @@ void AnitoEngine::run() {
         if (m_frameCaptureRecorder) {
             m_frameCaptureRecorder->update(deltaTime);
         }
+
+        // End frame profiling
+        if (cpuProfiler) {
+            cpuProfiler->endFrame();
+        }
     }
 
     std::cout << "[Engine] Main loop ended." << std::endl;
     std::cout << "[Engine] Total runtime: " << m_elapsedRuntime << " seconds" << std::endl;
+}
+
+void AnitoEngine::runBenchmarkMode() {
+    std::cout << "\n[Benchmark] ===========================================" << std::endl;
+    std::cout << "[Benchmark]   Starting Benchmark Execution" << std::endl;
+    std::cout << "[Benchmark] ===========================================" << std::endl;
+
+    // Parse benchmark configuration
+    std::string durationStr = AnitoEngineConfig::getString("Benchmark.BenchmarkDuration", "Quick");
+    BenchmarkDuration duration = BenchmarkDuration::Quick;
+    if (durationStr == "Standard") {
+        duration = BenchmarkDuration::Standard;
+    } else if (durationStr == "Extended") {
+        duration = BenchmarkDuration::Extended;
+    }
+
+    // Detect build configuration
+#ifdef _DEBUG
+    std::string buildConfig = "Debug";
+#else
+    std::string buildConfig = "Release";
+#endif
+
+    std::cout << "[Benchmark] Configuration:" << std::endl;
+    std::cout << "  - Duration: " << durationStr << " (" << BenchmarkConfig().getDurationSeconds() << "s per test)" << std::endl;
+    std::cout << "  - Build: " << buildConfig << std::endl;
+    std::cout << "  - Resolutions: 720p, 1080p, 1440p" << std::endl;
+    std::cout << "[Benchmark] ===========================================\n" << std::endl;
+
+    // Define test resolutions
+    std::vector<Resolution> resolutions = {
+        Resolution{1280, 720},
+        Resolution{1920, 1080},
+        Resolution{2560, 1440}
+    };
+
+    std::vector<BenchmarkResults> allResults;
+
+    // Run benchmark for each resolution
+    for (const auto& resolution : resolutions) {
+        std::cout << "\n[Benchmark] -------------------------------------------" << std::endl;
+        std::cout << "[Benchmark] Testing Resolution: " << resolution.width << "x" << resolution.height << std::endl;
+        std::cout << "[Benchmark] -------------------------------------------" << std::endl;
+
+        // Resize window
+        if (m_window) {
+            m_window->resize(resolution.width, resolution.height);
+            std::cout << "[Benchmark] Window resized to " << resolution.width << "x" << resolution.height << std::endl;
+        }
+
+        // Run benchmark for this resolution
+        BenchmarkResults results = runSingleBenchmark(resolution, duration);
+        results.buildConfig = buildConfig;
+        allResults.push_back(results);
+
+        // Print results
+        std::cout << "[Benchmark] Results:" << std::endl;
+        std::cout << "  - Avg FPS: " << results.avgFPS << std::endl;
+        std::cout << "  - Min FPS: " << results.minFPS << std::endl;
+        std::cout << "  - Max FPS: " << results.maxFPS << std::endl;
+        std::cout << "  - Avg Frame Time: " << results.avgFrameTimeMs << " ms" << std::endl;
+        std::cout << "  - 95th Percentile: " << results.percentile95Ms << " ms" << std::endl;
+        std::cout << "  - Total Frames: " << results.totalFrames << std::endl;
+        std::cout << "  - Performance Target: " << (results.meetsPerformanceTarget ? "PASS" : "FAIL") << std::endl;
+    }
+
+    // Export results
+    std::cout << "\n[Benchmark] Exporting results..." << std::endl;
+    AnitoBenchmarkTest benchmark;
+    benchmark.exportToJSON(allResults, "anito-debug/benchmark_results.json");
+    benchmark.exportToCSV(allResults, "anito-debug/benchmark_results.csv");
+    benchmark.printComparisonReport(allResults);
+
+    std::cout << "\n[Benchmark] ===========================================" << std::endl;
+    std::cout << "[Benchmark]   Benchmark Complete!" << std::endl;
+    std::cout << "[Benchmark]   Results saved to anito-debug/" << std::endl;
+    std::cout << "[Benchmark] ===========================================" << std::endl;
+
+    m_running = false;  // Exit after benchmarking
+}
+
+BenchmarkResults AnitoEngine::runSingleBenchmark(const Resolution& resolution, BenchmarkDuration duration) {
+    BenchmarkResults results;
+    results.resolution = std::to_string(resolution.width) + "x" + std::to_string(resolution.height);
+    results.renderMode = "Deferred";  // Always deferred in benchmark mode
+
+    // Get benchmark duration
+    float durationSeconds = 30.0f;  // Quick
+    switch (duration) {
+        case BenchmarkDuration::Standard: durationSeconds = 60.0f; break;
+        case BenchmarkDuration::Extended: durationSeconds = 120.0f; break;
+        default: break;
+    }
+
+    std::cout << "[Benchmark] Running for " << durationSeconds << " seconds..." << std::endl;
+
+    // Get CPU profiler
+    auto* cpuProfiler = AnitoProfilerManager::getCPUProfiler();
+    if (cpuProfiler) {
+        cpuProfiler->beginBenchmarkSession(results.resolution, results.renderMode, results.buildConfig);
+    }
+
+    // Disable frame capture during benchmark (too much overhead)
+    bool originalCaptureState = false;
+    if (m_frameCaptureRecorder) {
+        originalCaptureState = true;  // Store state
+        m_frameCaptureRecorder->setAutoCapture(false);
+    }
+
+    // Run benchmark loop
+    float elapsed = 0.0f;
+    float lastFrameTime = static_cast<float>(glfwGetTime());
+    int frameCount = 0;
+
+    while (elapsed < durationSeconds && !m_window->shouldClose()) {
+        // Begin frame profiling
+        if (cpuProfiler) {
+            cpuProfiler->beginFrame();
+        }
+
+        // Calculate delta time
+        float currentTime = static_cast<float>(glfwGetTime());
+        float deltaTime = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
+        elapsed += deltaTime;
+
+        // Process events
+        m_window->pollEvents();
+
+        // Update (minimal updates for benchmarking)
+        if (m_pbrTestScenes) {
+            m_pbrTestScenes->update(deltaTime);
+        }
+        if (AnitoGameObjectManager::getInstance()) {
+            AnitoGameObjectManager::getInstance()->updateAll(deltaTime);
+        }
+
+        // Render
+        render();
+
+        // End frame profiling
+        if (cpuProfiler) {
+            cpuProfiler->endFrame();
+        }
+
+        frameCount++;
+    }
+
+    std::cout << "[Benchmark] Completed " << frameCount << " frames in " << elapsed << " seconds" << std::endl;
+
+    // Restore frame capture state
+    if (m_frameCaptureRecorder) {
+        m_frameCaptureRecorder->setAutoCapture(originalCaptureState);
+    }
+
+    // Get profiling samples
+    std::vector<double> frameTimeSamples;
+    if (cpuProfiler) {
+        cpuProfiler->endBenchmarkSession();
+        frameTimeSamples = cpuProfiler->getFrameTimeSamples();
+    }
+
+    // Calculate statistics
+    if (!frameTimeSamples.empty()) {
+        std::sort(frameTimeSamples.begin(), frameTimeSamples.end());
+
+        double sum = std::accumulate(frameTimeSamples.begin(), frameTimeSamples.end(), 0.0);
+        results.avgFrameTimeMs = (sum / frameTimeSamples.size()) * 1000.0;
+        results.minFrameTimeMs = frameTimeSamples.front() * 1000.0;
+        results.maxFrameTimeMs = frameTimeSamples.back() * 1000.0;
+
+        results.avgFPS = 1000.0 / results.avgFrameTimeMs;
+        results.minFPS = 1000.0 / results.maxFrameTimeMs;
+        results.maxFPS = 1000.0 / results.minFrameTimeMs;
+
+        size_t p95Index = static_cast<size_t>(frameTimeSamples.size() * 0.95);
+        size_t p99Index = static_cast<size_t>(frameTimeSamples.size() * 0.99);
+        results.percentile95Ms = frameTimeSamples[p95Index] * 1000.0;
+        results.percentile99Ms = frameTimeSamples[p99Index] * 1000.0;
+
+        results.totalFrames = static_cast<int>(frameTimeSamples.size());
+        results.framesUnder16ms = static_cast<int>(std::count_if(frameTimeSamples.begin(), frameTimeSamples.end(),
+            [](double t) { return (t * 1000.0) < 16.67; }));
+        results.droppedFrames = results.totalFrames - results.framesUnder16ms;
+        results.meetsPerformanceTarget = (results.avgFPS >= 60.0);
+    } else {
+        std::cout << "[Benchmark] WARNING: No profiler samples collected" << std::endl;
+        results.avgFPS = (frameCount / elapsed);
+        results.avgFrameTimeMs = (elapsed / frameCount) * 1000.0;
+        results.totalFrames = frameCount;
+        results.meetsPerformanceTarget = (results.avgFPS >= 60.0);
+    }
+
+    results.gpuMemoryUsedMB = 0;  // TODO
+    results.systemMemoryUsedMB = 0;  // TODO
+
+    return results;
 }
 
 void AnitoEngine::shutdown() {
@@ -470,6 +643,12 @@ void AnitoEngine::shutdown() {
     if (AnitoGameObjectManager::getInstance()) {
         AnitoGameObjectManager::destroy();
     }
+
+    // [FIX] Destroy shader member variables BEFORE bgfx shutdown
+    // m_gbufferShader holds bgfx uniform handles that must be destroyed while bgfx context is still valid
+    // If we don't reset this here, it gets destroyed in ~AnitoEngine() after bgfx::shutdown(),
+    // causing access violation when trying to lock bgfx::s_ctx->m_resourceApiLock (s_ctx is NULL)
+    m_gbufferShader.reset();
 
     // Clear shader and texture caches
     AnitoShader::clearCache();

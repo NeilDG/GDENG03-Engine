@@ -5,6 +5,11 @@
 
 namespace Anito {
 
+// Forward declarations for benchmark types
+enum class BenchmarkDuration;
+struct Resolution;
+struct BenchmarkResults;
+
 class AnitoWindow;
 class AnitoRenderer;
 class AnitoGameObjectManager;
@@ -43,6 +48,10 @@ private:
     void renderForward();   // Forward rendering path
     void renderDeferred();  // Deferred rendering path (Step 7)
     void createTestScene();
+
+    // [STEP 12] Benchmark mode execution
+    void runBenchmarkMode();
+    BenchmarkResults runSingleBenchmark(const Resolution& resolution, BenchmarkDuration duration);
 
     static AnitoEngine* s_instance;
 
