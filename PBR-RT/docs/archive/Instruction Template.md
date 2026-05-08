@@ -13,9 +13,4 @@
 - Always provide me an action plan first, before proceeding with the task at hand.
 
 ##Instructions
-There must be a single source of truth regarding this project. There are too many MD files. Is this typical for codebases with AI agents? Can you check Github for benchmarking?
-
-In the IMPLEMENTATION_STATUS.md, check "Phase 3: Deferred Rendering Pipeline", perform steps 4 onwards, such that on the next checkpoint, there will be a different rendering appearance that I should evaluate. Use the existing test scenes for validation. Before commencing, please inform me at which step you will stop.
-
-
-
+Please implement a thorough code review and clean-up unused files. Assume Anito Architect persona.

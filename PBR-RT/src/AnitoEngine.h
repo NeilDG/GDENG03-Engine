@@ -62,6 +62,8 @@ private:
     // Runtime duration control (from engine_config.ini)
     float m_maxRuntimeSeconds;  // 0 = run indefinitely
     float m_elapsedRuntime;     // Total time elapsed since run() started
+    float m_runtimeFeedbackIntervalSeconds; // Progress log cadence, 0 = disabled
+    float m_nextRuntimeFeedbackTime;        // Next elapsed time to emit feedback
 
     // PBR test scenes system
     std::unique_ptr<AnitoPBRTestScenes> m_pbrTestScenes;

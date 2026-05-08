@@ -77,7 +77,7 @@ void AnitoPerformanceProfiler::release() {
         std::ostringstream oss;
         oss << "cpu_profile_" << std::put_time(&timeinfo, "%Y-%m-%d_%H-%M-%S") << ".json";
 
-        exportToJSON(m_outputDir + "/" + oss.str(), sessionDuration);
+        exportToJSONUnlocked(m_outputDir + "/" + oss.str(), sessionDuration);
 
         std::cout << "[PerformanceProfiler] Final profile exported: " << oss.str() << std::endl;
     }
@@ -190,7 +190,10 @@ void AnitoPerformanceProfiler::updateFrameStats() {
 
 void AnitoPerformanceProfiler::exportToJSON(const std::string& filename, double sessionDuration) {
     std::lock_guard<std::mutex> lock(m_mutex);
+    exportToJSONUnlocked(filename, sessionDuration);
+}
 
+void AnitoPerformanceProfiler::exportToJSONUnlocked(const std::string& filename, double sessionDuration) {
     std::ofstream file(filename);
     if (!file.is_open()) {
         std::cerr << "[PerformanceProfiler] Failed to open file for export: " << filename << std::endl;
@@ -214,7 +217,7 @@ void AnitoPerformanceProfiler::exportToJSON(const std::string& filename, double 
     for (const auto& [name, stats] : m_stats) {
         sortedStats.push_back(stats);
     }
-    std::sort(sortedStats.begin(), sortedStats.end(), 
+    std::sort(sortedStats.begin(), sortedStats.end(),
         [](const ProfileStats& a, const ProfileStats& b) {
             return a.totalMs > b.totalMs;
         });
@@ -302,7 +305,7 @@ std::vector<AnitoPerformanceProfiler::ProfileStats> AnitoPerformanceProfiler::ge
     }
 
     // Sort by total time
-    std::sort(result.begin(), result.end(), 
+    std::sort(result.begin(), result.end(),
         [](const ProfileStats& a, const ProfileStats& b) {
             return a.totalMs > b.totalMs;
         });

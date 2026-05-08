@@ -21,6 +21,7 @@
 #include "Input/AnitoInputManager.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 #include <iostream>
 #include <algorithm>
 #include <numeric>
@@ -35,6 +36,8 @@ AnitoEngine::AnitoEngine()
     , m_lastFrameTime(0.0f)
     , m_maxRuntimeSeconds(0.0f)
     , m_elapsedRuntime(0.0f)
+    , m_runtimeFeedbackIntervalSeconds(0.0f)
+    , m_nextRuntimeFeedbackTime(0.0f)
     , m_pbrTestScenes(nullptr)
     , m_frameCaptureRecorder(nullptr)
     , m_cameraObject(nullptr)
@@ -56,8 +59,6 @@ AnitoEngine::AnitoEngine()
 }
 
 AnitoEngine::~AnitoEngine() {
-    shutdown();
-    s_instance = nullptr;
 }
 
 bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t height) {
@@ -103,6 +104,19 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
         std::cout << "[Engine] Runtime limit: DISABLED (will run indefinitely)" << std::endl;
     }
 
+    // Get runtime feedback cadence (optional)
+    m_runtimeFeedbackIntervalSeconds = AnitoEngineConfig::getFloat("Runtime.RuntimeFeedbackIntervalSeconds", 0.0f);
+    if (m_runtimeFeedbackIntervalSeconds < 0.0f) {
+        std::cout << "[Engine] Runtime feedback interval is negative in config; disabling feedback." << std::endl;
+        m_runtimeFeedbackIntervalSeconds = 0.0f;
+    }
+
+    if (m_maxRuntimeSeconds > 0.0f && m_runtimeFeedbackIntervalSeconds > 0.0f) {
+        std::cout << "[Engine] Runtime feedback every " << m_runtimeFeedbackIntervalSeconds << " seconds." << std::endl;
+    } else if (m_maxRuntimeSeconds > 0.0f) {
+        std::cout << "[Engine] Runtime feedback: DISABLED" << std::endl;
+    }
+
     // Initialize profiling system
     std::cout << "[Engine] Initializing profiling system..." << std::endl;
     AnitoProfilerManager::initialize(
@@ -112,7 +126,6 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
         AnitoMemoryProfiler::TrackingMode::LIGHT,  // Use light memory tracking
         true   // Enable crash reporter
     );
-    std::cout << "[Engine] Profiling system initialized - Output: anito-debug/" << std::endl;
 
     // Create window
     m_window = AnitoWindow::create(title, width, height);
@@ -121,7 +134,6 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
         return false;
     }
 
-    // Initialize renderer
     void* nativeHandle = m_window->getNativeWindowHandle();
     AnitoRenderer::initialize(nativeHandle, width, height);
 
@@ -368,6 +380,7 @@ void AnitoEngine::run() {
 
     // Reset elapsed runtime
     m_elapsedRuntime = 0.0f;
+    m_nextRuntimeFeedbackTime = m_runtimeFeedbackIntervalSeconds;
 
     // Get CPU profiler for frame timing
     auto* cpuProfiler = AnitoProfilerManager::getCPUProfiler();
@@ -386,9 +399,20 @@ void AnitoEngine::run() {
         // Update elapsed runtime
         m_elapsedRuntime += deltaTime;
 
+        // Emit runtime progress feedback if configured
+        if (m_maxRuntimeSeconds > 0.0f && m_runtimeFeedbackIntervalSeconds > 0.0f) {
+            while (m_elapsedRuntime >= m_nextRuntimeFeedbackTime && m_nextRuntimeFeedbackTime < m_maxRuntimeSeconds) {
+                float remaining = std::max(0.0f, m_maxRuntimeSeconds - m_elapsedRuntime);
+                std::cout << "[Engine] Runtime progress: " << m_elapsedRuntime << " / "
+                          << m_maxRuntimeSeconds << " seconds (" << remaining
+                          << "s remaining)" << std::endl;
+                m_nextRuntimeFeedbackTime += m_runtimeFeedbackIntervalSeconds;
+            }
+        }
+
         // Check if we've exceeded the runtime limit
         if (m_maxRuntimeSeconds > 0.0f && m_elapsedRuntime >= m_maxRuntimeSeconds) {
-            std::cout << "\n[Engine] Runtime limit reached (" << m_maxRuntimeSeconds 
+            std::cout << "\n[Engine] Runtime limit reached (" << m_maxRuntimeSeconds
                       << " seconds). Exiting..." << std::endl;
             m_running = false;
             break;
@@ -634,27 +658,19 @@ void AnitoEngine::shutdown() {
     if (bgfx::isValid(m_s_prefilterMap)) bgfx::destroy(m_s_prefilterMap);
     if (bgfx::isValid(m_s_brdfLUT)) bgfx::destroy(m_s_brdfLUT);
 
-    // Destroy PBR test scenes and frame capture recorder BEFORE bgfx shutdown
-    // These hold bgfx resources (uniforms, textures, etc.) that must be destroyed before bgfx::shutdown()
     m_pbrTestScenes.reset();
     m_frameCaptureRecorder.reset();
 
-    // Destroy game objects
     if (AnitoGameObjectManager::getInstance()) {
         AnitoGameObjectManager::destroy();
     }
 
-    // [FIX] Destroy shader member variables BEFORE bgfx shutdown
-    // m_gbufferShader holds bgfx uniform handles that must be destroyed while bgfx context is still valid
-    // If we don't reset this here, it gets destroyed in ~AnitoEngine() after bgfx::shutdown(),
-    // causing access violation when trying to lock bgfx::s_ctx->m_resourceApiLock (s_ctx is NULL)
     m_gbufferShader.reset();
+    m_deferredRenderer.reset();
 
-    // Clear shader and texture caches
     AnitoShader::clearCache();
     AnitoTexture::clearCache();
 
-    // Destroy subsystems in reverse order
     AnitoInputManager::destroy();
     AnitoRenderer::destroy();
 
@@ -665,7 +681,6 @@ void AnitoEngine::shutdown() {
 
     m_running = false;
 
-    // Destroy profiling system (will automatically export final reports)
     std::cout << "[Engine] Exporting profiling data..." << std::endl;
     AnitoProfilerManager::destroy();
 
@@ -735,11 +750,12 @@ void AnitoEngine::update(float deltaTime) {
 
 void AnitoEngine::render() {
     AnitoRenderer* renderer = AnitoRenderer::getInstance();
-    if (!renderer || !m_camera) return;
+    if (renderer == nullptr || m_camera == nullptr) {
+        return;
+    }
 
     renderer->beginFrame();
 
-    // Choose rendering path based on toggle
     if (m_useDeferredRendering && m_deferredRenderer && m_gbufferShader && m_gbufferShader->isValid()) {
         renderDeferred();
     } else {
@@ -750,135 +766,61 @@ void AnitoEngine::render() {
 }
 
 void AnitoEngine::renderForward() {
-    // Original forward rendering path
     AnitoRenderer* renderer = AnitoRenderer::getInstance();
-    if (!renderer || !m_camera) return;
+    if (renderer == nullptr || m_camera == nullptr) {
+        return;
+    }
 
-    // Get camera view and projection matrices
-    AnitoMatrix4x4 view = m_camera->getViewMatrix();
-    AnitoMatrix4x4 proj = m_camera->getProjectionMatrix();
-
-    // Set view-projection transform for the main view (View 1)
+    const AnitoMatrix4x4 view = m_camera->getViewMatrix();
+    const AnitoMatrix4x4 proj = m_camera->getProjectionMatrix();
     bgfx::setViewTransform(renderer->getMainViewId(), view.data(), proj.data());
 
-    // Get camera position for uniforms
-    AnitoVector3D cameraPos = m_cameraObject->getPosition();
-    float cameraPosArray[3] = { cameraPos.x(), cameraPos.y(), cameraPos.z() };
-
-    // STEP 1: Render skybox first (View 0, background)
-    if (renderer->isIBLReady() && renderer->getEnableIBL()) {
-        // Calculate view-projection matrix for skybox
-        glm::mat4 viewProj = glm::make_mat4(proj.data()) * glm::make_mat4(view.data());
-        glm::mat4 viewProjInv = glm::inverse(viewProj);
-
-        // Render skybox
-        renderer->renderSkybox(glm::value_ptr(viewProjInv), cameraPosArray);
-    }
-
-    // Set global lighting uniforms for forward rendering
-    if (m_pbrTestScenes) {
-        auto shader = AnitoShader::get("SimpleShader");
-        if (shader && shader->isValid()) {
-            // Set light direction
-            float lightDir[4] = { -0.3f, -0.5f, 0.8f, 12.0f };
-            shader->setUniform("u_lightDir", lightDir);
-
-            // Set camera position
-            float cameraPosUniform[4] = { cameraPosArray[0], cameraPosArray[1], cameraPosArray[2], 1.0f };
-            shader->setUniform("u_cameraPos", cameraPosUniform);
-        }
-    }
-
-    // STEP 2: Render all game objects (View 1, foreground)
-    if (AnitoGameObjectManager::getInstance()) {
+    if (AnitoGameObjectManager::getInstance() != nullptr) {
         AnitoGameObjectManager::getInstance()->renderAll();
+    }
+
+    if (m_deferredRenderer && m_deferredRenderer->getDebugMode()) {
+        m_deferredRenderer->renderDebugVisualization();
     }
 }
 
 void AnitoEngine::renderDeferred() {
-    // [STEP 7] Deferred rendering path - Geometry pass only (lighting pass in Step 9)
-    AnitoRenderer* renderer = AnitoRenderer::getInstance();
-    if (!renderer || !m_camera) return;
-
-    // Get camera view and projection matrices
-    AnitoMatrix4x4 view = m_camera->getViewMatrix();
-    AnitoMatrix4x4 proj = m_camera->getProjectionMatrix();
-
-    // Get camera position
-    AnitoVector3D cameraPos = m_cameraObject->getPosition();
-    float cameraPosArray[3] = { cameraPos.x(), cameraPos.y(), cameraPos.z() };
-
-    // STEP 1: Render skybox (View 0, background) - Same as forward
-    if (renderer->isIBLReady() && renderer->getEnableIBL()) {
-        glm::mat4 viewProj = glm::make_mat4(proj.data()) * glm::make_mat4(view.data());
-        glm::mat4 viewProjInv = glm::inverse(viewProj);
-        renderer->renderSkybox(glm::value_ptr(viewProjInv), cameraPosArray);
+    if (m_deferredRenderer == nullptr || m_camera == nullptr) {
+        return;
     }
 
-    // STEP 2: Geometry Pass - Render scene objects to G-Buffer (View 2)
-    std::cout << "[Engine] [STEP 7] Starting geometry pass..." << std::endl;
+    const AnitoMatrix4x4 view = m_camera->getViewMatrix();
+    const AnitoMatrix4x4 proj = m_camera->getProjectionMatrix();
 
     m_deferredRenderer->beginGeometryPass();
-
-    // Set view-projection transform for geometry view (View 2)
     bgfx::setViewTransform(m_deferredRenderer->getGeometryViewId(), view.data(), proj.data());
 
-    // Set global uniforms for G-Buffer shader
-    if (m_gbufferShader && m_gbufferShader->isValid()) {
-        // Base color and PBR params will be set per-material in mesh renderer
-        std::cout << "[Engine] G-Buffer shader ready for rendering" << std::endl;
-    }
+    if (AnitoGameObjectManager::getInstance() != nullptr) {
+        const auto objects = AnitoGameObjectManager::getInstance()->getAllObjects();
+        for (AnitoGameObject* obj : objects) {
+            if (obj == nullptr || !obj->isEnabled()) {
+                continue;
+            }
 
-    // Render all game objects to G-Buffer
-    // NOTE: This will use the current shader in each material (SimpleShader)
-    // TODO (Step 7b): Need to temporarily swap shaders to GBufferShader
-    if (AnitoGameObjectManager::getInstance()) {
-        std::cout << "[Engine] Rendering scene objects to G-Buffer..." << std::endl;
-
-        // TODO: We need a way to tell mesh renderers to use G-Buffer shader
-        // For now, they will render with SimpleShader to View 2
-        // This is a temporary limitation - we'll fix in next iteration
-
-        AnitoGameObjectManager::getInstance()->renderAll();
+            auto meshRenderers = obj->getComponentsOfType(AnitoComponent::ComponentType::MeshRenderer);
+            for (AnitoComponent* component : meshRenderers) {
+                auto* meshRenderer = dynamic_cast<AnitoMeshRenderer*>(component);
+                if (meshRenderer != nullptr) {
+                    meshRenderer->renderToView(m_deferredRenderer->getGeometryViewId());
+                }
+            }
+        }
     }
 
     m_deferredRenderer->endGeometryPass();
-    std::cout << "[Engine] Geometry pass complete!" << std::endl;
 
-    // STEP 3: Lighting Pass (Step 9) OR Debug Visualization (Step 10)
     if (m_deferredRenderer->getDebugMode()) {
-        // [STEP 10] Render G-Buffer debug visualization
-        std::cout << "[Engine] [STEP 10] Rendering G-Buffer debug visualization..." << std::endl;
         m_deferredRenderer->renderDebugVisualization();
-    } else {
-        // [STEP 9] Normal lighting pass
-        std::cout << "[Engine] [STEP 9] Starting lighting pass..." << std::endl;
-
-        m_deferredRenderer->beginLightingPass();
-
-        // Set view transform for lighting pass (identity - fullscreen pass)
-        float identity[16] = {
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
-        };
-        bgfx::setViewTransform(m_deferredRenderer->getLightingViewId(), identity, identity);
-
-        // Set camera position uniform
-        float cameraPosVec4[4] = { cameraPos.x(), cameraPos.y(), cameraPos.z(), 1.0f };
-        bgfx::setUniform(m_u_cameraPos, cameraPosVec4);
-
-        // Bind IBL textures if available
-        if (renderer && renderer->isIBLReady()) {
-            bgfx::setTexture(4, m_s_irradianceMap, renderer->getIrradianceMap());
-            bgfx::setTexture(5, m_s_prefilterMap, renderer->getPrefilterMap());
-            // Note: s_brdfLUT not implemented yet (would need BRDF LUT texture generation)
-        }
-
-        m_deferredRenderer->endLightingPass();
-        std::cout << "[Engine] Lighting pass complete!" << std::endl;
+        return;
     }
+
+    m_deferredRenderer->beginLightingPass();
+    m_deferredRenderer->endLightingPass();
 }
 
 } // namespace Anito

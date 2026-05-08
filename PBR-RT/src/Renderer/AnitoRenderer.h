@@ -65,14 +65,12 @@ private:
     bgfx::ViewId m_mainViewId;
     uint32_t m_resetFlags;
 
-    // Skybox/IBL
-    bgfx::TextureHandle m_envCubemap = BGFX_INVALID_HANDLE;
-    bgfx::TextureHandle m_irradianceMap = BGFX_INVALID_HANDLE;      // Diffuse IBL (32x32 cubemap)
-    bgfx::TextureHandle m_prefilterMap = BGFX_INVALID_HANDLE;       // Specular IBL (512x512 with mips)
+    // Skybox / IBL resources that must be destroyed before bgfx::shutdown().
     bgfx::ProgramHandle m_skyboxProgram = BGFX_INVALID_HANDLE;
+    bgfx::TextureHandle m_envCubemap = BGFX_INVALID_HANDLE;
+    bgfx::TextureHandle m_irradianceMap = BGFX_INVALID_HANDLE;
+    bgfx::TextureHandle m_prefilterMap = BGFX_INVALID_HANDLE;
     bgfx::UniformHandle m_skyboxCubeUniform = BGFX_INVALID_HANDLE;
-
-    // Persistent skybox uniforms (don't create/destroy every frame!)
     bgfx::UniformHandle m_viewProjInvUniform = BGFX_INVALID_HANDLE;
     bgfx::UniformHandle m_cameraPosUniform = BGFX_INVALID_HANDLE;
     bgfx::UniformHandle m_skyboxParamsUniform = BGFX_INVALID_HANDLE;

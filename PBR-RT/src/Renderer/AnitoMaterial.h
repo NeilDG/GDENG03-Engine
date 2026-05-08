@@ -72,7 +72,6 @@ private:
     // Textures
     std::shared_ptr<AnitoTexture> m_textures[static_cast<int>(TextureSlot::Count)];
 
-    // Uniform handles (created on demand)
     bgfx::UniformHandle m_uniformBaseColor;
     bgfx::UniformHandle m_uniformPbrParams;
     bgfx::UniformHandle m_uniformEmissive;

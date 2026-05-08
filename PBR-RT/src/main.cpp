@@ -24,4 +24,6 @@ int main(int argc, char** argv) {
         std::cerr << "Fatal error: " << e.what() << std::endl;
         return -1;
     }
+
+    bgfx::shutdown();
 }

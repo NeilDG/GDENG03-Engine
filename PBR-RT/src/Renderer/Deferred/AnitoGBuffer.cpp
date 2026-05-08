@@ -141,13 +141,11 @@ void AnitoGBuffer::create(uint32_t width, uint32_t height) {
 }
 
 void AnitoGBuffer::destroy() {
-    // Destroy framebuffer first
     if (bgfx::isValid(m_frameBuffer)) {
         bgfx::destroy(m_frameBuffer);
         m_frameBuffer = BGFX_INVALID_HANDLE;
     }
 
-    // Destroy individual textures
     if (bgfx::isValid(m_rtAlbedoMetallic)) {
         bgfx::destroy(m_rtAlbedoMetallic);
         m_rtAlbedoMetallic = BGFX_INVALID_HANDLE;

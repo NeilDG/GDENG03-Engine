@@ -154,6 +154,7 @@ private:
     void release();
     void ensureOutputDirectoryExists(const std::string& path);
     void updateFrameStats();
+    void exportToJSONUnlocked(const std::string& filename, double sessionDuration);
 
     static AnitoPerformanceProfiler* s_instance;
 

@@ -39,7 +39,8 @@ AnitoRenderer::AnitoRenderer()
 {
 }
 
-AnitoRenderer::~AnitoRenderer() {
+AnitoRenderer::~AnitoRenderer()
+{
 }
 
 void AnitoRenderer::init(void* nativeWindowHandle, uint32_t width, uint32_t height) {
@@ -98,10 +99,14 @@ void AnitoRenderer::init(void* nativeWindowHandle, uint32_t width, uint32_t heig
 }
 
 void AnitoRenderer::release() {
-    // Cleanup skybox uniforms
-    if (bgfx::isValid(m_viewProjInvUniform)) bgfx::destroy(m_viewProjInvUniform);
-    if (bgfx::isValid(m_cameraPosUniform)) bgfx::destroy(m_cameraPosUniform);
-    if (bgfx::isValid(m_skyboxParamsUniform)) bgfx::destroy(m_skyboxParamsUniform);
+    if (bgfx::isValid(m_skyboxProgram)) { bgfx::destroy(m_skyboxProgram); m_skyboxProgram = BGFX_INVALID_HANDLE; }
+    if (bgfx::isValid(m_skyboxCubeUniform)) { bgfx::destroy(m_skyboxCubeUniform); m_skyboxCubeUniform = BGFX_INVALID_HANDLE; }
+    if (bgfx::isValid(m_viewProjInvUniform)) { bgfx::destroy(m_viewProjInvUniform); m_viewProjInvUniform = BGFX_INVALID_HANDLE; }
+    if (bgfx::isValid(m_cameraPosUniform)) { bgfx::destroy(m_cameraPosUniform); m_cameraPosUniform = BGFX_INVALID_HANDLE; }
+    if (bgfx::isValid(m_skyboxParamsUniform)) { bgfx::destroy(m_skyboxParamsUniform); m_skyboxParamsUniform = BGFX_INVALID_HANDLE; }
+    if (bgfx::isValid(m_envCubemap)) { bgfx::destroy(m_envCubemap); m_envCubemap = BGFX_INVALID_HANDLE; }
+    if (bgfx::isValid(m_irradianceMap)) { bgfx::destroy(m_irradianceMap); m_irradianceMap = BGFX_INVALID_HANDLE; }
+    if (bgfx::isValid(m_prefilterMap)) { bgfx::destroy(m_prefilterMap); m_prefilterMap = BGFX_INVALID_HANDLE; }
 
     bgfx::shutdown();
 }
@@ -167,7 +172,7 @@ bgfx::ProgramHandle AnitoRenderer::createProgram(const std::string& vsPath, cons
         return BGFX_INVALID_HANDLE;
     }
 
-    bgfx::ProgramHandle program = bgfx::createProgram(vsh, fsh, true);
+    auto program = bgfx::createProgram(vsh, fsh, true);
 
     if (!bgfx::isValid(program)) {
         std::cerr << "Failed to link shader program" << std::endl;

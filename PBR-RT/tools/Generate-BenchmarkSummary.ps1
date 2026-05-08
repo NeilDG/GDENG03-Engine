@@ -1,0 +1,192 @@
+# Generate-BenchmarkSummary.ps1
+# Comprehensive benchmarking summary for Anito Engine
+
+param(
+    [string]$ProfileDir = "anito-debug/profiling",
+    [string]$OutputFile = "BENCHMARK_SUMMARY.md"
+)
+
+Write-Host "======================================" -ForegroundColor Cyan
+Write-Host "  ANITO ENGINE BENCHMARK SUMMARY" -ForegroundColor Cyan
+Write-Host "======================================" -ForegroundColor Cyan
+Write-Host ""
+
+# Find latest profiling session
+$cpuProfile = Get-ChildItem "$ProfileDir/cpu_*.json" | Sort-Object LastWriteTime -Desc | Select-Object -First 1
+$gpuProfile = Get-ChildItem "$ProfileDir/gpu_*.json" | Sort-Object LastWriteTime -Desc | Select-Object -First 1
+$memProfile = Get-ChildItem "$ProfileDir/memory_*.json" | Sort-Object LastWriteTime -Desc | Select-Object -First 1
+
+if (-not $cpuProfile) {
+    Write-Host "No profiling data found in $ProfileDir" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "Loading profiling data..." -ForegroundColor Yellow
+$cpu = Get-Content $cpuProfile.FullName | ConvertFrom-Json
+$gpu = if ($gpuProfile) { Get-Content $gpuProfile.FullName | ConvertFrom-Json } else { $null }
+$mem = if ($memProfile) { Get-Content $memProfile.FullName | ConvertFrom-Json } else { $null }
+
+# Generate report
+$report = @"
+# Anito Engine Benchmarking Results
+**Generated:** $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")  
+**Test Duration:** $([math]::Round($cpu.duration_seconds, 2)) seconds  
+**Total Frames:** $($cpu.frames)
+
+---
+
+## Performance Metrics
+
+### Frame Rate
+| Metric | Value |
+|--------|-------|
+| **Average FPS** | $([math]::Round($cpu.avg_fps, 2)) |
+| **Average Frame Time** | $([math]::Round($cpu.frame_times.avg_ms, 2)) ms |
+| **Min Frame Time** | $([math]::Round($cpu.frame_times.min_ms, 2)) ms |
+| **Max Frame Time** | $([math]::Round($cpu.frame_times.max_ms, 2)) ms |
+
+### Performance Rating
+"@
+
+# Add performance rating
+$avgFPS = $cpu.avg_fps
+$rating = if ($avgFPS -ge 60) {
+    "🟢 **EXCELLENT** - Exceeds 60 FPS target"
+} elseif ($avgFPS -ge 30) {
+    "🟡 **GOOD** - Playable performance"
+} else {
+    "🔴 **NEEDS OPTIMIZATION** - Below 30 FPS"
+}
+
+$report += "`n$rating`n`n---`n`n"
+
+# Add frame time analysis
+$report += @"
+## Frame Time Analysis
+
+### Distribution
+- **Fast Frames (<16ms):** $(if ($cpu.frame_times.avg_ms -lt 16) { "Target met ✓" } else { "Target not met ✗" })
+- **Target FPS (60):** $(if ($avgFPS -ge 60) { "Achieved ✓" } else { "Not achieved ✗" })
+- **Stability:** $(if (($cpu.frame_times.max_ms / $cpu.frame_times.avg_ms) -lt 2) { "Stable ✓" } else { "Variable ✗" })
+
+### Frame Budget (60 FPS = 16.67ms)
+- **Average vs Budget:** $([math]::Round($cpu.frame_times.avg_ms / 16.67 * 100, 1))% of budget used
+- **Headroom:** $([math]::Round(16.67 - $cpu.frame_times.avg_ms, 2)) ms available
+
+---
+
+"@
+
+# Add GPU metrics if available
+if ($gpu) {
+    $report += @"
+## GPU Metrics
+
+| Metric | Value |
+|--------|-------|
+| **Draw Calls** | $($gpu.draw_calls) |
+| **Triangles** | $($gpu.triangles) |
+| **Vertices** | $($gpu.vertices) |
+| **Texture Memory** | $($gpu.texture_memory_mb) MB |
+| **Buffer Memory** | $($gpu.buffer_memory_mb) MB |
+
+---
+
+"@
+}
+
+# Add memory metrics if available
+if ($mem) {
+    $report += @"
+## Memory Usage
+
+| Metric | Value |
+|--------|-------|
+| **Total Allocated** | $([math]::Round($mem.total_allocated_mb, 2)) MB |
+| **Peak Usage** | $([math]::Round($mem.peak_usage_mb, 2)) MB |
+| **Active Allocations** | $($mem.active_allocations) |
+
+---
+
+"@
+}
+
+# Add recommendations
+$report += @"
+## Recommendations
+
+### Performance Optimization
+"@
+
+if ($avgFPS -lt 60) {
+    $report += "`n- ⚠️ **Optimize rendering pipeline** - Target is 60 FPS, currently at $([math]::Round($avgFPS, 1)) FPS`n"
+}
+
+if ($cpu.frame_times.max_ms -gt ($cpu.frame_times.avg_ms * 3)) {
+    $report += "- ⚠️ **Investigate frame time spikes** - Max frame time ($([math]::Round($cpu.frame_times.max_ms, 2))ms) is significantly higher than average`n"
+}
+
+if ($avgFPS -ge 60) {
+    $report += "- ✓ **Performance target met** - Engine is running at target frame rate`n"
+}
+
+$report += @"
+
+### Testing
+- Run benchmark mode for multi-resolution testing
+- Test with different PBR scenes (scenes 1-5)
+- Profile with deferred rendering enabled
+- Compare forward vs deferred performance
+
+---
+
+## Output Files
+
+### Frame Captures
+"@
+
+$frameCount = (Get-ChildItem "anito-debug/frames/*.png" -ErrorAction SilentlyContinue).Count
+$frameSize = [math]::Round((Get-ChildItem "anito-debug/frames/*.png" -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum / 1GB, 2)
+
+$report += @"
+
+- **Count:** $frameCount frames
+- **Total Size:** $frameSize GB
+- **Location:** `anito-debug/frames/`
+
+### Profiling Data
+- **CPU Profile:** ``$($cpuProfile.Name)``
+"@
+
+if ($gpuProfile) {
+    $report += "- **GPU Profile:** ``$($gpuProfile.Name)```n"
+}
+if ($memProfile) {
+    $report += "- **Memory Profile:** ``$($memProfile.Name)```n"
+}
+
+$report += @"
+
+---
+
+**Report Generated by:** Generate-BenchmarkSummary.ps1  
+**Anito Engine Version:** 0.1.0  
+**Build Configuration:** Release
+"@
+
+# Save report
+$report | Set-Content $OutputFile
+Write-Host "✓ Benchmark summary saved to: $OutputFile" -ForegroundColor Green
+Write-Host ""
+
+# Display key metrics
+Write-Host "KEY METRICS:" -ForegroundColor Yellow
+Write-Host "  Average FPS: " -NoNewline
+Write-Host "$([math]::Round($avgFPS, 2))" -ForegroundColor $(if ($avgFPS -ge 60) { "Green" } else { "Yellow" })
+Write-Host "  Average Frame Time: " -NoNewline
+Write-Host "$([math]::Round($cpu.frame_times.avg_ms, 2)) ms" -ForegroundColor $(if ($cpu.frame_times.avg_ms -le 16.67) { "Green" } else { "Yellow" })
+Write-Host "  Total Frames: " -NoNewline
+Write-Host "$($cpu.frames)" -ForegroundColor Green
+Write-Host "  Frame Captures: " -NoNewline
+Write-Host "$frameCount" -ForegroundColor Green
+Write-Host ""

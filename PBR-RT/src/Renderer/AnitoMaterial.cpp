@@ -22,23 +22,26 @@ AnitoMaterial::AnitoMaterial(const std::string& name)
     setupDefaultUniforms();
 }
 
-AnitoMaterial::~AnitoMaterial() {
-    // Destroy uniform handles
-    if (bgfx::isValid(m_uniformBaseColor)) {
-        bgfx::destroy(m_uniformBaseColor);
-    }
-    if (bgfx::isValid(m_uniformPbrParams)) {
-        bgfx::destroy(m_uniformPbrParams);
-    }
-    if (bgfx::isValid(m_uniformEmissive)) {
-        bgfx::destroy(m_uniformEmissive);
-    }
+AnitoMaterial::~AnitoMaterial()
+{
+    if (bgfx::isValid(m_uniformBaseColor)) { bgfx::destroy(m_uniformBaseColor); m_uniformBaseColor = BGFX_INVALID_HANDLE; }
+    if (bgfx::isValid(m_uniformPbrParams)) { bgfx::destroy(m_uniformPbrParams); m_uniformPbrParams = BGFX_INVALID_HANDLE; }
+    if (bgfx::isValid(m_uniformEmissive)) { bgfx::destroy(m_uniformEmissive); m_uniformEmissive = BGFX_INVALID_HANDLE; }
 }
 
 void AnitoMaterial::setupDefaultUniforms() {
-    m_uniformBaseColor = bgfx::createUniform("u_baseColor", bgfx::UniformType::Vec4);
-    m_uniformPbrParams = bgfx::createUniform("u_pbrParams", bgfx::UniformType::Vec4);
-    m_uniformEmissive = bgfx::createUniform("u_emissive", bgfx::UniformType::Vec4);
+    if (!bgfx::isValid(m_uniformBaseColor))
+    {
+        m_uniformBaseColor = bgfx::createUniform("u_baseColor", bgfx::UniformType::Vec4);
+    }
+    if (!bgfx::isValid(m_uniformPbrParams))
+    {
+        m_uniformPbrParams = bgfx::createUniform("u_pbrParams", bgfx::UniformType::Vec4);
+    }
+    if (!bgfx::isValid(m_uniformEmissive))
+    {
+        m_uniformEmissive = bgfx::createUniform("u_emissive", bgfx::UniformType::Vec4);
+    }
 }
 
 void AnitoMaterial::setBaseColor(float r, float g, float b, float a) {

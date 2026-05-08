@@ -19,6 +19,7 @@ AnitoDeferredRenderer::AnitoDeferredRenderer(uint32_t width, uint32_t height)
 
 AnitoDeferredRenderer::~AnitoDeferredRenderer() {
     std::cout << "[AnitoDeferredRenderer] Destroying deferred renderer" << std::endl;
+    m_gBuffer.reset();
 }
 
 void AnitoDeferredRenderer::resize(uint32_t width, uint32_t height) {

@@ -6,6 +6,7 @@
 $input v_texcoord0
 
 #include <bgfx_shader.sh>
+#include "include/pbr_common.sh"
 
 // G-Buffer texture samplers (must match AnitoGBuffer layout)
 SAMPLER2D(s_gbuffer0, 0);  // RT0: Albedo (RGB) + Metallic (A)
@@ -31,9 +32,7 @@ vec3 decodeNormal(vec3 encoded) {
 }
 
 // Fresnel-Schlick approximation (Filament spec eq. 2)
-vec3 fresnelSchlick(float cosTheta, vec3 F0) {
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
-}
+// Moved to shared include as F_Schlick for Phase 5 Step 4.
 
 // Fresnel-Schlick with roughness for IBL
 vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
@@ -41,37 +40,9 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
 }
 
 // GGX/Trowbridge-Reitz normal distribution function (Filament spec eq. 4)
-float distributionGGX(vec3 N, vec3 H, float roughness) {
-    float a = roughness * roughness;
-    float a2 = a * a;
-    float NdotH = max(dot(N, H), 0.0);
-    float NdotH2 = NdotH * NdotH;
+// Moved to shared include as D_GGX for Phase 5 Step 2.
 
-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = PI * denom * denom;
-
-    return a2 / max(denom, 0.001);  // Prevent divide by zero
-}
-
-// Geometry function - Schlick-GGX (Filament spec eq. 8)
-float geometrySchlickGGX(float NdotV, float roughness) {
-    float r = (roughness + 1.0);
-    float k = (r * r) / 8.0;
-
-    float denom = NdotV * (1.0 - k) + k;
-
-    return NdotV / max(denom, 0.001);
-}
-
-// Smith's method for geometry obstruction (Filament spec eq. 9)
-float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
-    float ggx2 = geometrySchlickGGX(NdotV, roughness);
-    float ggx1 = geometrySchlickGGX(NdotL, roughness);
-
-    return ggx1 * ggx2;
-}
+// Geometry function and Smith visibility moved to shared include (Phase 5 Step 3).
 
 void main()
 {
@@ -113,14 +84,8 @@ void main()
     // ===== DIRECT LIGHTING (Cook-Torrance BRDF) =====
 
     // Cook-Torrance BRDF components
-    float NDF = distributionGGX(N, H, roughness);
-    float G = geometrySmith(N, V, L, roughness);
-    vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
-
-    // Specular contribution
-    vec3 numerator = NDF * G * F;
-    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
-    vec3 specular = numerator / max(denominator, 0.001);
+    vec3 specular = BRDF_Specular_GGX(N, V, L, F0, roughness);
+    vec3 F = F_Schlick(max(dot(H, V), 0.0), F0);
 
     // Energy conservation: diffuse contribution
     // kS is equal to Fresnel
@@ -179,7 +144,7 @@ void main()
         ambient = (diffuse_ambient + specular_ambient) * ao;
     } else {
         // Fallback: simple ambient without IBL
-        vec3 kS_ambient = fresnelSchlick(max(dot(N, V), 0.0), F0);
+        vec3 kS_ambient = F_Schlick(max(dot(N, V), 0.0), F0);
         vec3 kD_ambient = vec3_splat(1.0) - kS_ambient;
         kD_ambient *= 1.0 - metallic;
         ambient = (kD_ambient * albedo + kS_ambient * F0) * ao * 0.6;
