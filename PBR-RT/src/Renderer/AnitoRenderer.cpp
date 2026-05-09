@@ -568,8 +568,8 @@ void AnitoRenderer::generatePrefilterMap(bgfx::TextureHandle envCubemap) {
 
     m_prefilterMap = bgfx::createTextureCube(
         prefilterSize,
-        true,  // hasMips
-        numMips,
+        true,  // hasMips - automatically generates mip chain
+        1,     // numLayers - MUST be 1 for single cubemap (not array of cubemaps)
         bgfx::TextureFormat::RGBA16F,
         BGFX_TEXTURE_RT |
         BGFX_SAMPLER_U_CLAMP |

@@ -401,22 +401,29 @@ Anito Engine has successfully transitioned from a basic rendering foundation to 
    - ImGui integration
    - ImGuizmo transform gizmos
 
----
+### Phase 6 (Advanced BRDF) — Granular Verification Plan
 
-## Alignment with Project Anito Goals
+#### Step 1 — Lock Baseline (Legacy Deferred Lighting) ✅ EXECUTED (May 9, 2026)
+- **Goal:** Freeze pre-Phase-6 visual/performance baseline for A/B comparison.
+- **Actions Executed:**
+  - Ran benchmark mode (Quick) using existing deferred renderer pipeline.
+  - Ran bounded runtime validation session (`MaxRuntimeSeconds = 15`) to refresh frame captures.
+  - Created baseline artifact directory and copied benchmark + frame outputs.
+- **Verifiable Outputs (Generated):**
+  - `anito-debug/phase6_baseline/benchmark_results.json`
+  - `anito-debug/phase6_baseline/benchmark_results.csv`
+  - `anito-debug/phase6_baseline/frames/frame_0001.png` ... `frame_0005.png`
+- **Benchmark Snapshot (Debug):**
+  - 1280x720: Avg FPS 0.120504 | Avg Frame Time 8298.45 ms
+  - 1920x1080: Avg FPS 0.120785 | Avg Frame Time 8279.21 ms
+  - 2560x1440: Avg FPS 0.120548 | Avg Frame Time 8295.47 ms
+- **Session Logs:** `anito-debug/logs/anito_2026-05-09_10-16-25.log`, `anito-debug/logs/anito_2026-05-09_10-18-40.log`
+- **Note:** Crash artifacts were generated during shutdown in this environment and were retained for investigation:
+  - `anito-debug/crashes/crash_2026-05-09_10-16-12/`
+  - `anito-debug/crashes/crash_2026-05-09_10-18-00/`
+  - `anito-debug/crashes/crash_2026-05-09_10-18-58/`
 
-This implementation directly supports:
-- ✅ Modern rendering techniques (deferred PBR)
-- ✅ Cross-platform foundation (bgfx)
-- ✅ Component-based architecture (industry standard)
-- ✅ Clean, maintainable C++20 code
-- ✅ Modular subsystem design
-- ✅ AAA-quality rendering foundation
-- ⚠️ Android support (bgfx ready, not yet tested)
-- ⚠️ Publications (architecture documented, benchmarks pending)
-
----
-
-**End of Report**
-
-*This architecture serves as the foundation for the Anito Engine's evolution toward full AAA game engine capabilities for PC and Android platforms.*
+#### Step 2 — Add BRDF Mode Toggle (Legacy vs Advanced)
+- **Goal:** Controlled rollout and A/B validation.
+- **Implementation Target:** Runtime/config flag for BRDF path selection.
+- **Verifiable Output:** Startup log prints `BRDF Mode: Legacy` or `BRDF Mode: Advanced`.
