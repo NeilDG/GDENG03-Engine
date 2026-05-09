@@ -45,8 +45,7 @@ public:
 private:
     void update(float deltaTime);
     void render();
-    void renderForward();   // Forward rendering path
-    void renderDeferred();  // Deferred rendering path (Step 7)
+    void renderDeferred();  // Deferred rendering path
     void createTestScene();
 
     // [STEP 12] Benchmark mode execution
@@ -75,9 +74,8 @@ private:
     AnitoGameObject* m_cameraObject;
     AnitoCamera* m_camera;
 
-    // Deferred rendering system (Step 1-7)
+    // Deferred rendering system (Phase 3)
     std::unique_ptr<AnitoDeferredRenderer> m_deferredRenderer;
-    bool m_useDeferredRendering;  // Toggle between forward and deferred
 
     // G-Buffer shader (for deferred rendering - geometry pass)
     std::shared_ptr<AnitoShader> m_gbufferShader;
@@ -86,6 +84,8 @@ private:
     bgfx::ProgramHandle m_deferredLightingProgram;
     bgfx::ProgramHandle m_gbufferDebugProgram;  // Step 10: Debug visualization
     bgfx::UniformHandle m_u_cameraPos;
+    bgfx::UniformHandle m_u_lightDir;
+    bgfx::UniformHandle m_u_enableIBL;
     bgfx::UniformHandle m_s_gbuffer0;
     bgfx::UniformHandle m_s_gbuffer1;
     bgfx::UniformHandle m_s_gbuffer2;

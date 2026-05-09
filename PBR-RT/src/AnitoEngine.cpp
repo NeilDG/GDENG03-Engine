@@ -22,6 +22,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
+#include <bx/math.h>
 #include <iostream>
 #include <algorithm>
 #include <numeric>
@@ -42,10 +43,11 @@ AnitoEngine::AnitoEngine()
     , m_frameCaptureRecorder(nullptr)
     , m_cameraObject(nullptr)
     , m_camera(nullptr)
-    , m_useDeferredRendering(false)  // Start with forward rendering (Step 7)
     , m_deferredLightingProgram(BGFX_INVALID_HANDLE)
     , m_gbufferDebugProgram(BGFX_INVALID_HANDLE)
     , m_u_cameraPos(BGFX_INVALID_HANDLE)
+    , m_u_lightDir(BGFX_INVALID_HANDLE)
+    , m_u_enableIBL(BGFX_INVALID_HANDLE)
     , m_s_gbuffer0(BGFX_INVALID_HANDLE)
     , m_s_gbuffer1(BGFX_INVALID_HANDLE)
     , m_s_gbuffer2(BGFX_INVALID_HANDLE)
@@ -89,10 +91,6 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
         } else if (durationStr == "Extended") {
             duration = BenchmarkDuration::Extended;
         }
-
-        // Force deferred rendering for benchmarking (as user requested)
-        m_useDeferredRendering = true;
-        std::cout << "[Benchmark] Forcing deferred rendering mode (runtime toggle is buggy)" << std::endl;
     }
 
     // Get runtime duration setting
@@ -200,6 +198,8 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
 
                 // Create uniforms for lighting pass
                 m_u_cameraPos = bgfx::createUniform("u_cameraPos", bgfx::UniformType::Vec4);
+                m_u_lightDir = bgfx::createUniform("u_lightDir", bgfx::UniformType::Vec4);
+                m_u_enableIBL = bgfx::createUniform("u_enableIBL", bgfx::UniformType::Vec4);
                 m_s_gbuffer0 = bgfx::createUniform("s_gbuffer0", bgfx::UniformType::Sampler);
                 m_s_gbuffer1 = bgfx::createUniform("s_gbuffer1", bgfx::UniformType::Sampler);
                 m_s_gbuffer2 = bgfx::createUniform("s_gbuffer2", bgfx::UniformType::Sampler);
@@ -241,7 +241,7 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
         }
     }
 
-    std::cout << "[Engine] Deferred renderer initialized - Toggle with 'D' key" << std::endl;
+    std::cout << "[Engine] Deferred renderer initialized" << std::endl;
     std::cout << "[Engine] G-Buffer debug visualization - Toggle with 'G' key" << std::endl;
     std::cout << "[Engine] === DEFERRED RENDERING SYSTEM READY ===\n" << std::endl;
 
@@ -363,7 +363,6 @@ void AnitoEngine::createTestScene() {
     std::cout << "  Scene Controls:" << std::endl;
     std::cout << "    - SPACE: Switch between test scenes" << std::endl;
     std::cout << "    - Z: Toggle IBL (Image-Based Lighting)" << std::endl;
-    std::cout << "    - D: Toggle Deferred Rendering (Forward/Deferred)" << std::endl;
     std::cout << "    - G: Toggle G-Buffer Debug Visualization" << std::endl;
     std::cout << "==============================" << std::endl;
     std::cout << "==================================================" << std::endl;
@@ -650,6 +649,8 @@ void AnitoEngine::shutdown() {
         bgfx::destroy(m_gbufferDebugProgram);
     }
     if (bgfx::isValid(m_u_cameraPos)) bgfx::destroy(m_u_cameraPos);
+    if (bgfx::isValid(m_u_lightDir)) bgfx::destroy(m_u_lightDir);
+    if (bgfx::isValid(m_u_enableIBL)) bgfx::destroy(m_u_enableIBL);
     if (bgfx::isValid(m_s_gbuffer0)) bgfx::destroy(m_s_gbuffer0);
     if (bgfx::isValid(m_s_gbuffer1)) bgfx::destroy(m_s_gbuffer1);
     if (bgfx::isValid(m_s_gbuffer2)) bgfx::destroy(m_s_gbuffer2);
@@ -717,14 +718,6 @@ void AnitoEngine::update(float deltaTime) {
             }
         }
 
-        // [STEP 7] Handle deferred rendering toggle with 'D' key
-        if (AnitoInputManager::getInstance()->isKeyPressed(GLFW_KEY_D)) {
-            m_useDeferredRendering = !m_useDeferredRendering;
-            std::cout << "\n[Engine] ========================================" << std::endl;
-            std::cout << "[Engine] Rendering Mode: " << (m_useDeferredRendering ? "DEFERRED" : "FORWARD") << std::endl;
-            std::cout << "[Engine] ========================================\n" << std::endl;
-        }
-
         // [STEP 10] Handle G-Buffer debug visualization toggle with 'G' key
         if (AnitoInputManager::getInstance()->isKeyPressed(GLFW_KEY_G)) {
             if (m_deferredRenderer) {
@@ -754,34 +747,30 @@ void AnitoEngine::render() {
         return;
     }
 
+    // Always set deferred view order before any submissions this frame.
+    if (m_deferredRenderer && m_gbufferShader && m_gbufferShader->isValid()) {
+        const bgfx::ViewId deferredViewOrder[] = { 0, m_deferredRenderer->getGeometryViewId(), m_deferredRenderer->getLightingViewId() };
+        bgfx::setViewOrder(0, uint16_t(sizeof(deferredViewOrder) / sizeof(deferredViewOrder[0])), deferredViewOrder);
+    }
+
     renderer->beginFrame();
 
-    if (m_useDeferredRendering && m_deferredRenderer && m_gbufferShader && m_gbufferShader->isValid()) {
-        renderDeferred();
-    } else {
-        renderForward();
-    }
-
-    renderer->endFrame();
-}
-
-void AnitoEngine::renderForward() {
-    AnitoRenderer* renderer = AnitoRenderer::getInstance();
-    if (renderer == nullptr || m_camera == nullptr) {
-        return;
-    }
-
+    // Render skybox first (View 0)
     const AnitoMatrix4x4 view = m_camera->getViewMatrix();
     const AnitoMatrix4x4 proj = m_camera->getProjectionMatrix();
-    bgfx::setViewTransform(renderer->getMainViewId(), view.data(), proj.data());
+    const glm::mat4 viewProjInv = glm::inverse(proj.toGLM() * view.toGLM());
 
-    if (AnitoGameObjectManager::getInstance() != nullptr) {
-        AnitoGameObjectManager::getInstance()->renderAll();
+    AnitoVector3D cameraPosition = AnitoVector3D::zero();
+    if (m_cameraObject != nullptr) {
+        cameraPosition = m_cameraObject->getPosition();
     }
 
-    if (m_deferredRenderer && m_deferredRenderer->getDebugMode()) {
-        m_deferredRenderer->renderDebugVisualization();
-    }
+    float cameraPos[4] = { cameraPosition.x(), cameraPosition.y(), cameraPosition.z(), 1.0f };
+    renderer->renderSkybox(glm::value_ptr(viewProjInv), cameraPos);
+
+    renderDeferred();
+
+    renderer->endFrame();
 }
 
 void AnitoEngine::renderDeferred() {
@@ -789,11 +778,37 @@ void AnitoEngine::renderDeferred() {
         return;
     }
 
+    AnitoRenderer* renderer = AnitoRenderer::getInstance();
+    if (renderer == nullptr) {
+        return;
+    }
+
     const AnitoMatrix4x4 view = m_camera->getViewMatrix();
     const AnitoMatrix4x4 proj = m_camera->getProjectionMatrix();
 
     m_deferredRenderer->beginGeometryPass();
-    bgfx::setViewTransform(m_deferredRenderer->getGeometryViewId(), view.data(), proj.data());
+
+    // Use bgfx projection matrix generation for backend-correct depth range.
+    // This avoids GLM-vs-backend NDC mismatch (notably D3D11 [0,1] depth).
+    if (m_camera->getProjectionType() == AnitoCamera::ProjectionType::Perspective) {
+        float bgfxProj[16];
+        const bgfx::Caps* caps = bgfx::getCaps();
+        const bool homogeneousDepth = (caps != nullptr) ? caps->homogeneousDepth : true;
+        const float fovDegrees = m_camera->getFieldOfView() * 57.2957795f;
+
+        bx::mtxProj(
+            bgfxProj,
+            fovDegrees,
+            m_camera->getAspectRatio(),
+            m_camera->getNearPlane(),
+            m_camera->getFarPlane(),
+            homogeneousDepth
+        );
+
+        bgfx::setViewTransform(m_deferredRenderer->getGeometryViewId(), view.data(), bgfxProj);
+    } else {
+        bgfx::setViewTransform(m_deferredRenderer->getGeometryViewId(), view.data(), proj.data());
+    }
 
     if (AnitoGameObjectManager::getInstance() != nullptr) {
         const auto objects = AnitoGameObjectManager::getInstance()->getAllObjects();
@@ -806,7 +821,7 @@ void AnitoEngine::renderDeferred() {
             for (AnitoComponent* component : meshRenderers) {
                 auto* meshRenderer = dynamic_cast<AnitoMeshRenderer*>(component);
                 if (meshRenderer != nullptr) {
-                    meshRenderer->renderToView(m_deferredRenderer->getGeometryViewId());
+                    meshRenderer->renderToView(m_deferredRenderer->getGeometryViewId(), m_gbufferShader);
                 }
             }
         }
@@ -817,6 +832,35 @@ void AnitoEngine::renderDeferred() {
     if (m_deferredRenderer->getDebugMode()) {
         m_deferredRenderer->renderDebugVisualization();
         return;
+    }
+
+    // Set deferred lighting uniforms each frame.
+    float cameraPos[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    if (m_cameraObject != nullptr) {
+        cameraPos[0] = m_cameraObject->getPosition().x();
+        cameraPos[1] = m_cameraObject->getPosition().y();
+        cameraPos[2] = m_cameraObject->getPosition().z();
+    }
+
+    bgfx::setUniform(m_u_cameraPos, cameraPos);
+
+    const float lightDir[4] = { -0.3f, -0.5f, 0.8f, 12.0f };
+    if (bgfx::isValid(m_u_lightDir)) {
+        bgfx::setUniform(m_u_lightDir, lightDir);
+    }
+
+    const float iblEnabled[4] = { renderer->getEnableIBL() ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f };
+    if (bgfx::isValid(m_u_enableIBL)) {
+        bgfx::setUniform(m_u_enableIBL, iblEnabled);
+    }
+
+    if (renderer->isIBLReady()) {
+        if (bgfx::isValid(m_s_irradianceMap) && bgfx::isValid(renderer->getIrradianceMap())) {
+            bgfx::setTexture(4, m_s_irradianceMap, renderer->getIrradianceMap());
+        }
+        if (bgfx::isValid(m_s_prefilterMap) && bgfx::isValid(renderer->getPrefilterMap())) {
+            bgfx::setTexture(5, m_s_prefilterMap, renderer->getPrefilterMap());
+        }
     }
 
     m_deferredRenderer->beginLightingPass();

@@ -521,4 +521,8 @@ glm::vec3 AnitoPBRTestScenes::getDielectricColor(int index) {
     return dielectricColors[index % dielectricColors.size()];
 }
 
+// Ensure prefilter map is a single cubemap with mip chain.
+// Do NOT pass prefilter mip count as _numLayers to bgfx::createTextureCube.
+constexpr uint16_t kPrefilterCubeLayers = 1;
+
 } // namespace Anito

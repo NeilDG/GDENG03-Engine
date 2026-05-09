@@ -1,6 +1,7 @@
 #include "AnitoDeferredRenderer.h"
 #include "AnitoGBuffer.h"
 #include <iostream>
+#include <cstring>
 
 namespace Anito {
 
@@ -52,14 +53,21 @@ void AnitoDeferredRenderer::beginLightingPass() {
     // Set view rectangle to full screen
     bgfx::setViewRect(m_lightingViewId, 0, 0, m_width, m_height);
 
-    // Set clear flags for lighting view
+    // Preserve skybox color from earlier view; clear depth only
     bgfx::setViewClear(m_lightingViewId,
-        BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH,
-        0x000000ff,  // Black background
+        BGFX_CLEAR_DEPTH,
+        0x000000ff,
         1.0f,
         0);
 
-    std::cout << "[AnitoDeferredRenderer] Lighting pass started (View " << m_lightingViewId << ")" << std::endl;
+    // Identity view and projection: the vertex shader positions directly in clip space
+    float identity[16] = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
+    bgfx::setViewTransform(m_lightingViewId, identity, identity);
 }
 
 void AnitoDeferredRenderer::endLightingPass() {
@@ -69,6 +77,31 @@ void AnitoDeferredRenderer::endLightingPass() {
         return;
     }
 
+    // Build a 2-float-position vertex layout matching varying_deferred_light.def.sc
+    bgfx::VertexLayout layout;
+    layout.begin()
+        .add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
+        .end();
+
+    // Fullscreen triangle in NDC — covers the entire viewport with 3 vertices
+    // Reference: "A trip through the Graphics Pipeline" - Jon Olick, GDC 2011
+    struct PosVertex2D { float x, y; };
+    static const PosVertex2D kFullscreenTriangle[3] = {
+        { -1.0f, -1.0f },
+        {  3.0f, -1.0f },
+        { -1.0f,  3.0f },
+    };
+
+    bgfx::TransientVertexBuffer tvb;
+    bgfx::allocTransientVertexBuffer(&tvb, 3, layout);
+    
+    if (tvb.data == nullptr) {
+        std::cerr << "[AnitoDeferredRenderer] ERROR: Failed to allocate transient vertex buffer for fullscreen triangle!" << std::endl;
+        return;
+    }
+    memcpy(tvb.data, kFullscreenTriangle, sizeof(kFullscreenTriangle));
+    bgfx::setVertexBuffer(0, &tvb);
+
     // Bind G-Buffer textures for sampling
     if (m_gBuffer) {
         bgfx::setTexture(0, m_s_gbuffer0, m_gBuffer->getAlbedoMetallic());   // Albedo + Metallic
@@ -77,14 +110,16 @@ void AnitoDeferredRenderer::endLightingPass() {
         bgfx::setTexture(3, m_s_gbuffer3, m_gBuffer->getEmission());         // Emission
     }
 
-    // Set render state (no depth test, full screen pass)
+    // Fullscreen pass: write RGB+A, blend with existing skybox via alpha,
+    // no depth test (we cover the whole screen regardless of depth).
     uint64_t state = 0
         | BGFX_STATE_WRITE_RGB
-        | BGFX_STATE_WRITE_A;
+        | BGFX_STATE_WRITE_A
+        | BGFX_STATE_DEPTH_TEST_ALWAYS
+        | BGFX_STATE_BLEND_ALPHA;
 
     bgfx::setState(state);
 
-    // Submit fullscreen triangle (bgfx generates vertices procedurally)
     bgfx::submit(m_lightingViewId, m_lightingShader);
 
     std::cout << "[AnitoDeferredRenderer] Lighting pass ended" << std::endl;

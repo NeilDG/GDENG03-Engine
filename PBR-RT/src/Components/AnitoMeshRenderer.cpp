@@ -4,6 +4,7 @@
 #include "../Renderer/AnitoIndexBuffer.h"
 #include "../Renderer/AnitoMaterial.h"
 #include "../Renderer/AnitoRenderer.h"
+#include "../Renderer/AnitoShader.h"
 #include "../GameObjects/AnitoGameObject.h"
 #include <bgfx/bgfx.h>
 
@@ -30,8 +31,14 @@ void AnitoMeshRenderer::render() {
 }
 
 void AnitoMeshRenderer::renderToView(bgfx::ViewId viewId) {
+    renderToView(viewId, nullptr);
+}
+
+void AnitoMeshRenderer::renderToView(bgfx::ViewId viewId, const std::shared_ptr<AnitoShader>& overrideShader) {
     if (!m_vertexBuffer || !m_indexBuffer || !m_material) return;
-    if (!m_material->getShader() || !m_material->getShader()->isValid()) return;
+
+    std::shared_ptr<AnitoShader> shaderToUse = overrideShader ? overrideShader : m_material->getShader();
+    if (!shaderToUse || !shaderToUse->isValid()) return;
 
     AnitoRenderer* renderer = AnitoRenderer::getInstance();
     if (!renderer) return;
@@ -46,13 +53,12 @@ void AnitoMeshRenderer::renderToView(bgfx::ViewId viewId) {
     m_vertexBuffer->bind();
     m_indexBuffer->bind();
 
-    // Bind material (PBR parameters)
+    // Bind material parameters (still needed for gbuffer uniforms)
     m_material->bind(viewId);
 
     // CRITICAL: Bind IBL textures per-draw-call (bgfx requirement)
-    // This must be done AFTER material bind and BEFORE setState/submit
-    // Only for forward rendering (View 1) - deferred rendering doesn't need IBL here
-    if (viewId == renderer->getMainViewId() && renderer->isIBLReady()) {
+    // Only for forward rendering path using material shader
+    if (!overrideShader && viewId == renderer->getMainViewId() && renderer->isIBLReady()) {
         renderer->bindIBLTextures(m_material->getShader());
     }
 
@@ -68,7 +74,7 @@ void AnitoMeshRenderer::renderToView(bgfx::ViewId viewId) {
     bgfx::setState(state);
 
     // Submit draw call to the specified view
-    bgfx::submit(viewId, m_material->getShader()->getProgram());
+    bgfx::submit(viewId, shaderToUse->getProgram());
 }
 
 } // namespace Anito

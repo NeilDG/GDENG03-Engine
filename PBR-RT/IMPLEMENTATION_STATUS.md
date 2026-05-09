@@ -1,16 +1,17 @@
 # Anito Engine - Implementation Status Report
 
-**Last Updated:** May 8, 2026  
+**Last Updated:** May 2026 (Forward Rendering Pipeline Removal)
 **Last Cleanup:** May 8, 2026  
 **Agent:** Anito Renderer (Primary) + Anito Architect + GitHub Copilot  
-**Current Phase:** Phase 3 Deferred Rendering Complete, Automated Benchmarking System Integrated, Shutdown Stability Verified
+**Current Phase:** Phase 3 Deferred Rendering Complete — Deferred-Only Pipeline Active, Forward Rendering Removed
 
 ---
 
 ## Executive Summary
 
-Anito Engine has successfully transitioned from basic rendering foundation to a production-ready **Physically-Based Rendering (PBR)** engine with **Image-Based Lighting (IBL)**, **comprehensive profiling tools**, **configurable runtime control**, and **professional camera navigation**. The engine now features:
+Anito Engine has successfully transitioned from basic rendering foundation to a production-ready **Physically-Based Rendering (PBR)** engine with **Image-Based Lighting (IBL)**, **comprehensive profiling tools**, **configurable runtime control**, and **professional camera navigation**. The engine now operates exclusively on the **Deferred Rendering Pipeline**. The forward rendering path and its runtime toggle ('D' key) have been fully removed. The engine now features:
 
+- ✅ **Deferred Rendering Pipeline (Exclusive)** - G-Buffer geometry + lighting passes, forward rendering path removed
 - ✅ **Full IBL Pipeline** - HDR environment loading, cubemap conversion, irradiance/prefilter generation
 - ✅ **PBR Material System** - Metallic/roughness workflow with proper parameter ranges
 - ✅ **Multi-Scene Test Framework** - 5 interactive test scenes demonstrating various material properties
@@ -178,7 +179,6 @@ Anito Engine has successfully transitioned from basic rendering foundation to a 
     - View 2: Geometry pass (G-Buffer writing)
     - View 1: Lighting pass (final output, not yet implemented at the time of Step 7)
   - ✅ Implemented `beginGeometryPass()` and `endGeometryPass()`
-  - ✅ Added toggle system ('D' key) to switch between forward and deferred rendering
   - ✅ Refactored `AnitoEngine::render()` into:
     - `renderForward()` - Original forward rendering path
     - `renderDeferred()` - New deferred rendering path
@@ -187,7 +187,6 @@ Anito Engine has successfully transitioned from basic rendering foundation to a 
   - ✅ Created G-Buffer shader uniforms (`u_baseColor`, `u_pbrParams`)
   - **Verified:** 15-second runtime test completed successfully
   - **Verified:** Deferred renderer initializes without errors
-  - **Verified:** Toggle system works ('D' key switches rendering mode)
 
 **Implementation Quality:**
 - Clean separation between forward and deferred paths

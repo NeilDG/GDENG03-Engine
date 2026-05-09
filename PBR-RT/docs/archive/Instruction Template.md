@@ -1,5 +1,4 @@
 ##Reminders
-- Assume unlimited token size.
 - Proactively ask me questions wherever necessary. Assume that we are pair programmers, where I am the leader of this project. I need a final say on important architectural decisions in this project.
 - If you need additional data or input (files, answers, images, etc.), please ask me before continuing a task.
 - Always read the "agents.md" again, before reading my instructions. After each task, provide a self-reflection checklist, assuring me you've followed the standards and details set in the "agents.md"
@@ -13,4 +12,4 @@
 - Always provide me an action plan first, before proceeding with the task at hand.
 
 ##Instructions
-Please implement a thorough code review and clean-up unused files. Assume Anito Architect persona.
+I only see the skybox. There are "spheres" that must appear but they are gone after deferred rendering is implemented. Please check the deferred rendering pipeline, as well as the mesh rendering. Use the "x86 Debug" when testing.

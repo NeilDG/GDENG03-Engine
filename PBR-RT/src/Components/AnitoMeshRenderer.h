@@ -10,6 +10,7 @@ namespace Anito {
 class AnitoVertexBuffer;
 class AnitoIndexBuffer;
 class AnitoMaterial;
+class AnitoShader;
 
 /**
  * AnitoMeshRenderer - Renders a mesh with a material
@@ -22,6 +23,7 @@ public:
 
     void render() override;
     void renderToView(bgfx::ViewId viewId);  // Render to specific view (for deferred)
+    void renderToView(bgfx::ViewId viewId, const std::shared_ptr<AnitoShader>& overrideShader);  // Render with explicit shader
 
     void setVertexBuffer(std::shared_ptr<AnitoVertexBuffer> vb) { m_vertexBuffer = vb; }
     void setIndexBuffer(std::shared_ptr<AnitoIndexBuffer> ib) { m_indexBuffer = ib; }

@@ -19,10 +19,9 @@ uniform vec4 u_lightDir;      // xyz: direction, w: intensity
 uniform vec4 u_cameraPos;     // xyz: camera world position, w: unused
 uniform vec4 u_enableIBL;     // x: 0.0 = disabled, 1.0 = enabled
 
-// IBL cubemap samplers
-samplerCube u_envMap;         // Raw environment (for skybox/fallback)
-samplerCube u_irradianceMap;  // Precomputed irradiance for diffuse IBL
-samplerCube u_prefilterMap;   // Prefiltered environment for specular IBL (with mips)
+// IBL cubemap samplers — use bgfx SAMPLERCUBE macro so binding slots match C++ side
+SAMPLERCUBE(s_irradianceMap, 4);  // Precomputed irradiance for diffuse IBL
+SAMPLERCUBE(s_prefilterMap,  5);  // Prefiltered environment for specular IBL (with mips)
 
 #define PI 3.14159265359
 
@@ -51,6 +50,18 @@ void main()
     vec4 gbuffer1 = texture2D(s_gbuffer1, v_texcoord0);  // Normal + Roughness
     vec4 gbuffer2 = texture2D(s_gbuffer2, v_texcoord0);  // Position + AO
     vec4 gbuffer3 = texture2D(s_gbuffer3, v_texcoord0);  // Emission
+
+    // Detect empty pixels (no geometry wrote to G-Buffer).
+    // Output transparent to preserve previously rendered skybox.
+    float geometrySignal = dot(abs(gbuffer0.rgb), vec3_splat(1.0))
+        + dot(abs(gbuffer2.rgb), vec3_splat(1.0))
+        + dot(abs(gbuffer3.rgb), vec3_splat(1.0))
+        + gbuffer0.a + gbuffer1.a + gbuffer2.a;
+    if (geometrySignal < 0.0001)
+    {
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+        return;
+    }
 
     // Extract material properties from G-Buffer
     vec3 albedo = gbuffer0.rgb;
@@ -113,7 +124,7 @@ void main()
         // Use prefiltered maps for physically accurate IBL
 
         // Diffuse IBL: Sample irradiance map and convert to linear
-        vec3 irradiance = textureCube(u_irradianceMap, N).rgb;
+        vec3 irradiance = textureCube(s_irradianceMap, N).rgb;
         irradiance = pow(abs(irradiance), vec3_splat(2.2)); // toLinear
         vec3 diffuseIBL = irradiance * albedo;
 
@@ -121,7 +132,7 @@ void main()
         vec3 R = reflect(-V, N);
         const float MAX_REFLECTION_LOD = 4.0; // 5 mip levels (0-4)
         float lod = roughness * MAX_REFLECTION_LOD;
-        vec3 prefilteredColor = textureCubeLod(u_prefilterMap, R, lod).rgb;
+        vec3 prefilteredColor = textureCubeLod(s_prefilterMap, R, lod).rgb;
         prefilteredColor = pow(abs(prefilteredColor), vec3_splat(2.2)); // toLinear
 
         // Fresnel for IBL
