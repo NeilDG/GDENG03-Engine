@@ -1,0 +1,68 @@
+# Build directories
+/build/
+/build-*/
+/out/
+/bin/
+/lib/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+Testing/
+
+# Ninja files
+.ninja_deps
+.ninja_log
+build.ninja
+
+# Visual Studio
+.vs/
+*.VC.db
+*.VC.opendb
+*.sln.docstates
+*.suo
+*.user
+*.userosscache
+*.opendb
+ipch/
+
+# MSVC/Windows artifacts
+*.pdb
+*.ilk
+*.idb
+*.obj
+*.iobj
+*.ipdb
+*.exp
+*.lib
+*.dll
+*.exe
+*.dll.recipe
+*.exe.recipe
+*.manifest
+*.appx
+*.tlog/
+*.lastbuildstate
+*.cache
+*.log
+
+# Test and coverage artifacts
+*.gcda
+*.gcno
+*.profraw
+*.profdata
+coverage/
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
