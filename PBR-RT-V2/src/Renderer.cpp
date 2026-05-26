@@ -42,6 +42,16 @@ bool Renderer::IsSurfelGIEnabled() const
 	return m_SurfelGIEnabled;
 }
 
+void Renderer::SetGatheredSurfelIrradiances(const std::vector<std::array<float, 3>>& irradiances)
+{
+	m_GatheredSurfelIrradiances = irradiances;
+}
+
+const std::vector<std::array<float, 3>>& Renderer::GetGatheredSurfelIrradiances() const
+{
+	return m_GatheredSurfelIrradiances;
+}
+
 void Renderer::SetGatheredSurfelIrradiance(const std::array<float, 3>& irradiance)
 {
 	m_GatheredSurfelIrradiance = irradiance;
@@ -70,5 +80,15 @@ void Renderer::SetSurfelGIAmplification(float amplification)
 float Renderer::GetSurfelGIAmplification() const
 {
 	return m_SurfelGIAmplification;
+}
+
+void Renderer::SetActiveProbeCount(std::size_t activeCount)
+{
+	m_ActiveProbeCount = activeCount;
+}
+
+std::size_t Renderer::GetActiveProbeCount() const
+{
+	return m_ActiveProbeCount;
 }
 } // namespace PbrRtV2

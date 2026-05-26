@@ -8,6 +8,7 @@
 #include "SurfelRendering/SurfelDebugView.h"
 #include "SurfelRendering/SurfelGatherPass.h"
 #include "SurfelRendering/SurfelGIRenderPass.h"
+#include "SurfelRendering/SurfelProbeGrid.h"
 #include "SurfelRendering/SurfelSceneBuilder.h"
 #include "SurfelRendering/SurfelSpatialGrid.h"
 
@@ -32,6 +33,7 @@ private:
 	InputSystem m_InputSystem;
 	SurfelSceneBuilder m_SurfelSceneBuilder;
 	SurfelSpatialGrid m_SurfelSpatialGrid;
+	SurfelProbeGrid m_SurfelProbeGrid;
 	SurfelGatherPass m_SurfelGatherPass;
 	SurfelGIRenderPass m_SurfelGIRenderPass;
 	SurfelDebugView m_SurfelDebugView;

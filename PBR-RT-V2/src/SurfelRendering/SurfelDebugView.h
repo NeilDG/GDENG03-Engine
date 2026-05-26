@@ -13,7 +13,8 @@ enum class SurfelDebugMode
 	Disabled,
 	Points,
 	Normals,
-	Density
+	Density,
+	Probes  // Visualize probe positions and irradiance intensity
 };
 
 class SurfelDebugView
@@ -26,6 +27,11 @@ public:
 	SurfelDebugMode GetMode() const;
 
 	void UpdateOverlay(const std::vector<Surfel>& surfels, float densityCellSize);
+
+	// Update probe visualization overlay
+	void UpdateProbeOverlay(const std::vector<std::array<float, 3>>& probePositions,
+							const std::vector<std::array<float, 3>>& probeIrradiances);
+
 	const std::vector<std::string>& GetOverlayLines() const;
 	std::size_t GetVisibleSurfelCount() const;
 

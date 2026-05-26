@@ -131,15 +131,43 @@ The surfel subsystem should be organized under `src/SurfelRendering/` so all sur
      - `AnitoApplication` now computes a camera-relative GI probe each frame and gathers nearby surfel irradiance
      - Step 8 integration now routes GI injection through `SurfelGIRenderPass::AppendGatheredIrradianceLight()` instead of inline light-writing logic
      - Gathered surfel irradiance is appended as an additional runtime GI point light in the existing PBR light array
+     - Added GI amplification system (default 250x) to compensate for irradiance-to-intensity conversion
+     - Added real-time UI sliders for GI Strength, GI Amplification, and Gather Radius tuning
+   - **Known Issues & Current Limitations:**
+     - **CRITICAL: Single-Probe Architecture** - Current implementation uses only one camera-relative GI probe positioned 0.4 units ahead of camera
+     - This results in ~95% of the scene receiving zero surfel GI contribution
+     - Direct lights (directional 0.1 + 8 point lights at 0.01) dominate the lighting by 10-100x
+     - Probe positioning is camera-relative instead of scene-aware, creating unstable "flashlight GI"
+     - Range^4 attenuation (gatherRadius * 2)^4 causes extremely rapid falloff beyond 2-3 units
+     - Sponza spans 10-20 units but effective GI coverage is only ~3 units radius
 
-9. Tune quality and performance for the Sponza case
-   - Status: **Not Started** (depends on Steps 3–8 implementation first).
+9. Address single-probe limitation and establish GI dominance
+   - Status: **In Progress** (architectural issue identified, quick fix and long-term solution planned).
+   - Expected output: Surfel GI becomes the primary lighting source with visible contribution across the entire Sponza scene.
+   - Classes to add: none (for quick fix), `SurfelProbeGrid` (for multi-probe solution).
+   - Classes to revise: `AnitoApplication`, `Renderer`.
+   - Classes to delete: none.
+   - **Action Plan:**
+     - **Immediate (5 min):** Add probe count display to "Surfel GI Control" UI window
+     - **Short-term (Approach B - today):** Reduce direct lighting to make surfel GI dominant:
+       * Reduce directional light intensity from 0.1 to 0.01
+       * Reduce point light intensity from 0.01 to 0.001
+       * Increase GI amplification from 250 to 1000-2000
+       * Disable environment map (IBLScale from 0.1 to 0.0)
+     - **Long-term (Approach A - this week):** Implement multi-probe grid system:
+       * Generate 4×4×3 static probe grid covering Sponza (~48 probes)
+       * Gather irradiance for all probes each frame
+       * Inject multiple GI lights instead of single probe
+       * Add probe visualization and density controls to UI
+
+10. Tune quality and performance for the Sponza case
+   - Status: **Not Started** (depends on Step 9 multi-probe implementation).
    - Expected output: a stable prototype with acceptable performance, clear indirect lighting, and surfel density tuned to avoid obvious holes or excessive cost.
    - Classes to add: none.
    - Classes to revise: `Renderer`, `InputSystem`, `SurfelSpatialGrid`, `SurfelSceneBuilder`.
    - Classes to delete: none.
 
-10. Register the new files in CMake and validate the build
+11. Register the new files in CMake and validate the build
    - Status: **Partially Implemented** (surfel files created through Step 8, including `SurfelGIRenderPass`, are registered and buildable; future files from later steps still need to be added when created).
    - Expected output: all new headers and sources are wired into `CMakeLists.txt`, and the project builds cleanly in CMake + Ninja + MSVC.
    - Classes to add: none.
@@ -152,3 +180,21 @@ The surfel subsystem should be organized under `src/SurfelRendering/` so all sur
 - Keep the first surfel version static and visible before adding any advanced adaptive placement.
 - Prefer simple, debuggable class boundaries over a monolithic renderer change.
 - If a future pass replaces direct point-light evaluation or the current environment-map path, record that explicitly as a follow-up step rather than folding it into the first prototype.
+
+## Root Cause Analysis: Single-Probe GI Limitation (Step 8 → Step 9)
+
+### Problem Summary
+The current surfel GI implementation treats GI as a single additive point light following the camera, resulting in minimal scene-wide contribution. This is fundamentally incompatible with global illumination principles.
+
+### Technical Issues
+1. **Single Probe Coverage**: One probe at `cameraPos + forward * 0.4` covers only ~3-5% of Sponza's volume
+2. **Direct Light Dominance**: Directional (0.1) + 8 point lights (0.08 total) overwhelm single GI probe
+3. **Camera-Relative Instability**: Probe moves with camera, creating "flashlight GI" instead of ambient occlusion
+4. **Aggressive Attenuation**: Range^4 falloff with 3.0 unit radius causes near-zero contribution beyond 2-3 units
+5. **Scene Size Mismatch**: Sponza spans 10-20 units, but effective GI radius is only 3 units
+
+### Solution Path
+- **Immediate**: Validate surfel system works by reducing direct lights and increasing GI amplification (Approach B)
+- **Short-term**: Implement multi-probe grid for full scene coverage (Approach A)
+- **Long-term**: Consider screen-space GI for per-pixel accuracy (Approach C)
+
