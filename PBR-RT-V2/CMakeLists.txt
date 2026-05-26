@@ -47,8 +47,23 @@ set(PBR_RT_V2_SOURCES
     src/AnitoApplication.cpp
     src/AnitoApplication.h
     src/AnitoPlatformWindow.h
+    src/Renderer.cpp
     src/Renderer.h
+    src/InputSystem.cpp
     src/InputSystem.h
+    src/SurfelRendering/Surfel.h
+    src/SurfelRendering/SurfelSceneBuilder.cpp
+    src/SurfelRendering/SurfelSceneBuilder.h
+    src/SurfelRendering/SurfelSpatialGrid.cpp
+    src/SurfelRendering/SurfelSpatialGrid.h
+    src/SurfelRendering/SurfelGatherPass.cpp
+    src/SurfelRendering/SurfelGatherPass.h
+    src/SurfelRendering/SurfelGIRenderPass.cpp
+    src/SurfelRendering/SurfelGIRenderPass.h
+    src/SurfelRendering/SurfelDebugView.cpp
+    src/SurfelRendering/SurfelDebugView.h
+    src/SurfelRendering/NightSceneLightingPreset.cpp
+    src/SurfelRendering/NightSceneLightingPreset.h
 )
 
 add_sample_app(PBR-RT-V2
@@ -59,6 +74,13 @@ add_sample_app(PBR-RT-V2
         src/AnitoPlatformWindow.h
         src/Renderer.h
         src/InputSystem.h
+        src/SurfelRendering/Surfel.h
+        src/SurfelRendering/SurfelSceneBuilder.h
+        src/SurfelRendering/SurfelSpatialGrid.h
+        src/SurfelRendering/SurfelGatherPass.h
+        src/SurfelRendering/SurfelGIRenderPass.h
+        src/SurfelRendering/SurfelDebugView.h
+        src/SurfelRendering/NightSceneLightingPreset.h
     ASSETS ${PBR_RT_V2_ASSETS}
 )
 

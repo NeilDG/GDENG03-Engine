@@ -1,6 +1,14 @@
 #include "AnitoApplication.h"
 
 #include "AnitoPlatformWindow.h"
+#include "InputSystem.h"
+#include "Renderer.h"
+#include "SurfelRendering/NightSceneLightingPreset.h"
+#include "SurfelRendering/SurfelDebugView.h"
+#include "SurfelRendering/SurfelGatherPass.h"
+#include "SurfelRendering/SurfelGIRenderPass.h"
+#include "SurfelRendering/SurfelSceneBuilder.h"
+#include "SurfelRendering/SurfelSpatialGrid.h"
 
 #include <algorithm>
 #include <array>
@@ -17,6 +25,8 @@
 #include "GLTF_PBR_Renderer.hpp"
 #include "GraphicsUtilities.h"
 #include "BasicMath.hpp"
+#include "imgui.h"
+#include "DebugUtilities.hpp"
 
 namespace Diligent
 {
@@ -32,6 +42,22 @@ namespace
 {
 using namespace Diligent;
 
+const char* GetSurfelDebugModeLabel(PbrRtV2::SurfelDebugMode mode)
+{
+	switch (mode)
+	{
+	case PbrRtV2::SurfelDebugMode::Points:
+		return "Points";
+	case PbrRtV2::SurfelDebugMode::Normals:
+		return "Normals";
+	case PbrRtV2::SurfelDebugMode::Density:
+		return "Density";
+	case PbrRtV2::SurfelDebugMode::Disabled:
+	default:
+		return "Disabled";
+	}
+}
+
 class SponzaSample final : public SampleBase
 {
 public:
@@ -41,7 +67,7 @@ public:
 		Settings.SetWindowWidth(PbrRtV2::AnitoPlatformWindow::DefaultWidth);
 		Settings.SetWindowHeight(PbrRtV2::AnitoPlatformWindow::DefaultHeight);
 		Settings.SetVSync(false);
-		Settings.SetShowUI(false);
+		Settings.SetShowUI(true);
 		Settings.SetShowAdaptersDialog(false);
 		return Settings;
 	}
@@ -71,6 +97,7 @@ public:
 		m_ModelResourceBindings      = m_GLTFRenderer->CreateResourceBindings(*m_Model, m_FrameAttribsCB);
 		m_RenderParams.SceneIndex    = static_cast<Uint32>(m_Model->DefaultSceneId);
 		UpdateScene();
+		InitializeSurfelPrototypeArchitecture();
 
 		m_Camera.SetSpeedUpScales(1.5f, 2.5f);
 		m_Camera.SetMoveSpeed(0.7f);
@@ -105,7 +132,56 @@ public:
 		FrameAttribs->PrevCamera = m_PrevCameraAttribs;
 
 		HLSL::PBRLightAttribs* Lights = reinterpret_cast<HLSL::PBRLightAttribs*>(FrameAttribs + 1);
-		GLTF_PBR_Renderer::WritePBRLightShaderAttribs({&m_DefaultLight, nullptr, &m_LightDirection, m_SceneScale}, Lights);
+
+		// Set up night-time lighting: reduce directional light and add point lights
+		GLTF::Light NightDirectionalLight = m_DefaultLight;
+		NightDirectionalLight.Intensity = 0.1f;  // Very dim directional light for night-time
+
+		GLTF_PBR_Renderer::WritePBRLightShaderAttribs(
+			{&NightDirectionalLight, nullptr, &m_LightDirection, m_SceneScale}, 
+			Lights);
+
+		// Apply point lights from night-time preset
+		const auto& PointLights = m_NightSceneLightingPreset.GetPointLights();
+		int totalLightCount = 1; // Start with directional light
+
+		for (size_t i = 0; i < PointLights.size(); ++i)
+		{
+			const auto& PointLight = PointLights[i];
+			const int LightIdx = totalLightCount;
+
+			// Populate light structure manually
+			Lights[LightIdx].Type = 2; // Point light (1=directional, 2=point, 3=spot)
+			Lights[LightIdx].PosX = PointLight.Position[0];
+			Lights[LightIdx].PosY = PointLight.Position[1];
+			Lights[LightIdx].PosZ = PointLight.Position[2];
+			Lights[LightIdx].DirectionX = 0.0f;
+			Lights[LightIdx].DirectionY = 0.0f;
+			Lights[LightIdx].DirectionZ = 0.0f;
+			Lights[LightIdx].ShadowMapIndex = -1; // No shadows for now
+			Lights[LightIdx].IntensityR = PointLight.Color[0] * PointLight.Intensity;
+			Lights[LightIdx].IntensityG = PointLight.Color[1] * PointLight.Intensity;
+			Lights[LightIdx].IntensityB = PointLight.Color[2] * PointLight.Intensity;
+
+			// Range^4 for point light attenuation
+			const float Range = PointLight.Radius;
+			Lights[LightIdx].Range4 = Range * Range * Range * Range;
+
+			Lights[LightIdx].SpotAngleScale = 0.0f;
+			Lights[LightIdx].SpotAngleOffset = 0.0f;
+
+			totalLightCount++;
+		}
+
+		totalLightCount = m_SurfelGIRenderPass.AppendGatheredIrradianceLight(
+			m_Renderer.IsSurfelGIEnabled(),
+			m_Renderer.GetGatheredSurfelIrradiance(),
+			m_SurfelGIProbePosition,
+			m_SurfelGIGatherRadius,
+			m_Renderer.GetSurfelGIStrength(),
+			m_Renderer.GetSurfelGIAmplification(),
+			totalLightCount,
+			Lights);
 
 		HLSL::PBRRendererShaderParameters& RendererAttribs = FrameAttribs->Renderer;
 		m_GLTFRenderer->SetInternalShaderParameters(RendererAttribs);
@@ -114,12 +190,12 @@ public:
 		RendererAttribs.AverageLogLum     = 0.3f;
 		RendererAttribs.MiddleGray        = 0.18f;
 		RendererAttribs.WhitePoint        = 3.0f;
-		RendererAttribs.IBLScale          = float4{1.0f};
+		RendererAttribs.IBLScale          = float4{0.1f};  // Reduce environment map contribution for night-time
 		RendererAttribs.HighlightColor    = float4{0.0f, 0.0f, 0.0f, 0.0f};
 		RendererAttribs.UnshadedColor     = float4{0.8f, 0.7f, 0.5f, 1.0f};
 		RendererAttribs.PointSize         = 1.0f;
 		RendererAttribs.MipBias           = 0.0f;
-		RendererAttribs.LightCount        = 1;
+		RendererAttribs.LightCount        = static_cast<Uint32>(totalLightCount);
 		RendererAttribs.DebugView         = static_cast<int>(m_RenderParams.DebugView);
 
 		m_GLTFRenderer->Begin(m_pImmediateContext);
@@ -134,6 +210,9 @@ public:
 	virtual void Update(double CurrTime, double ElapsedTime, bool DoUpdateUI) override final
 	{
 		SampleBase::Update(CurrTime, ElapsedTime, DoUpdateUI);
+		m_InputSystem.ProcessSurfelDebugInput(
+			m_InputController.IsKeyDown(InputKeys::Reset),
+			m_InputController.IsKeyDown(InputKeys::ShiftDown));
 		m_Camera.Update(m_InputController, static_cast<float>(ElapsedTime));
 
 		const auto& SCDesc = m_pSwapChain->GetDesc();
@@ -163,9 +242,187 @@ public:
 		m_CurrCameraAttribs.mProjInv     = CameraProj.Inverse();
 		m_CurrCameraAttribs.mViewProjInv = CameraViewProj.Inverse();
 		m_CurrCameraAttribs.f4Position   = float4(CameraWorldPos, 1.0f);
+
+		UpdateSurfelPrototypeArchitecture();
+	}
+
+protected:
+	virtual void UpdateUI() override final
+	{
+		// Surfel Debug Window
+		if (m_SurfelDebugView.IsEnabled() && m_SurfelDebugView.GetMode() != PbrRtV2::SurfelDebugMode::Disabled)
+		{
+			ImGui::SetNextWindowBgAlpha(0.55f);
+			ImGuiWindowFlags windowFlags = ImGuiWindowFlags_AlwaysAutoResize |
+				ImGuiWindowFlags_NoSavedSettings |
+				ImGuiWindowFlags_NoFocusOnAppearing;
+			if (ImGui::Begin("Surfel Debug", nullptr, windowFlags))
+			{
+				const float3 cameraPos = m_Camera.GetPos();
+				const float3 cameraLookAt = cameraPos + m_Camera.GetWorldAhead();
+
+				ImGui::Text("Mode: %s", GetSurfelDebugModeLabel(m_SurfelDebugView.GetMode()));
+				ImGui::Text("Visible Surfels: %zu / %zu", m_Renderer.GetVisibleSurfelCount(), m_Renderer.GetSurfelCount());
+				ImGui::Text("Camera Position: (%.3f, %.3f, %.3f)", cameraPos.x, cameraPos.y, cameraPos.z);
+				ImGui::Text("Camera LookAt:   (%.3f, %.3f, %.3f)", cameraLookAt.x, cameraLookAt.y, cameraLookAt.z);
+				ImGui::Separator();
+				for (const auto& line : m_SurfelDebugView.GetOverlayLines())
+				{
+					ImGui::TextUnformatted(line.c_str());
+				}
+				ImGui::Separator();
+				ImGui::TextUnformatted("Controls: Home = Toggle | Shift+Home = Cycle Mode");
+			}
+			ImGui::End();
+		}
+
+		// Surfel GI Validation Window - Always show when GI is enabled
+		if (m_Renderer.IsSurfelGIEnabled())
+		{
+			ImGui::SetNextWindowBgAlpha(0.75f);
+			ImGuiWindowFlags giWindowFlags = ImGuiWindowFlags_AlwaysAutoResize |
+				ImGuiWindowFlags_NoSavedSettings |
+				ImGuiWindowFlags_NoFocusOnAppearing;
+			if (ImGui::Begin("Surfel GI Status", nullptr, giWindowFlags))
+			{
+				const auto& irradiance = m_Renderer.GetGatheredSurfelIrradiance();
+				const float giEnergy = irradiance[0] + irradiance[1] + irradiance[2];
+				const float strength = m_Renderer.GetSurfelGIStrength();
+				const float amplification = m_Renderer.GetSurfelGIAmplification();
+				const float amplifiedEnergy = giEnergy * strength * amplification;
+
+				ImGui::Text("GI System: ACTIVE");
+				ImGui::Separator();
+
+				ImGui::Text("Gathered Irradiance:");
+				ImGui::Text("  R: %.6f", irradiance[0]);
+				ImGui::Text("  G: %.6f", irradiance[1]);
+				ImGui::Text("  B: %.6f", irradiance[2]);
+				ImGui::Text("  Total Energy: %.6f", giEnergy);
+
+				ImGui::Separator();
+				ImGui::Text("Configuration:");
+				ImGui::Text("  GI Strength: %.2f", strength);
+				ImGui::Text("  GI Amplification: %.1f", amplification);
+				ImGui::Text("  Amplified Energy: %.6f", amplifiedEnergy);
+				ImGui::Text("  Gather Radius: %.2f", m_SurfelGIGatherRadius);
+				ImGui::Text("  Probe Position: (%.2f, %.2f, %.2f)", 
+					m_SurfelGIProbePosition[0], 
+					m_SurfelGIProbePosition[1], 
+					m_SurfelGIProbePosition[2]);
+
+				ImGui::Separator();
+				ImGui::Text("Light Count: %d point lights", static_cast<int>(m_NightSceneLightingPreset.GetPointLights().size()));
+				ImGui::Text("Total Surfels: %zu", m_Renderer.GetSurfelCount());
+
+				// Status indicator
+				ImGui::Separator();
+				if (amplifiedEnergy > 1e-5f)
+				{
+					ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "STATUS: GI Light Active");
+				}
+				else
+				{
+					ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "STATUS: No GI Contribution (Low Energy)");
+				}
+			}
+			ImGui::End();
+		}
 	}
 
 private:
+	void InitializeSurfelPrototypeArchitecture()
+	{
+		m_SurfelSceneBuilder.SetSettings(PbrRtV2::SurfelPrototypeSettings{});
+		m_SurfelSceneBuilder.SetModel(m_Model.get());
+		m_Surfels = m_SurfelSceneBuilder.BuildStaticSponzaSurfels();
+		m_Renderer.SetSurfelCount(m_Surfels.size());
+		m_Renderer.SetSurfelDebugMode(m_SurfelDebugView.GetMode());
+
+		m_NightSceneLightingPreset.GenerateNightTimeLightRig(
+			{0.0f, -0.1f, -0.1f},  // Camera position
+			8,                     // lightCount
+			0.01f,                 // lightIntensity - original low value for Diligent's sensitivity
+			1.5f                   // lightRadius - kept large for surfel coverage
+		);
+
+		m_SurfelGatherPass.AccumulateDirectLighting(m_Surfels, m_NightSceneLightingPreset.GetPointLights());
+		m_SurfelSpatialGrid.Build(m_Surfels, 0.25f);
+		m_Renderer.SetSurfelGIEnabled(!m_Surfels.empty() && !m_NightSceneLightingPreset.GetPointLights().empty());
+		m_Renderer.SetGatheredSurfelIrradiance({0.0f, 0.0f, 0.0f});
+
+		// Validation: Log first few surfels to verify direct lighting accumulation
+		if (!m_Surfels.empty())
+		{
+			const std::size_t logCount = std::min<std::size_t>(5, m_Surfels.size());
+			float totalR = 0.0f, totalG = 0.0f, totalB = 0.0f;
+			for (std::size_t i = 0; i < logCount; ++i)
+			{
+				const auto& s = m_Surfels[i];
+				totalR += s.Irradiance[0];
+				totalG += s.Irradiance[1];
+				totalB += s.Irradiance[2];
+			}
+			const float avgR = totalR / static_cast<float>(logCount);
+			const float avgG = totalG / static_cast<float>(logCount);
+			const float avgB = totalB / static_cast<float>(logCount);
+			const float avgEnergy = avgR + avgG + avgB;
+
+			// Log validation results to Visual Studio output
+			const float amplification = m_Renderer.GetSurfelGIAmplification();
+			const float strength = m_Renderer.GetSurfelGIStrength();
+			const float amplifiedEnergy = avgEnergy * strength * amplification;
+
+			LOG_INFO_MESSAGE("Surfel GI Validation:");
+			LOG_INFO_MESSAGE("  Total Surfels: ", m_Surfels.size());
+			LOG_INFO_MESSAGE("  Point Lights: ", m_NightSceneLightingPreset.GetPointLights().size());
+			LOG_INFO_MESSAGE("  Point Light Intensity: 0.01 (low for Diligent sensitivity)");
+			LOG_INFO_MESSAGE("  First ", logCount, " surfels avg irradiance: R=", avgR, " G=", avgG, " B=", avgB);
+			LOG_INFO_MESSAGE("  Avg Irradiance Energy: ", avgEnergy);
+			LOG_INFO_MESSAGE("  GI Amplification: ", amplification);
+			LOG_INFO_MESSAGE("  GI Strength: ", strength);
+			LOG_INFO_MESSAGE("  Expected Amplified Energy: ", amplifiedEnergy, " (should be > 0.01 for visibility)");
+
+			if (avgEnergy < 1e-6f)
+			{
+				LOG_WARNING_MESSAGE("WARNING: Surfel irradiance is extremely low. Check light placement and radius.");
+			}
+			else if (amplifiedEnergy < 0.001f)
+			{
+				LOG_WARNING_MESSAGE("WARNING: Amplified GI energy is low. Consider increasing amplification factor.");
+			}
+			else
+			{
+				LOG_INFO_MESSAGE("SUCCESS: Surfel GI should be visible with current settings.");
+			}
+		}
+	}
+
+	void UpdateSurfelPrototypeArchitecture()
+	{
+		m_SurfelDebugView.SetEnabled(m_InputSystem.IsSurfelDebugEnabled());
+		m_SurfelDebugView.SetMode(m_InputSystem.GetSurfelDebugMode());
+		m_SurfelDebugView.UpdateOverlay(m_Surfels, m_SurfelSpatialGrid.GetCellSize());
+
+		m_Renderer.SetSurfelDebugMode(m_SurfelDebugView.GetMode());
+		m_Renderer.SetVisibleSurfelCount(m_SurfelDebugView.GetVisibleSurfelCount());
+
+		const float3 cameraPos = m_Camera.GetPos();
+		const float3 cameraForward = normalize(m_Camera.GetWorldAhead());
+		const float3 probePos = cameraPos + cameraForward * 0.4f;
+		m_SurfelGIProbePosition = {probePos.x, probePos.y, probePos.z};
+		m_SurfelGIProbeNormal = {cameraForward.x, cameraForward.y, cameraForward.z};
+
+		const std::vector<std::size_t> nearbySurfels = m_SurfelSpatialGrid.QueryNearby(m_SurfelGIProbePosition, m_SurfelGIGatherRadius);
+		const std::array<float, 3> gatheredIrradiance = m_SurfelGatherPass.GatherIrradiance(
+			m_SurfelGIProbePosition,
+			m_SurfelGIProbeNormal,
+			m_Surfels,
+			nearbySurfels,
+			m_SurfelGIGatherRadius);
+		m_Renderer.SetGatheredSurfelIrradiance(gatheredIrradiance);
+	}
+
 	void CreateRenderer()
 	{
 		GLTF_PBR_Renderer::CreateInfo RendererCI;
@@ -234,12 +491,8 @@ private:
 		m_Model->ComputeTransforms(m_RenderParams.SceneIndex, m_Transforms[0], m_ModelTransform);
 		m_Transforms[1] = m_Transforms[0];
 
-		const float3 SceneDim  = ModelDim * m_SceneScale;
-		const float3 HalfDim   = SceneDim * 0.5f;
-		const float  FloorY    = -HalfDim.y;
-		const float  EyeY      = FloorY + SceneDim.y * 0.18f;
-		m_InitialCameraPos     = float3{-HalfDim.x * 0.10f, EyeY, -HalfDim.z * 0.55f};
-		m_InitialCameraLookAt  = float3{HalfDim.x * 0.55f, EyeY - SceneDim.y * 0.02f, 0.0f};
+		m_InitialCameraPos = float3{ 0.165f, -0.057f, -0.004f };
+		m_InitialCameraLookAt = float3{ 0.959f, -0.109f, 0.019f };
 	}
 
 private:
@@ -251,8 +504,8 @@ private:
 	RefCntAutoPtr<ITextureView>        m_EnvironmentMapSRV;
 	std::array<GLTF::ModelTransforms, 2> m_Transforms;
 	Diligent::FirstPersonCamera        m_Camera;
-	float3                             m_InitialCameraPos = float3{0.0f, 0.08f, -0.35f};
-	float3                             m_InitialCameraLookAt = float3{0.16f, 0.06f, 0.02f};
+	float3                             m_InitialCameraPos = {};
+	float3                             m_InitialCameraLookAt = {};
 	HLSL::CameraAttribs                m_CurrCameraAttribs = {};
 	HLSL::CameraAttribs                m_PrevCameraAttribs = {};
 	GLTF::Light                        m_DefaultLight = [](){ GLTF::Light L; L.Type = GLTF::Light::TYPE::DIRECTIONAL; L.Intensity = 3.0f; return L; }();
@@ -262,6 +515,18 @@ private:
 	Uint32                             m_CurrentTransformIndex = 0;
 	Uint32                             m_PreviousTransformIndex = 1;
 	Uint64                             m_FrameNumber = 0;
+	PbrRtV2::Renderer                  m_Renderer;
+	PbrRtV2::InputSystem               m_InputSystem;
+	PbrRtV2::SurfelSceneBuilder        m_SurfelSceneBuilder;
+	PbrRtV2::SurfelSpatialGrid         m_SurfelSpatialGrid;
+	PbrRtV2::SurfelGatherPass          m_SurfelGatherPass;
+	PbrRtV2::SurfelGIRenderPass        m_SurfelGIRenderPass;
+	PbrRtV2::SurfelDebugView           m_SurfelDebugView;
+	PbrRtV2::NightSceneLightingPreset  m_NightSceneLightingPreset;
+	std::vector<PbrRtV2::Surfel>       m_Surfels;
+	std::array<float, 3>               m_SurfelGIProbePosition = {0.0f, 0.0f, 0.0f};
+	std::array<float, 3>               m_SurfelGIProbeNormal = {0.0f, 1.0f, 0.0f};
+	float                              m_SurfelGIGatherRadius = 1.5f;  // Increased for extended spatial GI influence
 };
 
 } // namespace
@@ -269,7 +534,7 @@ private:
 namespace PbrRtV2
 {
 Diligent::SampleBase* AnitoApplication::CreateSample()
-{
+	{
 	return new SponzaSample();
 }
 } // namespace PbrRtV2
