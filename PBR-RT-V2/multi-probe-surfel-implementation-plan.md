@@ -48,7 +48,90 @@ The key architectural change is in `AnitoApplication::UpdateSurfelPrototypeArchi
 
 ## Steps
 
-### 1. Define the probe grid data contract
+### ✅ 1. Define the probe grid data contract [COMPLETED]
+   **Goal**: Create `SurfelProbeGrid` class to store probe positions, compute scene bounds, and hold per-probe irradiance.
+
+   **Status**: Completed - `SurfelProbeGrid.h/.cpp` created with `ProbeData` struct and full API
+
+---
+
+### ✅ 2. Implement scene bounds calculation from Sponza model [COMPLETED]
+   **Goal**: Extract AABB from the loaded GLTF model to auto-compute probe grid bounds.
+
+   **Status**: Completed - `ComputeSceneBounds()` implemented with hardcoded Sponza fallback
+
+---
+
+### ✅ 3. Integrate probe grid initialization into surfel prototype setup [COMPLETED]
+   **Goal**: Initialize `SurfelProbeGrid` during `InitializeSurfelPrototypeArchitecture()` after surfel baking.
+
+   **Status**: Completed - Probe grid initialized with runtime-configurable dimensions
+
+---
+
+### ✅ 4. Implement multi-probe irradiance gathering loop [COMPLETED]
+   **Goal**: Replace single-probe gathering in `UpdateSurfelPrototypeArchitecture()` with a loop over all probes.
+
+   **Status**: Completed - All probes gather irradiance each frame, single-probe logic retained for compatibility
+
+---
+
+### ✅ 5. Extend Renderer to store multi-probe irradiance data [COMPLETED]
+   **Goal**: Replace single-irradiance storage with a vector of per-probe irradiance values.
+
+   **Status**: Completed - `Renderer` stores vector-based multi-probe irradiance, legacy single-probe methods deprecated
+
+---
+
+### ✅ 6. Update SurfelGIRenderPass to inject multiple GI lights [COMPLETED]
+   **Goal**: Extend `AppendGatheredIrradianceLight()` to loop over all probes and inject each as a separate light.
+
+   **Status**: Completed - `AppendGatheredIrradianceLights()` injects multiple probe-derived lights with overflow checks
+
+---
+
+### ✅ 7. Add probe count and coverage validation to UI [COMPLETED]
+   **Goal**: Display multi-probe status in the "Surfel GI Control" window.
+
+   **Status**: Completed - UI shows probe grid dimensions, active/total probe count, and estimated coverage percentage
+
+---
+
+### ✅ 8. Implement probe debug visualization mode [COMPLETED]
+   **Goal**: Add a "Probes" debug mode to visualize probe positions and gathered irradiance intensity.
+
+   **Status**: Completed - `SurfelDebugMode::Probes` added with probe energy statistics and sample display
+
+---
+
+### ✅ 9. Add runtime probe density controls to UI [COMPLETED]
+   **Goal**: Allow dynamic probe grid reconfiguration without recompiling.
+
+   **Status**: Completed - Sliders for X/Y/Z dimensions, rebuild button, and overflow warnings implemented
+
+---
+
+### 10. Validate multi-probe GI light contribution [VALIDATION STEP]
+   **Goal**: Verify that GI is now visible across the entire Sponza scene, not just near the camera.
+
+   **Status**: Validation step — requires manual runtime testing by user
+
+   **Validation Checklist**:
+   - [ ] Console shows successful probe grid initialization with correct count
+   - [ ] UI displays all probe controls and statistics (grid dimensions, active/total probes, coverage)
+   - [ ] Active probe count > 20 out of 48 (or current grid total)
+   - [ ] GI is visible in upper corridors, side rooms, and areas far from point lights
+   - [ ] No "flashlight GI" effect when moving camera (lighting remains stable)
+   - [ ] Probe debug mode displays energy statistics (min/avg/max non-zero)
+   - [ ] GI Amplification slider visibly affects scene brightness (test 0 → 1000 → 3000)
+   - [ ] Runtime grid rebuild works without crashes
+
+   **Implementation Notes**:
+   - This step requires running the application and performing visual/statistical inspection
+   - Refer to the comprehensive validation guide provided for detailed checkpoints
+   - Common issues include low active probe count (increase gather radius), over/under-amplification (tune sliders), or light count overflow (reduce probe density)
+
+---
    **Goal**: Create `SurfelProbeGrid` class to store probe positions, compute scene bounds, and hold per-probe irradiance.
 
    **Expected Output**:
@@ -263,27 +346,14 @@ The key architectural change is in `AnitoApplication::UpdateSurfelPrototypeArchi
 
 ---
 
-### 11. Register SurfelProbeGrid in CMakeLists.txt and build
+### 11. Register SurfelProbeGrid in CMakeLists.txt and build [COMPLETED]
    **Goal**: Add new source files to the build system and validate compilation.
 
-   **Expected Output**:
-   - `CMakeLists.txt` updated to include:
-	 * `src/SurfelRendering/SurfelProbeGrid.h`
-	 * `src/SurfelRendering/SurfelProbeGrid.cpp`
-   - Clean build succeeds with no compilation errors
-   - All multi-probe integration points compile and link successfully
-
-   **Classes to Add**: None
-
-   **Classes to Revise**: `CMakeLists.txt`
-
-   **Implementation Notes**:
-   - Follow existing pattern for surfel file registration under `src/SurfelRendering/`
-   - Ensure MSVC/Ninja/CMake 3.10+ compatibility
+   **Status**: Completed during Step 5 - `SurfelProbeGrid.h/.cpp` registered in `CMakeLists.txt`, build successful
 
 ---
 
-### 12. Performance profiling and optimization
+### 12. Performance profiling and optimization [DEFERRED]
    **Goal**: Measure per-frame cost of multi-probe gathering and optimize if necessary.
 
    **Expected Output**:

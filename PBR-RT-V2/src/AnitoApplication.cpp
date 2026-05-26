@@ -392,8 +392,18 @@ protected:
 				if (ImGui::IsItemHovered())
 					ImGui::SetTooltip("Probes contributing non-negligible irradiance (energy > 1e-5)");
 
+				ImGui::Text("  Gather Radius: %.2f units", m_SurfelGIGatherRadius);
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Adaptive radius (1.5× probe spacing), capped at 6.0 for performance");
+
+				// Amortization status
+				const std::size_t updateCycle = totalProbes > 0 ? (totalProbes + PROBES_PER_FRAME - 1) / PROBES_PER_FRAME : 0;
+				ImGui::Text("  Update Rate: %zu probes/frame (%zu frame cycle)", PROBES_PER_FRAME, updateCycle);
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Probes are updated incrementally across frames to maintain FPS.\nFull grid refresh takes %zu frames (~%.1fs at 60 FPS)", updateCycle, updateCycle / 60.0f);
+
 				// Coverage estimate: rough heuristic based on active probe count
-				const float coveragePercent = totalProbes > 0 
+				const float coveragePercent = totalProbes > 0
 					? std::min(100.0f, (static_cast<float>(activeProbes) / static_cast<float>(totalProbes)) * 100.0f)
 					: 0.0f;
 				ImGui::Text("  GI Coverage: ~%.0f%%", coveragePercent);
@@ -402,6 +412,76 @@ protected:
 
 				ImGui::Text("  Point Lights: %d", static_cast<int>(m_NightSceneLightingPreset.GetPointLights().size()));
 				ImGui::Text("  Total Surfels: %zu", m_Renderer.GetSurfelCount());
+
+				ImGui::Separator();
+				ImGui::Text("Probe Grid Configuration:");
+				ImGui::Spacing();
+
+				// Probe density sliders
+				ImGui::SliderInt("Probe Grid X", &m_ProbeGridX, 2, 8);
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Horizontal probe density (width)");
+
+				ImGui::SliderInt("Probe Grid Y", &m_ProbeGridY, 2, 6);
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Vertical probe density (height)");
+
+				ImGui::SliderInt("Probe Grid Z", &m_ProbeGridZ, 2, 8);
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Depth probe density");
+
+				// Show estimated probe count
+				const int estimatedProbeCount = m_ProbeGridX * m_ProbeGridY * m_ProbeGridZ;
+				ImGui::Text("  Estimated Probes: %d", estimatedProbeCount);
+
+				// Warning if probe count would exceed light limit
+				const int pointLightCount = static_cast<int>(m_NightSceneLightingPreset.GetPointLights().size());
+				const int totalLights = pointLightCount + estimatedProbeCount;
+				if (totalLights > 32)
+				{
+					ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), 
+						"  WARNING: %d total lights exceeds limit (32)", totalLights);
+					if (ImGui::IsItemHovered())
+						ImGui::SetTooltip("Some GI lights will be dropped. Reduce probe density or point lights.");
+				}
+
+				ImGui::Spacing();
+				if (ImGui::Button("Rebuild Probe Grid"))
+				{
+					// Recompute scene bounds
+					std::array<float, 3> sceneMin, sceneMax;
+					ComputeSceneBounds(sceneMin, sceneMax);
+
+					// Reinitialize probe grid with new dimensions
+					m_SurfelProbeGrid.Initialize(sceneMin, sceneMax, m_ProbeGridX, m_ProbeGridY, m_ProbeGridZ);
+
+					// Recompute adaptive gather radius based on new probe spacing
+					const float sceneExtentX = sceneMax[0] - sceneMin[0];
+					const float sceneExtentY = sceneMax[1] - sceneMin[1];
+					const float sceneExtentZ = sceneMax[2] - sceneMin[2];
+					const float spacingX = (m_ProbeGridX > 1) ? sceneExtentX / static_cast<float>(m_ProbeGridX - 1) : sceneExtentX;
+					const float spacingY = (m_ProbeGridY > 1) ? sceneExtentY / static_cast<float>(m_ProbeGridY - 1) : sceneExtentY;
+					const float spacingZ = (m_ProbeGridZ > 1) ? sceneExtentZ / static_cast<float>(m_ProbeGridZ - 1) : sceneExtentZ;
+					const float maxSpacing = std::max({spacingX, spacingY, spacingZ});
+					const float adaptiveRadius = maxSpacing * 1.5f; // 1.5× for overlapping probe coverage
+
+					// Cap gather radius to prevent performance collapse
+					constexpr float MAX_GATHER_RADIUS = 6.0f;
+					m_SurfelGIGatherRadius = std::min(adaptiveRadius, MAX_GATHER_RADIUS);
+
+					const std::size_t newProbeCount = m_SurfelProbeGrid.GetProbeCount();
+					LOG_INFO_MESSAGE("Rebuilt probe grid: ", m_ProbeGridX, "x", m_ProbeGridY, "x", m_ProbeGridZ, 
+						" = ", newProbeCount, " probes, gather radius: ", m_SurfelGIGatherRadius,
+						" (adaptive: ", adaptiveRadius, ", capped at ", MAX_GATHER_RADIUS, ")");
+
+					if (pointLightCount + static_cast<int>(newProbeCount) > 32)
+					{
+						LOG_WARNING_MESSAGE("WARNING: Total lights (", pointLightCount + newProbeCount, 
+							") exceeds MAX_LIGHTS (32). Some GI lights will be dropped.");
+					}
+				}
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Rebuild probe grid with new dimensions.\nThis will reset all gathered irradiance.");
 			}
 			ImGui::End();
 		}
@@ -428,13 +508,32 @@ private:
 		m_Renderer.SetSurfelGIEnabled(!m_Surfels.empty() && !m_NightSceneLightingPreset.GetPointLights().empty());
 		m_Renderer.SetGatheredSurfelIrradiance({0.0f, 0.0f, 0.0f});
 
-		// Initialize multi-probe GI grid
+		// Initialize multi-probe GI grid with runtime-configurable dimensions
 		std::array<float, 3> sceneMin, sceneMax;
 		ComputeSceneBounds(sceneMin, sceneMax);
-		m_SurfelProbeGrid.Initialize(sceneMin, sceneMax, 4, 4, 3); // 4×4×3 = 48 probes
-		LOG_INFO_MESSAGE("Initialized ", m_SurfelProbeGrid.GetProbeCount(), " GI probes covering [",
+		m_SurfelProbeGrid.Initialize(sceneMin, sceneMax, m_ProbeGridX, m_ProbeGridY, m_ProbeGridZ);
+
+		// Compute adaptive gather radius based on probe spacing
+		// Use 1.5× the maximum probe spacing to ensure adjacent probe coverage
+		const float sceneExtentX = sceneMax[0] - sceneMin[0];
+		const float sceneExtentY = sceneMax[1] - sceneMin[1];
+		const float sceneExtentZ = sceneMax[2] - sceneMin[2];
+		const float spacingX = (m_ProbeGridX > 1) ? sceneExtentX / static_cast<float>(m_ProbeGridX - 1) : sceneExtentX;
+		const float spacingY = (m_ProbeGridY > 1) ? sceneExtentY / static_cast<float>(m_ProbeGridY - 1) : sceneExtentY;
+		const float spacingZ = (m_ProbeGridZ > 1) ? sceneExtentZ / static_cast<float>(m_ProbeGridZ - 1) : sceneExtentZ;
+		const float maxSpacing = std::max({spacingX, spacingY, spacingZ});
+		const float adaptiveRadius = maxSpacing * 1.5f; // 1.5× for overlapping probe coverage
+
+		// Cap gather radius to prevent performance collapse with sparse grids
+		// 6.0 units balances coverage (50% of max spacing) with performance (~120k cells/query)
+		constexpr float MAX_GATHER_RADIUS = 6.0f; // Tuned for 0.25-unit spatial grid cells
+		m_SurfelGIGatherRadius = std::min(adaptiveRadius, MAX_GATHER_RADIUS);
+
+		LOG_INFO_MESSAGE("Initialized ", m_SurfelProbeGrid.GetProbeCount(), " GI probes (", 
+			m_ProbeGridX, "x", m_ProbeGridY, "x", m_ProbeGridZ, ") covering [",
 			sceneMin[0], ",", sceneMin[1], ",", sceneMin[2], "] to [",
-			sceneMax[0], ",", sceneMax[1], ",", sceneMax[2], "]");
+			sceneMax[0], ",", sceneMax[1], ",", sceneMax[2], "], gather radius: ", m_SurfelGIGatherRadius,
+			" (adaptive: ", adaptiveRadius, ", capped at ", MAX_GATHER_RADIUS, ")");
 
 		// Validation: Log first few surfels to verify direct lighting accumulation
 		if (!m_Surfels.empty())
@@ -515,23 +614,39 @@ private:
 		m_Renderer.SetSurfelDebugMode(m_SurfelDebugView.GetMode());
 		m_Renderer.SetVisibleSurfelCount(m_SurfelDebugView.GetVisibleSurfelCount());
 
-		// Multi-probe GI gathering: iterate over all probes in the grid
+		// Amortized multi-probe GI gathering (performance optimization)
+		// Update only PROBES_PER_FRAME probes each frame, cycling through the entire grid
+		// This trades temporal latency for frame-rate stability
 		auto& probes = m_SurfelProbeGrid.GetProbes();
-		for (auto& probe : probes)
-		{
-			// Query nearby surfels for this probe
-			const std::vector<std::size_t> nearbySurfels = m_SurfelSpatialGrid.QueryNearby(
-				probe.Position,
-				m_SurfelGIGatherRadius);
+		const std::size_t totalProbes = probes.size();
 
-			// Gather irradiance at this probe position with upward normal (hemispherical gathering)
-			const std::array<float, 3> upwardNormal = {0.0f, 1.0f, 0.0f};
-			probe.GatheredIrradiance = m_SurfelGatherPass.GatherIrradiance(
-				probe.Position,
-				upwardNormal,
-				m_Surfels,
-				nearbySurfels,
-				m_SurfelGIGatherRadius);
+		if (totalProbes > 0)
+		{
+			const std::size_t probesToUpdate = std::min(PROBES_PER_FRAME, totalProbes);
+			const std::size_t startIdx = m_ProbeUpdateIndex;
+
+			for (std::size_t i = 0; i < probesToUpdate; ++i)
+			{
+				const std::size_t probeIdx = (startIdx + i) % totalProbes;
+				auto& probe = probes[probeIdx];
+
+				// Query nearby surfels for this probe
+				const std::vector<std::size_t> nearbySurfels = m_SurfelSpatialGrid.QueryNearby(
+					probe.Position,
+					m_SurfelGIGatherRadius);
+
+				// Gather irradiance at this probe position with upward normal (hemispherical gathering)
+				const std::array<float, 3> upwardNormal = {0.0f, 1.0f, 0.0f};
+				probe.GatheredIrradiance = m_SurfelGatherPass.GatherIrradiance(
+					probe.Position,
+					upwardNormal,
+					m_Surfels,
+					nearbySurfels,
+					m_SurfelGIGatherRadius);
+			}
+
+			// Advance update index for next frame
+			m_ProbeUpdateIndex = (m_ProbeUpdateIndex + probesToUpdate) % totalProbes;
 		}
 
 		// Extract probe irradiance data and count active probes
@@ -695,6 +810,15 @@ private:
 	std::array<float, 3>               m_SurfelGIProbePosition = {0.0f, 0.0f, 0.0f};
 	std::array<float, 3>               m_SurfelGIProbeNormal = {0.0f, 1.0f, 0.0f};
 	float                              m_SurfelGIGatherRadius = 1.5f;  // Increased for extended spatial GI influence
+
+	// Probe grid dimensions (runtime adjustable)
+	int                                m_ProbeGridX = 4;
+	int                                m_ProbeGridY = 4;
+	int                                m_ProbeGridZ = 3;
+
+	// Amortized probe update state (performance optimization)
+	std::size_t                        m_ProbeUpdateIndex = 0;        // Current probe being updated
+	static constexpr std::size_t       PROBES_PER_FRAME = 5;          // Update 5 probes per frame
 };
 
 } // namespace
