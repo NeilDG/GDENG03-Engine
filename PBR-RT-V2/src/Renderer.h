@@ -48,8 +48,10 @@ private:
 	std::size_t m_SurfelCount = 0;
 	std::size_t m_VisibleSurfelCount = 0;
 	bool m_SurfelGIEnabled = false;
+	std::vector<std::array<float, 3>> m_GatheredSurfelIrradiances;
 	std::array<float, 3> m_GatheredSurfelIrradiance = {0.0f, 0.0f, 0.0f};
 	float m_SurfelGIStrength = 1.0f;
-	float m_SurfelGIAmplification = 30.0f;  // Amplify gathered irradiance when converting to light intensity
+	float m_SurfelGIAmplification = 30.0f;
+	std::size_t m_ActiveProbeCount = 0;
 };
 } // namespace PbrRtV2

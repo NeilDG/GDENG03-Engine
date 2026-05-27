@@ -56,6 +56,7 @@ bool SurfelDebugView::DrawSurfelGIControls()
 	changed |= ImGui::SliderFloat("Gather Radius", &m_SurfelGIParameters.GatherRadius, 0.1f, 10.0f, "%.2f");
 	changed |= ImGui::SliderFloat("Probe Distance", &m_SurfelGIParameters.ProbeDistance, 0.0f, 6.0f, "%.2f");
 	changed |= ImGui::SliderFloat("Probe Height Offset", &m_SurfelGIParameters.ProbeVerticalOffset, -4.0f, 4.0f, "%.2f");
+	changed |= ImGui::SliderFloat("Total Energy Multiplier", &m_SurfelGIParameters.TotalEnergyMultiplier, 1.0f, 100.0f, "%.2f");
 
 	if (ImGui::Button("Reset Default Values"))
 	{

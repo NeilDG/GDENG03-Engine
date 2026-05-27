@@ -25,6 +25,7 @@ struct SurfelGIParameters
 	float GatherRadius = 1.5f;
 	float ProbeDistance = 0.0f;
 	float ProbeVerticalOffset = 1.0f;
+	float TotalEnergyMultiplier = 100.0f;
 };
 
 class SurfelDebugView

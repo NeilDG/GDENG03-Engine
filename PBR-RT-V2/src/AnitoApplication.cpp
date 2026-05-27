@@ -177,10 +177,11 @@ public:
 		}
 
 		const auto gatheredIrradiance = m_Renderer.GetGatheredSurfelIrradiance();
+		const auto& giParameters = m_SurfelDebugView.GetSurfelGIParameters();
 		const std::array<float, 3> scaledGatheredIrradiance = {
-			gatheredIrradiance[0] * m_SurfelGITotalEnergyMultiplier,
-			gatheredIrradiance[1] * m_SurfelGITotalEnergyMultiplier,
-			gatheredIrradiance[2] * m_SurfelGITotalEnergyMultiplier};
+			gatheredIrradiance[0] * giParameters.TotalEnergyMultiplier,
+			gatheredIrradiance[1] * giParameters.TotalEnergyMultiplier,
+			gatheredIrradiance[2] * giParameters.TotalEnergyMultiplier};
 
 		totalLightCount = m_SurfelGIRenderPass.AppendGatheredIrradianceLight(
 			m_Renderer.IsSurfelGIEnabled(),
@@ -190,7 +191,6 @@ public:
 			m_Renderer.GetSurfelGIStrength(),
 			m_Renderer.GetSurfelGIAmplification(),
 			totalLightCount,
-			MAX_LIGHTS,
 			Lights);
 
 		HLSL::PBRRendererShaderParameters& RendererAttribs = FrameAttribs->Renderer;
@@ -295,7 +295,8 @@ protected:
 		{
 			const auto& irradiance = m_Renderer.GetGatheredSurfelIrradiance();
 			const float giEnergy = irradiance[0] + irradiance[1] + irradiance[2];
-			const float scaledGiEnergy = giEnergy * m_SurfelGITotalEnergyMultiplier;
+			const auto& giParameters = m_SurfelDebugView.GetSurfelGIParameters();
+			const float scaledGiEnergy = giEnergy * giParameters.TotalEnergyMultiplier;
 			const float strength = m_Renderer.GetSurfelGIStrength();
 			const float amplification = m_Renderer.GetSurfelGIAmplification();
 			const float amplifiedEnergy = scaledGiEnergy * strength * amplification;
@@ -313,7 +314,6 @@ protected:
 				m_Renderer.SetSurfelGIStrength(parameters.Strength);
 				m_Renderer.SetSurfelGIAmplification(parameters.Amplification);
 			}
-			ImGui::SliderFloat("Total Energy Multiplier", &m_SurfelGITotalEnergyMultiplier, 1.0f, 100.0f, "%.2f");
 
 			ImGui::Separator();
 			ImGui::Text("Gathered Irradiance:");
@@ -385,16 +385,16 @@ private:
 		// Initialize multi-probe GI grid with runtime-configurable dimensions
 		std::array<float, 3> sceneMin, sceneMax;
 		ComputeSceneBounds(sceneMin, sceneMax);
-		m_SurfelProbeGrid.Initialize(sceneMin, sceneMax, m_ProbeGridX, m_ProbeGridY, m_ProbeGridZ);
+		m_SurfelProbeGrid.Initialize(sceneMin, sceneMax, 4, 4, 4);
 
 		// Compute adaptive gather radius based on probe spacing
 		// Use 1.5× the maximum probe spacing to ensure adjacent probe coverage
 		const float sceneExtentX = sceneMax[0] - sceneMin[0];
 		const float sceneExtentY = sceneMax[1] - sceneMin[1];
 		const float sceneExtentZ = sceneMax[2] - sceneMin[2];
-		const float spacingX = (m_ProbeGridX > 1) ? sceneExtentX / static_cast<float>(m_ProbeGridX - 1) : sceneExtentX;
-		const float spacingY = (m_ProbeGridY > 1) ? sceneExtentY / static_cast<float>(m_ProbeGridY - 1) : sceneExtentY;
-		const float spacingZ = (m_ProbeGridZ > 1) ? sceneExtentZ / static_cast<float>(m_ProbeGridZ - 1) : sceneExtentZ;
+		const float spacingX = sceneExtentX / 3.0f;
+		const float spacingY = sceneExtentY / 3.0f;
+		const float spacingZ = sceneExtentZ / 3.0f;
 		const float maxSpacing = std::max({spacingX, spacingY, spacingZ});
 		const float adaptiveRadius = maxSpacing * 1.5f; // 1.5× for overlapping probe coverage
 
@@ -403,8 +403,7 @@ private:
 		constexpr float MAX_GATHER_RADIUS = 6.0f; // Tuned for 0.25-unit spatial grid cells
 		m_SurfelGIGatherRadius = std::min(adaptiveRadius, MAX_GATHER_RADIUS);
 
-		LOG_INFO_MESSAGE("Initialized ", m_SurfelProbeGrid.GetProbeCount(), " GI probes (", 
-			m_ProbeGridX, "x", m_ProbeGridY, "x", m_ProbeGridZ, ") covering [",
+		LOG_INFO_MESSAGE("Initialized ", m_SurfelProbeGrid.GetProbeCount(), " GI probes (4x4x4) covering [",
 			sceneMin[0], ",", sceneMin[1], ",", sceneMin[2], "] to [",
 			sceneMax[0], ",", sceneMax[1], ",", sceneMax[2], "], gather radius: ", m_SurfelGIGatherRadius,
 			" (adaptive: ", adaptiveRadius, ", capped at ", MAX_GATHER_RADIUS, ")");
@@ -643,7 +642,6 @@ private:
 	float                              m_SurfelGIGatherRadius = 1.5f;  // Increased for extended spatial GI influence
 	float                              m_SurfelGIProbeDistance = 0.0f;
 	float                              m_SurfelGIProbeVerticalOffset = 1.0f;
-	float                              m_SurfelGITotalEnergyMultiplier = 100.0f;
 };
 
 } // namespace
