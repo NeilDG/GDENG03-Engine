@@ -8,6 +8,8 @@
 #include <sstream>
 #include <unordered_map>
 
+#include "imgui.h"
+
 namespace PbrRtV2
 {
 void SurfelDebugView::SetEnabled(bool enabled)
@@ -33,6 +35,35 @@ void SurfelDebugView::SetMode(SurfelDebugMode mode)
 SurfelDebugMode SurfelDebugView::GetMode() const
 {
 	return m_Mode;
+}
+
+void SurfelDebugView::SetSurfelGIParameters(const SurfelGIParameters& parameters)
+{
+	m_SurfelGIParameters = parameters;
+}
+
+const SurfelGIParameters& SurfelDebugView::GetSurfelGIParameters() const
+{
+	return m_SurfelGIParameters;
+}
+
+bool SurfelDebugView::DrawSurfelGIControls()
+{
+	bool changed = false;
+	changed |= ImGui::Checkbox("Enable Surfel GI", &m_SurfelGIParameters.Enabled);
+	changed |= ImGui::SliderFloat("GI Strength", &m_SurfelGIParameters.Strength, 0.0f, 8.0f, "%.2f");
+	changed |= ImGui::SliderFloat("GI Amplification", &m_SurfelGIParameters.Amplification, 1.0f, 2000.0f, "%.1f");
+	changed |= ImGui::SliderFloat("Gather Radius", &m_SurfelGIParameters.GatherRadius, 0.1f, 10.0f, "%.2f");
+	changed |= ImGui::SliderFloat("Probe Distance", &m_SurfelGIParameters.ProbeDistance, 0.0f, 6.0f, "%.2f");
+	changed |= ImGui::SliderFloat("Probe Height Offset", &m_SurfelGIParameters.ProbeVerticalOffset, -4.0f, 4.0f, "%.2f");
+
+	if (ImGui::Button("Reset Default Values"))
+	{
+		m_SurfelGIParameters = SurfelGIParameters{};
+		changed = true;
+	}
+
+	return changed;
 }
 
 void SurfelDebugView::UpdateOverlay(const std::vector<Surfel>& surfels, float densityCellSize)

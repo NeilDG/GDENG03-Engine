@@ -17,6 +17,16 @@ enum class SurfelDebugMode
 	Probes  // Visualize probe positions and irradiance intensity
 };
 
+struct SurfelGIParameters
+{
+	bool Enabled = true;
+	float Strength = 1.0f;
+	float Amplification = 30.0f;
+	float GatherRadius = 1.5f;
+	float ProbeDistance = 0.0f;
+	float ProbeVerticalOffset = 1.0f;
+};
+
 class SurfelDebugView
 {
 public:
@@ -25,6 +35,10 @@ public:
 
 	void SetMode(SurfelDebugMode mode);
 	SurfelDebugMode GetMode() const;
+
+	void SetSurfelGIParameters(const SurfelGIParameters& parameters);
+	const SurfelGIParameters& GetSurfelGIParameters() const;
+	bool DrawSurfelGIControls();
 
 	void UpdateOverlay(const std::vector<Surfel>& surfels, float densityCellSize);
 
@@ -41,6 +55,7 @@ private:
 private:
 	bool m_Enabled = false;
 	SurfelDebugMode m_Mode = SurfelDebugMode::Disabled;
+	SurfelGIParameters m_SurfelGIParameters;
 	std::vector<std::string> m_OverlayLines;
 	std::size_t m_VisibleSurfelCount = 0;
 };

@@ -48,10 +48,8 @@ private:
 	std::size_t m_SurfelCount = 0;
 	std::size_t m_VisibleSurfelCount = 0;
 	bool m_SurfelGIEnabled = false;
-	std::vector<std::array<float, 3>> m_GatheredSurfelIrradiances;  // Multi-probe irradiance storage
-	std::array<float, 3> m_GatheredSurfelIrradiance = {0.0f, 0.0f, 0.0f};  // Legacy single-probe (deprecated)
-	float m_SurfelGIStrength = 0.75f;
-	float m_SurfelGIAmplification = 1000.0f;  // High amplification to make GI dominant over reduced direct lights
-	std::size_t m_ActiveProbeCount = 0;  // Number of probes contributing non-negligible irradiance
+	std::array<float, 3> m_GatheredSurfelIrradiance = {0.0f, 0.0f, 0.0f};
+	float m_SurfelGIStrength = 1.0f;
+	float m_SurfelGIAmplification = 30.0f;  // Amplify gathered irradiance when converting to light intensity
 };
 } // namespace PbrRtV2
