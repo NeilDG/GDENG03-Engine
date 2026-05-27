@@ -176,6 +176,75 @@ const std::vector<std::string>& SurfelDebugView::GetOverlayLines() const
 	return m_OverlayLines;
 }
 
+void SurfelDebugView::UpdateProbeOverlay(const std::vector<std::array<float, 3>>& probePositions,
+										 const std::vector<std::array<float, 3>>& probeIrradiances)
+{
+	m_OverlayLines.clear();
+	m_VisibleSurfelCount = 0;
+
+	if (!m_Enabled || m_Mode != SurfelDebugMode::Probes)
+		return;
+
+	if (probePositions.size() != probeIrradiances.size())
+	{
+		m_OverlayLines.push_back("ERROR: Probe position/irradiance count mismatch");
+		return;
+	}
+
+	std::ostringstream header;
+	header << "Probe Debug: " << probePositions.size() << " probes";
+	m_OverlayLines.push_back(header.str());
+	m_OverlayLines.push_back("Mode Probes: visualizing probe positions and irradiance intensity");
+
+	// Compute statistics
+	std::size_t activeProbeCount = 0;
+	float minEnergy = std::numeric_limits<float>::max();
+	float maxEnergy = 0.0f;
+	float totalEnergy = 0.0f;
+
+	for (std::size_t i = 0; i < probeIrradiances.size(); ++i)
+	{
+		const auto& irrad = probeIrradiances[i];
+		const float energy = irrad[0] + irrad[1] + irrad[2];
+
+		if (energy > 1e-5f)
+		{
+			++activeProbeCount;
+			minEnergy = std::min(minEnergy, energy);
+			maxEnergy = std::max(maxEnergy, energy);
+			totalEnergy += energy;
+		}
+	}
+
+	const float avgEnergy = activeProbeCount > 0 ? (totalEnergy / static_cast<float>(activeProbeCount)) : 0.0f;
+
+	std::ostringstream statsLine;
+	statsLine << std::fixed << std::setprecision(3)
+		<< "Active: " << activeProbeCount << "/" << probePositions.size()
+		<< " | Energy min=" << (activeProbeCount > 0 ? minEnergy : 0.0f)
+		<< " avg=" << avgEnergy
+		<< " max=" << maxEnergy;
+	m_OverlayLines.push_back(statsLine.str());
+
+	// Sample a few probes for detailed display
+	const std::size_t sampleCount = std::min<std::size_t>(probePositions.size(), 6);
+	for (std::size_t i = 0; i < sampleCount; ++i)
+	{
+		const auto& pos = probePositions[i];
+		const auto& irrad = probeIrradiances[i];
+		const float energy = irrad[0] + irrad[1] + irrad[2];
+
+		std::ostringstream line;
+		line << std::fixed << std::setprecision(3)
+			<< "[" << i << "] P(" << pos[0] << ", " << pos[1] << ", " << pos[2] << ")"
+			<< " I(" << irrad[0] << ", " << irrad[1] << ", " << irrad[2] << ")"
+			<< " E=" << energy;
+		m_OverlayLines.push_back(line.str());
+	}
+
+	m_VisibleSurfelCount = activeProbeCount;
+}
+
 std::size_t SurfelDebugView::GetVisibleSurfelCount() const
 {
 	return m_VisibleSurfelCount;

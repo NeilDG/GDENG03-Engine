@@ -7,6 +7,7 @@
 #include "SurfelRendering/SurfelDebugView.h"
 #include "SurfelRendering/SurfelGatherPass.h"
 #include "SurfelRendering/SurfelGIRenderPass.h"
+#include "SurfelRendering/SurfelProbeGrid.h"
 #include "SurfelRendering/SurfelSceneBuilder.h"
 #include "SurfelRendering/SurfelSpatialGrid.h"
 
@@ -52,6 +53,8 @@ const char* GetSurfelDebugModeLabel(PbrRtV2::SurfelDebugMode mode)
 		return "Normals";
 	case PbrRtV2::SurfelDebugMode::Density:
 		return "Density";
+	case PbrRtV2::SurfelDebugMode::Probes:
+		return "Probes";
 	case PbrRtV2::SurfelDebugMode::Disabled:
 	default:
 		return "Disabled";
@@ -135,7 +138,7 @@ public:
 
 		// Set up night-time lighting: reduce directional light and add point lights
 		GLTF::Light NightDirectionalLight = m_DefaultLight;
-		NightDirectionalLight.Intensity = 0.1f;  // Very dim directional light for night-time
+		NightDirectionalLight.Intensity = 0.01f;  // Minimal directional light - surfel GI should dominate
 
 		GLTF_PBR_Renderer::WritePBRLightShaderAttribs(
 			{&NightDirectionalLight, nullptr, &m_LightDirection, m_SceneScale}, 
@@ -187,6 +190,7 @@ public:
 			m_Renderer.GetSurfelGIStrength(),
 			m_Renderer.GetSurfelGIAmplification(),
 			totalLightCount,
+			MAX_LIGHTS,
 			Lights);
 
 		HLSL::PBRRendererShaderParameters& RendererAttribs = FrameAttribs->Renderer;
@@ -196,7 +200,7 @@ public:
 		RendererAttribs.AverageLogLum     = 0.3f;
 		RendererAttribs.MiddleGray        = 0.18f;
 		RendererAttribs.WhitePoint        = 3.0f;
-		RendererAttribs.IBLScale          = float4{0.1f};  // Reduce environment map contribution for night-time
+		RendererAttribs.IBLScale          = float4{0.0f};  // Disable environment map - surfel GI should dominate
 		RendererAttribs.HighlightColor    = float4{0.0f, 0.0f, 0.0f, 0.0f};
 		RendererAttribs.UnshadedColor     = float4{0.8f, 0.7f, 0.5f, 1.0f};
 		RendererAttribs.PointSize         = 1.0f;
@@ -359,7 +363,7 @@ private:
 		m_NightSceneLightingPreset.GenerateNightTimeLightRig(
 			{0.0f, -0.1f, -0.1f},  // Camera position
 			8,                     // lightCount
-			0.01f,                 // lightIntensity - original low value for Diligent's sensitivity
+			0.001f,                // lightIntensity - reduced to make surfel GI dominant
 			1.5f                   // lightRadius - kept large for surfel coverage
 		);
 
@@ -377,6 +381,33 @@ private:
 
 		m_Renderer.SetSurfelGIEnabled(giParameters.Enabled);
 		m_Renderer.SetGatheredSurfelIrradiance({0.0f, 0.0f, 0.0f});
+
+		// Initialize multi-probe GI grid with runtime-configurable dimensions
+		std::array<float, 3> sceneMin, sceneMax;
+		ComputeSceneBounds(sceneMin, sceneMax);
+		m_SurfelProbeGrid.Initialize(sceneMin, sceneMax, m_ProbeGridX, m_ProbeGridY, m_ProbeGridZ);
+
+		// Compute adaptive gather radius based on probe spacing
+		// Use 1.5× the maximum probe spacing to ensure adjacent probe coverage
+		const float sceneExtentX = sceneMax[0] - sceneMin[0];
+		const float sceneExtentY = sceneMax[1] - sceneMin[1];
+		const float sceneExtentZ = sceneMax[2] - sceneMin[2];
+		const float spacingX = (m_ProbeGridX > 1) ? sceneExtentX / static_cast<float>(m_ProbeGridX - 1) : sceneExtentX;
+		const float spacingY = (m_ProbeGridY > 1) ? sceneExtentY / static_cast<float>(m_ProbeGridY - 1) : sceneExtentY;
+		const float spacingZ = (m_ProbeGridZ > 1) ? sceneExtentZ / static_cast<float>(m_ProbeGridZ - 1) : sceneExtentZ;
+		const float maxSpacing = std::max({spacingX, spacingY, spacingZ});
+		const float adaptiveRadius = maxSpacing * 1.5f; // 1.5× for overlapping probe coverage
+
+		// Cap gather radius to prevent performance collapse with sparse grids
+		// 6.0 units balances coverage (50% of max spacing) with performance (~120k cells/query)
+		constexpr float MAX_GATHER_RADIUS = 6.0f; // Tuned for 0.25-unit spatial grid cells
+		m_SurfelGIGatherRadius = std::min(adaptiveRadius, MAX_GATHER_RADIUS);
+
+		LOG_INFO_MESSAGE("Initialized ", m_SurfelProbeGrid.GetProbeCount(), " GI probes (", 
+			m_ProbeGridX, "x", m_ProbeGridY, "x", m_ProbeGridZ, ") covering [",
+			sceneMin[0], ",", sceneMin[1], ",", sceneMin[2], "] to [",
+			sceneMax[0], ",", sceneMax[1], ",", sceneMax[2], "], gather radius: ", m_SurfelGIGatherRadius,
+			" (adaptive: ", adaptiveRadius, ", capped at ", MAX_GATHER_RADIUS, ")");
 
 		// Validation: Log first few surfels to verify direct lighting accumulation
 		if (!m_Surfels.empty())
@@ -429,7 +460,30 @@ private:
 	{
 		m_SurfelDebugView.SetEnabled(m_InputSystem.IsSurfelDebugEnabled());
 		m_SurfelDebugView.SetMode(m_InputSystem.GetSurfelDebugMode());
-		m_SurfelDebugView.UpdateOverlay(m_Surfels, m_SurfelSpatialGrid.GetCellSize());
+
+		// Update debug overlay based on current mode
+		if (m_SurfelDebugView.GetMode() == PbrRtV2::SurfelDebugMode::Probes)
+		{
+			// For probe debug mode, extract probe positions and irradiances
+			const auto& probes = m_SurfelProbeGrid.GetProbes();
+			std::vector<std::array<float, 3>> probePositions;
+			std::vector<std::array<float, 3>> probeIrradiances;
+			probePositions.reserve(probes.size());
+			probeIrradiances.reserve(probes.size());
+
+			for (const auto& probe : probes)
+			{
+				probePositions.push_back(probe.Position);
+				probeIrradiances.push_back(probe.GatheredIrradiance);
+			}
+
+			m_SurfelDebugView.UpdateProbeOverlay(probePositions, probeIrradiances);
+		}
+		else
+		{
+			// For surfel debug modes, use the existing overlay
+			m_SurfelDebugView.UpdateOverlay(m_Surfels, m_SurfelSpatialGrid.GetCellSize());
+		}
 
 		m_Renderer.SetSurfelDebugMode(m_SurfelDebugView.GetMode());
 		m_Renderer.SetVisibleSurfelCount(m_SurfelDebugView.GetVisibleSurfelCount());
@@ -462,6 +516,24 @@ private:
 			nearbySurfels,
 			m_SurfelGIGatherRadius);
 		m_Renderer.SetGatheredSurfelIrradiance(gatheredIrradiance);
+	}
+
+	void ComputeSceneBounds(std::array<float, 3>& outMin, std::array<float, 3>& outMax) const
+	{
+		// Hardcoded bounds for Sponza scene
+		// These values cover the typical Sponza geometry extents
+		// Future enhancement: compute dynamically from m_Model GLTF node/mesh bounds
+		outMin = {-10.0f, -5.0f, -10.0f};
+		outMax = {10.0f, 5.0f, 10.0f};
+
+		// Expand bounds by 10% to ensure edge coverage
+		const float expansion = 0.1f;
+		for (int i = 0; i < 3; ++i)
+		{
+			const float range = outMax[i] - outMin[i];
+			outMin[i] -= range * expansion;
+			outMax[i] += range * expansion;
+		}
 	}
 
 	void CreateRenderer()
@@ -560,6 +632,7 @@ private:
 	PbrRtV2::InputSystem               m_InputSystem;
 	PbrRtV2::SurfelSceneBuilder        m_SurfelSceneBuilder;
 	PbrRtV2::SurfelSpatialGrid         m_SurfelSpatialGrid;
+	PbrRtV2::SurfelProbeGrid           m_SurfelProbeGrid;
 	PbrRtV2::SurfelGatherPass          m_SurfelGatherPass;
 	PbrRtV2::SurfelGIRenderPass        m_SurfelGIRenderPass;
 	PbrRtV2::SurfelDebugView           m_SurfelDebugView;

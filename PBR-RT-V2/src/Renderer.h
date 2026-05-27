@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstddef>
+#include <vector>
 
 #include "SurfelRendering/SurfelDebugView.h"
 
@@ -24,6 +25,11 @@ public:
 	void SetSurfelGIEnabled(bool enabled);
 	bool IsSurfelGIEnabled() const;
 
+	// Multi-probe irradiance storage
+	void SetGatheredSurfelIrradiances(const std::vector<std::array<float, 3>>& irradiances);
+	const std::vector<std::array<float, 3>>& GetGatheredSurfelIrradiances() const;
+
+	// Legacy single-probe support (deprecated - use multi-probe methods)
 	void SetGatheredSurfelIrradiance(const std::array<float, 3>& irradiance);
 	const std::array<float, 3>& GetGatheredSurfelIrradiance() const;
 
@@ -32,6 +38,10 @@ public:
 
 	void SetSurfelGIAmplification(float amplification);
 	float GetSurfelGIAmplification() const;
+
+	// Multi-probe status tracking
+	void SetActiveProbeCount(std::size_t activeCount);
+	std::size_t GetActiveProbeCount() const;
 
 private:
 	SurfelDebugMode m_SurfelDebugMode = SurfelDebugMode::Disabled;

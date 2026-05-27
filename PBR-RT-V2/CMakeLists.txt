@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10)
 
 if(POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
@@ -74,6 +74,8 @@ set(PBR_RT_V2_SOURCES
     src/SurfelRendering/SurfelSpatialGrid.cpp
     src/SurfelRendering/SurfelSpatialGrid.h
     src/SurfelRendering/SurfelGatherPass.cpp
+    src/SurfelRendering/SurfelProbeGrid.cpp
+    src/SurfelRendering/SurfelProbeGrid.h
     src/SurfelRendering/SurfelGatherPass.h
     src/SurfelRendering/SurfelGIRenderPass.cpp
     src/SurfelRendering/SurfelGIRenderPass.h
@@ -95,6 +97,7 @@ add_sample_app(PBR-RT-V2
         src/SurfelRendering/SurfelSceneBuilder.h
         src/SurfelRendering/SurfelSpatialGrid.h
         src/SurfelRendering/SurfelGatherPass.h
+        src/SurfelRendering/SurfelProbeGrid.h
         src/SurfelRendering/SurfelGIRenderPass.h
         src/SurfelRendering/SurfelDebugView.h
         src/SurfelRendering/NightSceneLightingPreset.h
