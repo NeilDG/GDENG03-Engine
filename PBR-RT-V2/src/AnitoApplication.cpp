@@ -276,58 +276,66 @@ protected:
 			ImGui::End();
 		}
 
-		// Surfel GI Validation Window - Always show when GI is enabled
-		if (m_Renderer.IsSurfelGIEnabled())
+		// Surfel GI Validation and Controls Window
+		ImGui::SetNextWindowBgAlpha(0.75f);
+		ImGuiWindowFlags giWindowFlags = ImGuiWindowFlags_AlwaysAutoResize |
+			ImGuiWindowFlags_NoSavedSettings |
+			ImGuiWindowFlags_NoFocusOnAppearing;
+		if (ImGui::Begin("Surfel GI Status", nullptr, giWindowFlags))
 		{
-			ImGui::SetNextWindowBgAlpha(0.75f);
-			ImGuiWindowFlags giWindowFlags = ImGuiWindowFlags_AlwaysAutoResize |
-				ImGuiWindowFlags_NoSavedSettings |
-				ImGuiWindowFlags_NoFocusOnAppearing;
-			if (ImGui::Begin("Surfel GI Status", nullptr, giWindowFlags))
+			const auto& irradiance = m_Renderer.GetGatheredSurfelIrradiance();
+			const float giEnergy = irradiance[0] + irradiance[1] + irradiance[2];
+			const float strength = m_Renderer.GetSurfelGIStrength();
+			const float amplification = m_Renderer.GetSurfelGIAmplification();
+			const float amplifiedEnergy = giEnergy * strength * amplification;
+
+			ImGui::Text("GI System: %s", m_Renderer.IsSurfelGIEnabled() ? "ACTIVE" : "INACTIVE");
+			ImGui::Separator();
+
+			ImGui::Text("Surfel GI Controls:");
+			if (m_SurfelDebugView.DrawSurfelGIControls())
 			{
-				const auto& irradiance = m_Renderer.GetGatheredSurfelIrradiance();
-				const float giEnergy = irradiance[0] + irradiance[1] + irradiance[2];
-				const float strength = m_Renderer.GetSurfelGIStrength();
-				const float amplification = m_Renderer.GetSurfelGIAmplification();
-				const float amplifiedEnergy = giEnergy * strength * amplification;
-
-				ImGui::Text("GI System: ACTIVE");
-				ImGui::Separator();
-
-				ImGui::Text("Gathered Irradiance:");
-				ImGui::Text("  R: %.6f", irradiance[0]);
-				ImGui::Text("  G: %.6f", irradiance[1]);
-				ImGui::Text("  B: %.6f", irradiance[2]);
-				ImGui::Text("  Total Energy: %.6f", giEnergy);
-
-				ImGui::Separator();
-				ImGui::Text("Configuration:");
-				ImGui::Text("  GI Strength: %.2f", strength);
-				ImGui::Text("  GI Amplification: %.1f", amplification);
-				ImGui::Text("  Amplified Energy: %.6f", amplifiedEnergy);
-				ImGui::Text("  Gather Radius: %.2f", m_SurfelGIGatherRadius);
-				ImGui::Text("  Probe Position: (%.2f, %.2f, %.2f)", 
-					m_SurfelGIProbePosition[0], 
-					m_SurfelGIProbePosition[1], 
-					m_SurfelGIProbePosition[2]);
-
-				ImGui::Separator();
-				ImGui::Text("Light Count: %d point lights", static_cast<int>(m_NightSceneLightingPreset.GetPointLights().size()));
-				ImGui::Text("Total Surfels: %zu", m_Renderer.GetSurfelCount());
-
-				// Status indicator
-				ImGui::Separator();
-				if (amplifiedEnergy > 1e-5f)
-				{
-					ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "STATUS: GI Light Active");
-				}
-				else
-				{
-					ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "STATUS: No GI Contribution (Low Energy)");
-				}
+				const auto& parameters = m_SurfelDebugView.GetSurfelGIParameters();
+				m_SurfelGIGatherRadius = parameters.GatherRadius;
+				m_SurfelGIProbeDistance = parameters.ProbeDistance;
+				m_SurfelGIProbeVerticalOffset = parameters.ProbeVerticalOffset;
+				m_Renderer.SetSurfelGIStrength(parameters.Strength);
+				m_Renderer.SetSurfelGIAmplification(parameters.Amplification);
 			}
-			ImGui::End();
+
+			ImGui::Separator();
+			ImGui::Text("Gathered Irradiance:");
+			ImGui::Text("  R: %.6f", irradiance[0]);
+			ImGui::Text("  G: %.6f", irradiance[1]);
+			ImGui::Text("  B: %.6f", irradiance[2]);
+			ImGui::Text("  Total Energy: %.6f", giEnergy);
+
+			ImGui::Separator();
+			ImGui::Text("Configuration:");
+			ImGui::Text("  GI Strength: %.2f", strength);
+			ImGui::Text("  GI Amplification: %.1f", amplification);
+			ImGui::Text("  Amplified Energy: %.6f", amplifiedEnergy);
+			ImGui::Text("  Gather Radius: %.2f", m_SurfelGIGatherRadius);
+			ImGui::Text("  Probe Position: (%.2f, %.2f, %.2f)",
+				m_SurfelGIProbePosition[0],
+				m_SurfelGIProbePosition[1],
+				m_SurfelGIProbePosition[2]);
+
+			ImGui::Separator();
+			ImGui::Text("Light Count: %d point lights", static_cast<int>(m_NightSceneLightingPreset.GetPointLights().size()));
+			ImGui::Text("Total Surfels: %zu", m_Renderer.GetSurfelCount());
+
+			ImGui::Separator();
+			if (amplifiedEnergy > 1e-5f)
+			{
+				ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "STATUS: GI Light Active");
+			}
+			else
+			{
+				ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "STATUS: No GI Contribution (Low Energy)");
+			}
 		}
+		ImGui::End();
 	}
 
 private:
@@ -348,7 +356,17 @@ private:
 
 		m_SurfelGatherPass.AccumulateDirectLighting(m_Surfels, m_NightSceneLightingPreset.GetPointLights());
 		m_SurfelSpatialGrid.Build(m_Surfels, 0.25f);
-		m_Renderer.SetSurfelGIEnabled(!m_Surfels.empty() && !m_NightSceneLightingPreset.GetPointLights().empty());
+
+		PbrRtV2::SurfelGIParameters giParameters;
+		giParameters.Enabled = !m_Surfels.empty() && !m_NightSceneLightingPreset.GetPointLights().empty();
+		giParameters.Strength = m_Renderer.GetSurfelGIStrength();
+		giParameters.Amplification = m_Renderer.GetSurfelGIAmplification();
+		giParameters.GatherRadius = m_SurfelGIGatherRadius;
+		giParameters.ProbeDistance = m_SurfelGIProbeDistance;
+		giParameters.ProbeVerticalOffset = m_SurfelGIProbeVerticalOffset;
+		m_SurfelDebugView.SetSurfelGIParameters(giParameters);
+
+		m_Renderer.SetSurfelGIEnabled(giParameters.Enabled);
 		m_Renderer.SetGatheredSurfelIrradiance({0.0f, 0.0f, 0.0f});
 
 		// Validation: Log first few surfels to verify direct lighting accumulation
@@ -407,11 +425,25 @@ private:
 		m_Renderer.SetSurfelDebugMode(m_SurfelDebugView.GetMode());
 		m_Renderer.SetVisibleSurfelCount(m_SurfelDebugView.GetVisibleSurfelCount());
 
+		const auto& giParameters = m_SurfelDebugView.GetSurfelGIParameters();
+		m_Renderer.SetSurfelGIEnabled(giParameters.Enabled && !m_Surfels.empty());
+		m_Renderer.SetSurfelGIStrength(giParameters.Strength);
+		m_Renderer.SetSurfelGIAmplification(giParameters.Amplification);
+		m_SurfelGIGatherRadius = giParameters.GatherRadius;
+		m_SurfelGIProbeDistance = giParameters.ProbeDistance;
+		m_SurfelGIProbeVerticalOffset = giParameters.ProbeVerticalOffset;
+
 		const float3 cameraPos = m_Camera.GetPos();
 		const float3 cameraForward = normalize(m_Camera.GetWorldAhead());
-		const float3 probePos = cameraPos + cameraForward * 0.4f;
+		const float3 probePos = cameraPos + cameraForward * m_SurfelGIProbeDistance + float3{0.0f, m_SurfelGIProbeVerticalOffset, 0.0f};
 		m_SurfelGIProbePosition = {probePos.x, probePos.y, probePos.z};
 		m_SurfelGIProbeNormal = {cameraForward.x, cameraForward.y, cameraForward.z};
+
+		if (!m_Renderer.IsSurfelGIEnabled())
+		{
+			m_Renderer.SetGatheredSurfelIrradiance({0.0f, 0.0f, 0.0f});
+			return;
+		}
 
 		const std::vector<std::size_t> nearbySurfels = m_SurfelSpatialGrid.QueryNearby(m_SurfelGIProbePosition, m_SurfelGIGatherRadius);
 		const std::array<float, 3> gatheredIrradiance = m_SurfelGatherPass.GatherIrradiance(
@@ -527,6 +559,8 @@ private:
 	std::array<float, 3>               m_SurfelGIProbePosition = {0.0f, 0.0f, 0.0f};
 	std::array<float, 3>               m_SurfelGIProbeNormal = {0.0f, 1.0f, 0.0f};
 	float                              m_SurfelGIGatherRadius = 1.5f;  // Increased for extended spatial GI influence
+	float                              m_SurfelGIProbeDistance = 0.4f;
+	float                              m_SurfelGIProbeVerticalOffset = 0.0f;
 };
 
 } // namespace

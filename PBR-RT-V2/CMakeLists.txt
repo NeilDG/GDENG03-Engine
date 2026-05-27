@@ -12,10 +12,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+if(MSVC)
+    add_compile_options(/wd5232 /wd4717)
+endif()
+
 set(DILIGENT_ENGINE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/DiligentEngine")
+find_package(Git REQUIRED)
 if(NOT EXISTS "${DILIGENT_ENGINE_SOURCE_DIR}/CMakeLists.txt")
     message(STATUS "Cloning DiligentEngine with submodules into ${DILIGENT_ENGINE_SOURCE_DIR}")
-    find_package(Git REQUIRED)
     execute_process(
         COMMAND ${GIT_EXECUTABLE} clone --recursive --depth 1 https://github.com/DiligentGraphics/DiligentEngine.git "${DILIGENT_ENGINE_SOURCE_DIR}"
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
@@ -23,6 +27,19 @@ if(NOT EXISTS "${DILIGENT_ENGINE_SOURCE_DIR}/CMakeLists.txt")
     )
     if(NOT DILIGENT_CLONE_RESULT EQUAL 0)
         message(FATAL_ERROR "Failed to clone DiligentEngine recursively. Ensure git is installed and network access is available.")
+    endif()
+endif()
+
+set(DILIGENT_ENGINE_CORE_CMAKE "${DILIGENT_ENGINE_SOURCE_DIR}/DiligentCore/CMakeLists.txt")
+set(DILIGENT_ENGINE_TOOLS_CMAKE "${DILIGENT_ENGINE_SOURCE_DIR}/DiligentTools/CMakeLists.txt")
+if(NOT EXISTS "${DILIGENT_ENGINE_CORE_CMAKE}" OR NOT EXISTS "${DILIGENT_ENGINE_TOOLS_CMAKE}")
+    message(STATUS "DiligentEngine nested modules are missing. Initializing submodules recursively...")
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} -C "${DILIGENT_ENGINE_SOURCE_DIR}" submodule update --init --recursive
+        RESULT_VARIABLE DILIGENT_SUBMODULE_RESULT
+    )
+    if(NOT DILIGENT_SUBMODULE_RESULT EQUAL 0)
+        message(FATAL_ERROR "Failed to initialize DiligentEngine submodules recursively.")
     endif()
 endif()
 
