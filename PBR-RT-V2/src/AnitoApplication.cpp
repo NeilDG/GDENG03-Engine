@@ -173,9 +173,15 @@ public:
 			totalLightCount++;
 		}
 
+		const auto gatheredIrradiance = m_Renderer.GetGatheredSurfelIrradiance();
+		const std::array<float, 3> scaledGatheredIrradiance = {
+			gatheredIrradiance[0] * m_SurfelGITotalEnergyMultiplier,
+			gatheredIrradiance[1] * m_SurfelGITotalEnergyMultiplier,
+			gatheredIrradiance[2] * m_SurfelGITotalEnergyMultiplier};
+
 		totalLightCount = m_SurfelGIRenderPass.AppendGatheredIrradianceLight(
 			m_Renderer.IsSurfelGIEnabled(),
-			m_Renderer.GetGatheredSurfelIrradiance(),
+			scaledGatheredIrradiance,
 			m_SurfelGIProbePosition,
 			m_SurfelGIGatherRadius,
 			m_Renderer.GetSurfelGIStrength(),
@@ -285,9 +291,10 @@ protected:
 		{
 			const auto& irradiance = m_Renderer.GetGatheredSurfelIrradiance();
 			const float giEnergy = irradiance[0] + irradiance[1] + irradiance[2];
+			const float scaledGiEnergy = giEnergy * m_SurfelGITotalEnergyMultiplier;
 			const float strength = m_Renderer.GetSurfelGIStrength();
 			const float amplification = m_Renderer.GetSurfelGIAmplification();
-			const float amplifiedEnergy = giEnergy * strength * amplification;
+			const float amplifiedEnergy = scaledGiEnergy * strength * amplification;
 
 			ImGui::Text("GI System: %s", m_Renderer.IsSurfelGIEnabled() ? "ACTIVE" : "INACTIVE");
 			ImGui::Separator();
@@ -302,6 +309,7 @@ protected:
 				m_Renderer.SetSurfelGIStrength(parameters.Strength);
 				m_Renderer.SetSurfelGIAmplification(parameters.Amplification);
 			}
+			ImGui::SliderFloat("Total Energy Multiplier", &m_SurfelGITotalEnergyMultiplier, 1.0f, 100.0f, "%.2f");
 
 			ImGui::Separator();
 			ImGui::Text("Gathered Irradiance:");
@@ -309,6 +317,7 @@ protected:
 			ImGui::Text("  G: %.6f", irradiance[1]);
 			ImGui::Text("  B: %.6f", irradiance[2]);
 			ImGui::Text("  Total Energy: %.6f", giEnergy);
+			ImGui::Text("  Scaled Total Energy: %.6f", scaledGiEnergy);
 
 			ImGui::Separator();
 			ImGui::Text("Configuration:");
@@ -559,8 +568,9 @@ private:
 	std::array<float, 3>               m_SurfelGIProbePosition = {0.0f, 0.0f, 0.0f};
 	std::array<float, 3>               m_SurfelGIProbeNormal = {0.0f, 1.0f, 0.0f};
 	float                              m_SurfelGIGatherRadius = 1.5f;  // Increased for extended spatial GI influence
-	float                              m_SurfelGIProbeDistance = 0.4f;
-	float                              m_SurfelGIProbeVerticalOffset = 0.0f;
+	float                              m_SurfelGIProbeDistance = 0.0f;
+	float                              m_SurfelGIProbeVerticalOffset = 1.0f;
+	float                              m_SurfelGITotalEnergyMultiplier = 100.0f;
 };
 
 } // namespace

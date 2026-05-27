@@ -19,11 +19,11 @@ enum class SurfelDebugMode
 struct SurfelGIParameters
 {
 	bool Enabled = true;
-	float Strength = 0.75f;
-	float Amplification = 250.0f;
+	float Strength = 1.0f;
+	float Amplification = 30.0f;
 	float GatherRadius = 1.5f;
-	float ProbeDistance = 0.4f;
-	float ProbeVerticalOffset = 0.0f;
+	float ProbeDistance = 0.0f;
+	float ProbeVerticalOffset = 1.0f;
 };
 
 class SurfelDebugView
