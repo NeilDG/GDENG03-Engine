@@ -145,11 +145,11 @@ void AnitoFPSCameraControl::handleMovementInput(float deltaTime) {
         movement = movement + (m_right * velocity);
     }
 
-    // Up/Down (Space/Left Ctrl)
-    if (input->isKeyDown(GLFW_KEY_SPACE)) {
+    // Up/Down (E/Q or Space/Left Ctrl)
+    if (input->isKeyDown(GLFW_KEY_E)) {
         movement = movement + (AnitoVector3D::up() * velocity);
     }
-    if (input->isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
+    if (input->isKeyDown(GLFW_KEY_Q)) {
         movement = movement - (AnitoVector3D::up() * velocity);
     }
 

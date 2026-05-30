@@ -41,7 +41,8 @@ public:
     bgfx::TextureHandle getEnvCubemap() const { return m_envCubemap; }
     bgfx::TextureHandle getIrradianceMap() const { return m_irradianceMap; }
     bgfx::TextureHandle getPrefilterMap() const { return m_prefilterMap; }
-    bool isIBLReady() const { return bgfx::isValid(m_envCubemap) && bgfx::isValid(m_irradianceMap) && bgfx::isValid(m_prefilterMap); }
+    bgfx::TextureHandle getBRDFLUT() const { return m_brdfLUT; }
+    bool isIBLReady() const { return bgfx::isValid(m_envCubemap) && bgfx::isValid(m_irradianceMap) && bgfx::isValid(m_prefilterMap) && bgfx::isValid(m_brdfLUT); }
     void setEnableIBL(bool enable) { m_enableIBL = enable; }
     bool getEnableIBL() const { return m_enableIBL; }
 
@@ -57,6 +58,7 @@ private:
     // IBL prefiltering helpers
     void generateIrradianceMap(bgfx::TextureHandle envCubemap);
     void generatePrefilterMap(bgfx::TextureHandle envCubemap);
+    void generateBRDFLUT();
 
     static AnitoRenderer* s_instance;
 
@@ -70,6 +72,7 @@ private:
     bgfx::TextureHandle m_envCubemap = BGFX_INVALID_HANDLE;
     bgfx::TextureHandle m_irradianceMap = BGFX_INVALID_HANDLE;
     bgfx::TextureHandle m_prefilterMap = BGFX_INVALID_HANDLE;
+    bgfx::TextureHandle m_brdfLUT = BGFX_INVALID_HANDLE;
     bgfx::UniformHandle m_skyboxCubeUniform = BGFX_INVALID_HANDLE;
     bgfx::UniformHandle m_viewProjInvUniform = BGFX_INVALID_HANDLE;
     bgfx::UniformHandle m_cameraPosUniform = BGFX_INVALID_HANDLE;

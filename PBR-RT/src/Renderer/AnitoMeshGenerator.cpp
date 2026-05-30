@@ -158,7 +158,7 @@ AnitoMeshGenerator::MeshData AnitoMeshGenerator::createPlane(float width, float 
         }
     }
 
-    // Generate indices
+    // Generate indices — CCW winding when viewed from above (+Y) to match BGFX_STATE_CULL_CW
     for (uint32_t y = 0; y < subdivisionsY; ++y) {
         for (uint32_t x = 0; x < subdivisionsX; ++x) {
             uint16_t topLeft = static_cast<uint16_t>(y * (subdivisionsX + 1) + x);
@@ -166,13 +166,14 @@ AnitoMeshGenerator::MeshData AnitoMeshGenerator::createPlane(float width, float 
             uint16_t bottomLeft = static_cast<uint16_t>((y + 1) * (subdivisionsX + 1) + x);
             uint16_t bottomRight = bottomLeft + 1;
 
+            // CCW from above: topLeft -> topRight -> bottomLeft
             indices.push_back(topLeft);
-            indices.push_back(bottomLeft);
             indices.push_back(topRight);
+            indices.push_back(bottomLeft);
 
             indices.push_back(topRight);
-            indices.push_back(bottomLeft);
             indices.push_back(bottomRight);
+            indices.push_back(bottomLeft);
         }
     }
 

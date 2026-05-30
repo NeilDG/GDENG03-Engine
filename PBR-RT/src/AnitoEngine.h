@@ -86,7 +86,6 @@ private:
     bgfx::UniformHandle m_u_cameraPos;
     bgfx::UniformHandle m_u_lightDir;
     bgfx::UniformHandle m_u_enableIBL;
-    bgfx::UniformHandle m_u_brdfMode;
     bgfx::UniformHandle m_s_gbuffer0;
     bgfx::UniformHandle m_s_gbuffer1;
     bgfx::UniformHandle m_s_gbuffer2;
@@ -97,9 +96,6 @@ private:
 
     // [STEP 12] Benchmark mode (Phase 3)
     bool m_benchmarkMode;  // If true, run benchmarks instead of normal execution
-
-    // [Phase 6 Step 2] BRDF mode toggle
-    bool m_useAdvancedBRDF;  // false = Legacy, true = Advanced
 };
 
 } // namespace Anito

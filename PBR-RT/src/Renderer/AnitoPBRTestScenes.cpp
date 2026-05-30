@@ -27,6 +27,13 @@ AnitoPBRTestScenes::~AnitoPBRTestScenes() {
 void AnitoPBRTestScenes::setupSceneConfigs() {
     m_sceneConfigs.resize(static_cast<int>(SceneType::Count));
 
+    m_sceneConfigs[static_cast<int>(SceneType::BasicLayout)] = {
+        SceneType::BasicLayout,
+        "Basic Layout - Plane + 3 Cubes",
+        "Flat ground plane at origin with 3 cubes at specified world positions (reference mockup)",
+        1, 1, 0.0f, 1.0f
+    };
+
     m_sceneConfigs[static_cast<int>(SceneType::SphereGrid)] = {
         SceneType::SphereGrid,
         "Sphere Grid - PBR Variation",
@@ -119,6 +126,11 @@ void AnitoPBRTestScenes::update(float deltaTime) {
 }
 
 glm::vec3 AnitoPBRTestScenes::getCameraPositionForScene() const {
+    // BasicLayout: position camera to match the reference photo (front-right, slightly elevated)
+    if (static_cast<SceneType>(m_currentSceneIndex) == SceneType::BasicLayout) {
+        return glm::vec3(4.0f, 4.0f, 8.0f);
+    }
+
     const SceneConfig& config = m_sceneConfigs[m_currentSceneIndex];
 
     // Calculate camera distance based on grid extent (grid is centered at origin)
@@ -134,6 +146,9 @@ glm::vec3 AnitoPBRTestScenes::getCameraPositionForScene() const {
 }
 
 glm::vec3 AnitoPBRTestScenes::getLookAtPositionForScene() const {
+    if (static_cast<SceneType>(m_currentSceneIndex) == SceneType::BasicLayout) {
+        return glm::vec3(-0.5f, 1.5f, -1.0f);
+    }
     return glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
@@ -154,6 +169,9 @@ void AnitoPBRTestScenes::loadScene(int index) {
     std::cout << "\n[PBR Test Scenes] Loading scene: " << m_sceneConfigs[index].name << std::endl;
 
     switch (static_cast<SceneType>(index)) {
+        case SceneType::BasicLayout:
+            createBasicLayoutScene();
+            break;
         case SceneType::SphereGrid:
             createSphereGridScene();
             break;
@@ -174,6 +192,70 @@ void AnitoPBRTestScenes::loadScene(int index) {
     }
 
     std::cout << "[PBR Test Scenes] Scene loaded with " << m_currentSceneObjects.size() << " objects" << std::endl;
+}
+
+void AnitoPBRTestScenes::createBasicLayoutScene() {
+    auto* manager = AnitoGameObjectManager::getInstance();
+
+    // --- Ground plane at world origin ---
+    auto planeMesh = AnitoMeshGenerator::createPlane(20.0f, 20.0f, 4, 4);
+    auto planeMaterial = createMaterialWithParams("Plane_Ground", glm::vec3(0.9f, 0.9f, 0.9f), 0.0f, 0.8f);
+
+    auto* plane = new AnitoGameObject("GroundPlane", AnitoGameObject::PrimitiveType::Plane);
+    plane->setPosition(0.0f, 0.0f, 0.0f);
+    plane->setRotation(0.0f, 0.0f, 0.0f);
+    plane->setScale(1.0f, 1.0f, 1.0f);
+
+    auto* planeRenderer = new AnitoMeshRenderer("GroundPlane_Renderer");
+    planeRenderer->setVertexBuffer(planeMesh.vertexBuffer);
+    planeRenderer->setIndexBuffer(planeMesh.indexBuffer);
+    planeRenderer->setMaterial(planeMaterial);
+    plane->attachComponent(planeRenderer);
+
+    manager->addObject(plane);
+    m_currentSceneObjects.push_back(plane);
+
+    // --- Cube mesh (shared) ---
+    auto cubeMesh = AnitoMeshGenerator::createCube(0.8f);
+    auto cubeMaterial = createMaterialWithParams("Cube_Material", glm::vec3(0.75f, 0.82f, 0.92f), 0.0f, 0.4f);
+
+    // Cube 1: X = 0.0, Y = 0.9, Z = 0.0
+    auto* cube1 = new AnitoGameObject("Cube1", AnitoGameObject::PrimitiveType::Cube);
+    cube1->setPosition(0.0f, 0.9f, 0.0f);
+    cube1->setRotation(0.0f, 0.0f, 0.0f);
+    auto* cube1Renderer = new AnitoMeshRenderer("Cube1_Renderer");
+    cube1Renderer->setVertexBuffer(cubeMesh.vertexBuffer);
+    cube1Renderer->setIndexBuffer(cubeMesh.indexBuffer);
+    cube1Renderer->setMaterial(cubeMaterial);
+    cube1->attachComponent(cube1Renderer);
+    manager->addObject(cube1);
+    m_currentSceneObjects.push_back(cube1);
+
+    // Cube 2: X = -1.5, Y = 2.0, Z = 0.0
+    auto* cube2 = new AnitoGameObject("Cube2", AnitoGameObject::PrimitiveType::Cube);
+    cube2->setPosition(-1.5f, 2.0f, 0.0f);
+    cube2->setRotation(0.0f, 0.0f, 0.0f);
+    auto* cube2Renderer = new AnitoMeshRenderer("Cube2_Renderer");
+    cube2Renderer->setVertexBuffer(cubeMesh.vertexBuffer);
+    cube2Renderer->setIndexBuffer(cubeMesh.indexBuffer);
+    cube2Renderer->setMaterial(cubeMaterial);
+    cube2->attachComponent(cube2Renderer);
+    manager->addObject(cube2);
+    m_currentSceneObjects.push_back(cube2);
+
+    // Cube 3: X = -1.5, Y = 3.0, Z = -2.0
+    auto* cube3 = new AnitoGameObject("Cube3", AnitoGameObject::PrimitiveType::Cube);
+    cube3->setPosition(-1.5f, 3.0f, -2.0f);
+    cube3->setRotation(0.0f, 0.0f, 0.0f);
+    auto* cube3Renderer = new AnitoMeshRenderer("Cube3_Renderer");
+    cube3Renderer->setVertexBuffer(cubeMesh.vertexBuffer);
+    cube3Renderer->setIndexBuffer(cubeMesh.indexBuffer);
+    cube3Renderer->setMaterial(cubeMaterial);
+    cube3->attachComponent(cube3Renderer);
+    manager->addObject(cube3);
+    m_currentSceneObjects.push_back(cube3);
+
+    std::cout << "[PBR Test Scenes] BasicLayout: ground plane + 3 cubes created." << std::endl;
 }
 
 void AnitoPBRTestScenes::createSphereGridScene() {

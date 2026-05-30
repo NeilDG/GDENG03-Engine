@@ -48,7 +48,6 @@ AnitoEngine::AnitoEngine()
     , m_u_cameraPos(BGFX_INVALID_HANDLE)
     , m_u_lightDir(BGFX_INVALID_HANDLE)
     , m_u_enableIBL(BGFX_INVALID_HANDLE)
-    , m_u_brdfMode(BGFX_INVALID_HANDLE)
     , m_s_gbuffer0(BGFX_INVALID_HANDLE)
     , m_s_gbuffer1(BGFX_INVALID_HANDLE)
     , m_s_gbuffer2(BGFX_INVALID_HANDLE)
@@ -57,7 +56,6 @@ AnitoEngine::AnitoEngine()
     , m_s_prefilterMap(BGFX_INVALID_HANDLE)
     , m_s_brdfLUT(BGFX_INVALID_HANDLE)
     , m_benchmarkMode(false)  // [STEP 12] Default to normal operation
-    , m_useAdvancedBRDF(false)
 {
     s_instance = this;
 }
@@ -78,10 +76,6 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
 
     // [STEP 12] Check if benchmark mode is enabled
     m_benchmarkMode = AnitoEngineConfig::getBool("Benchmark.EnableBenchmarkMode", false);
-
-    // [Phase 6 Step 2] BRDF mode selection for A/B validation
-    m_useAdvancedBRDF = AnitoEngineConfig::getBool("Renderer.UseAdvancedBRDF", false);
-    std::cout << "[Engine] BRDF Mode: " << (m_useAdvancedBRDF ? "Advanced" : "Legacy") << std::endl;
 
     if (m_benchmarkMode) {
         std::cout << "\n========================================================" << std::endl;
@@ -206,7 +200,6 @@ bool AnitoEngine::initialize(const std::string& title, uint32_t width, uint32_t 
                 m_u_cameraPos = bgfx::createUniform("u_cameraPos", bgfx::UniformType::Vec4);
                 m_u_lightDir = bgfx::createUniform("u_lightDir", bgfx::UniformType::Vec4);
                 m_u_enableIBL = bgfx::createUniform("u_enableIBL", bgfx::UniformType::Vec4);
-                m_u_brdfMode = bgfx::createUniform("u_brdfMode", bgfx::UniformType::Vec4);
                 m_s_gbuffer0 = bgfx::createUniform("s_gbuffer0", bgfx::UniformType::Sampler);
                 m_s_gbuffer1 = bgfx::createUniform("s_gbuffer1", bgfx::UniformType::Sampler);
                 m_s_gbuffer2 = bgfx::createUniform("s_gbuffer2", bgfx::UniformType::Sampler);
@@ -308,9 +301,9 @@ void AnitoEngine::createTestScene() {
     shader->createUniform("u_baseColor", bgfx::UniformType::Vec4);
     shader->createUniform("u_pbrParams", bgfx::UniformType::Vec4);
     shader->createUniform("u_cameraPos", bgfx::UniformType::Vec4);  // Camera position uniform
-    shader->createUniform("u_envMap", bgfx::UniformType::Sampler);  // Environment cubemap sampler
     shader->createUniform("u_irradianceMap", bgfx::UniformType::Sampler);  // Irradiance map for diffuse IBL
     shader->createUniform("u_prefilterMap", bgfx::UniformType::Sampler);   // Prefiltered map for specular IBL
+    shader->createUniform("u_brdfLUT", bgfx::UniformType::Sampler);         // BRDF LUT for split-sum specular IBL
     shader->createUniform("u_enableIBL", bgfx::UniformType::Vec4);   // IBL toggle (as vec4 for bgfx compatibility)
 
     // Initialize PBR test scenes system
@@ -363,9 +356,9 @@ void AnitoEngine::createTestScene() {
     std::cout << "\n========== CONTROLS ==========" << std::endl;
     std::cout << "  Camera Movement:" << std::endl;
     std::cout << "    - WASD: Move forward/left/backward/right" << std::endl;
-    std::cout << "    - Space/Left Ctrl: Move up/down" << std::endl;
+    std::cout << "    - E/Q: Move up/down" << std::endl;
     std::cout << "    - Left Shift: Sprint (2x speed)" << std::endl;
-    std::cout << "    - Mouse: Look around" << std::endl;
+    std::cout << "    - Left Mouse + Drag: Look around" << std::endl;
     std::cout << "    - Scroll Wheel: Adjust movement speed" << std::endl;
     std::cout << "  Scene Controls:" << std::endl;
     std::cout << "    - SPACE: Switch between test scenes" << std::endl;
@@ -658,7 +651,6 @@ void AnitoEngine::shutdown() {
     if (bgfx::isValid(m_u_cameraPos)) bgfx::destroy(m_u_cameraPos);
     if (bgfx::isValid(m_u_lightDir)) bgfx::destroy(m_u_lightDir);
     if (bgfx::isValid(m_u_enableIBL)) bgfx::destroy(m_u_enableIBL);
-    if (bgfx::isValid(m_u_brdfMode)) bgfx::destroy(m_u_brdfMode);
     if (bgfx::isValid(m_s_gbuffer0)) bgfx::destroy(m_s_gbuffer0);
     if (bgfx::isValid(m_s_gbuffer1)) bgfx::destroy(m_s_gbuffer1);
     if (bgfx::isValid(m_s_gbuffer2)) bgfx::destroy(m_s_gbuffer2);
@@ -857,14 +849,9 @@ void AnitoEngine::renderDeferred() {
         bgfx::setUniform(m_u_lightDir, lightDir);
     }
 
-    const float iblEnabled[4] = { renderer->getEnableIBL() ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f };
+    const float iblEnabled[4] = { (renderer->getEnableIBL() && renderer->isIBLReady()) ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f };
     if (bgfx::isValid(m_u_enableIBL)) {
         bgfx::setUniform(m_u_enableIBL, iblEnabled);
-    }
-
-    const float brdfMode[4] = { m_useAdvancedBRDF ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f };
-    if (bgfx::isValid(m_u_brdfMode)) {
-        bgfx::setUniform(m_u_brdfMode, brdfMode);
     }
 
     if (renderer->isIBLReady()) {
@@ -873,6 +860,9 @@ void AnitoEngine::renderDeferred() {
         }
         if (bgfx::isValid(m_s_prefilterMap) && bgfx::isValid(renderer->getPrefilterMap())) {
             bgfx::setTexture(5, m_s_prefilterMap, renderer->getPrefilterMap());
+        }
+        if (bgfx::isValid(m_s_brdfLUT) && bgfx::isValid(renderer->getBRDFLUT())) {
+            bgfx::setTexture(6, m_s_brdfLUT, renderer->getBRDFLUT());
         }
     }
 

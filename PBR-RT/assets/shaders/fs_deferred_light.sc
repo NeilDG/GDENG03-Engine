@@ -22,6 +22,7 @@ uniform vec4 u_enableIBL;     // x: 0.0 = disabled, 1.0 = enabled
 // IBL cubemap samplers — use bgfx SAMPLERCUBE macro so binding slots match C++ side
 SAMPLERCUBE(s_irradianceMap, 4);  // Precomputed irradiance for diffuse IBL
 SAMPLERCUBE(s_prefilterMap,  5);  // Prefiltered environment for specular IBL (with mips)
+SAMPLER2D(s_brdfLUT, 6);          // BRDF integration LUT (split-sum)
 
 #define PI 3.14159265359
 
@@ -30,18 +31,10 @@ vec3 decodeNormal(vec3 encoded) {
     return encoded * 2.0 - 1.0;  // Map [0,1] to [-1,1]
 }
 
-// Fresnel-Schlick approximation (Filament spec eq. 2)
-// Moved to shared include as F_Schlick for Phase 5 Step 4.
-
 // Fresnel-Schlick with roughness for IBL
 vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
     return F0 + (max(vec3_splat(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
-
-// GGX/Trowbridge-Reitz normal distribution function (Filament spec eq. 4)
-// Moved to shared include as D_GGX for Phase 5 Step 2.
-
-// Geometry function and Smith visibility moved to shared include (Phase 5 Step 3).
 
 void main()
 {
@@ -75,6 +68,8 @@ void main()
 
     vec3 emission = gbuffer3.rgb;
 
+    roughness = max(roughness, 0.04);
+
     // Decode normal from [0,1] to [-1,1] and renormalize
     vec3 N = normalize(decodeNormal(normalEncoded));
 
@@ -99,10 +94,7 @@ void main()
     vec3 F = F_Schlick(max(dot(H, V), 0.0), F0);
 
     // Energy conservation: diffuse contribution
-    // kS is equal to Fresnel
     vec3 kS = F;
-    // For energy conservation, diffuse and specular light can't exceed 1.0
-    // Metallic surfaces have no diffuse lighting
     vec3 kD = vec3_splat(1.0) - kS;
     kD *= 1.0 - metallic;
 
@@ -121,37 +113,32 @@ void main()
 
     vec3 ambient;
     if (u_enableIBL.x > 0.5) {
-        // Use prefiltered maps for physically accurate IBL
-
-        // Diffuse IBL: Sample irradiance map and convert to linear
         vec3 irradiance = textureCube(s_irradianceMap, N).rgb;
         irradiance = pow(abs(irradiance), vec3_splat(2.2)); // toLinear
         vec3 diffuseIBL = irradiance * albedo;
 
-        // Specular IBL: Sample prefiltered environment map at roughness mip level
         vec3 R = reflect(-V, N);
         const float MAX_REFLECTION_LOD = 4.0; // 5 mip levels (0-4)
         float lod = roughness * MAX_REFLECTION_LOD;
         vec3 prefilteredColor = textureCubeLod(s_prefilterMap, R, lod).rgb;
         prefilteredColor = pow(abs(prefilteredColor), vec3_splat(2.2)); // toLinear
 
-        // Fresnel for IBL
-        vec3 F_ibl = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
-
-        // Energy conservation for IBL
+        float NoV = max(dot(N, V), 0.0);
+        vec3 F_ibl = fresnelSchlickRoughness(NoV, F0, roughness);
         vec3 kS_ibl = F_ibl;
         vec3 kD_ibl = vec3_splat(1.0) - kS_ibl;
         kD_ibl *= 1.0 - metallic;
 
-        // Combine diffuse and specular IBL
-        // Increased multipliers for indoor HDR maps (BGFX uses exp2(exposure))
-        float iblDiffuseStrength = 2.0;  // Match forward rendering
-        float iblSpecularStrength = 2.5; // Match forward rendering
+        float iblDiffuseStrength = 2.0;
+        float iblSpecularStrength = 2.5;
 
         vec3 diffuse_ambient = kD_ibl * diffuseIBL * iblDiffuseStrength;
-        vec3 specular_ambient = kS_ibl * prefilteredColor * iblSpecularStrength;
 
-        // Apply AO
+        // Advanced: Split-sum specular term using BRDF LUT
+        vec2 brdf = texture2D(s_brdfLUT, vec2(NoV, roughness)).rg;
+        vec3 specular_ambient = prefilteredColor * (F0 * brdf.x + brdf.y);
+
+        specular_ambient *= iblSpecularStrength;
         ambient = (diffuse_ambient + specular_ambient) * ao;
     } else {
         // Fallback: simple ambient without IBL

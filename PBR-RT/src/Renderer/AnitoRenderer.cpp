@@ -3,7 +3,9 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cstring>
 #include <bx/bx.h>
+#include <bx/math.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../external/bgfx/bimg/3rdparty/stb/stb_image.h"
@@ -107,6 +109,7 @@ void AnitoRenderer::release() {
     if (bgfx::isValid(m_envCubemap)) { bgfx::destroy(m_envCubemap); m_envCubemap = BGFX_INVALID_HANDLE; }
     if (bgfx::isValid(m_irradianceMap)) { bgfx::destroy(m_irradianceMap); m_irradianceMap = BGFX_INVALID_HANDLE; }
     if (bgfx::isValid(m_prefilterMap)) { bgfx::destroy(m_prefilterMap); m_prefilterMap = BGFX_INVALID_HANDLE; }
+    if (bgfx::isValid(m_brdfLUT)) { bgfx::destroy(m_brdfLUT); m_brdfLUT = BGFX_INVALID_HANDLE; }
 
     bgfx::shutdown();
 }
@@ -362,12 +365,16 @@ void AnitoRenderer::loadEnvironmentMap(const std::string& hdrPath) {
     std::cout << "[AnitoRenderer] Generating prefiltered environment map for specular IBL..." << std::endl;
     generatePrefilterMap(m_envCubemap);
 
+    std::cout << "[AnitoRenderer] Generating BRDF LUT for split-sum specular IBL..." << std::endl;
+    generateBRDFLUT();
+
     std::cout << "\n========================================" << std::endl;
     std::cout << "IBL SYSTEM READY!" << std::endl;
     std::cout << "  - Skybox: " << (bgfx::isValid(m_skyboxProgram) ? "LOADED" : "FAILED") << std::endl;
     std::cout << "  - Environment Cubemap: " << (bgfx::isValid(m_envCubemap) ? "LOADED" : "FAILED") << std::endl;
     std::cout << "  - Irradiance Map: " << (bgfx::isValid(m_irradianceMap) ? "LOADED" : "FAILED") << std::endl;
     std::cout << "  - Prefilter Map: " << (bgfx::isValid(m_prefilterMap) ? "LOADED" : "FAILED") << std::endl;
+    std::cout << "  - BRDF LUT: " << (bgfx::isValid(m_brdfLUT) ? "LOADED" : "FAILED") << std::endl;
     std::cout << "  - IBL Enabled: " << (m_enableIBL ? "YES" : "NO") << std::endl;
     std::cout << "  - Press 'Z' to toggle IBL on/off" << std::endl;
     std::cout << "========================================\n" << std::endl;
@@ -692,18 +699,110 @@ void AnitoRenderer::generatePrefilterMap(bgfx::TextureHandle envCubemap) {
     std::cout << "[AnitoRenderer] Prefilter map generation complete!" << std::endl;
 }
 
+void AnitoRenderer::generateBRDFLUT() {
+    const uint16_t lutSize = 256;
+
+    if (bgfx::isValid(m_brdfLUT)) {
+        bgfx::destroy(m_brdfLUT);
+        m_brdfLUT = BGFX_INVALID_HANDLE;
+    }
+
+    m_brdfLUT = bgfx::createTexture2D(
+        lutSize,
+        lutSize,
+        false,
+        1,
+        bgfx::TextureFormat::RG16F,
+        BGFX_TEXTURE_RT |
+        BGFX_SAMPLER_U_CLAMP |
+        BGFX_SAMPLER_V_CLAMP
+    );
+
+    if (!bgfx::isValid(m_brdfLUT)) {
+        std::cerr << "[AnitoRenderer] Failed to create BRDF LUT texture!" << std::endl;
+        return;
+    }
+
+    bgfx::ProgramHandle brdfLUTProgram = createProgram(
+        "assets/shaders/compiled/vs_brdf_lut.bin",
+        "assets/shaders/compiled/fs_brdf_lut.bin"
+    );
+
+    if (!bgfx::isValid(brdfLUTProgram)) {
+        std::cerr << "[AnitoRenderer] Failed to load BRDF LUT shaders!" << std::endl;
+        bgfx::destroy(m_brdfLUT);
+        m_brdfLUT = BGFX_INVALID_HANDLE;
+        return;
+    }
+
+    bgfx::Attachment attachment;
+    attachment.init(m_brdfLUT, bgfx::Access::Write, 0, 1, 0, BGFX_RESOLVE_NONE);
+    bgfx::FrameBufferHandle lutFB = bgfx::createFrameBuffer(1, &attachment, false);
+
+    if (!bgfx::isValid(lutFB)) {
+        std::cerr << "[AnitoRenderer] Failed to create BRDF LUT framebuffer!" << std::endl;
+        bgfx::destroy(brdfLUTProgram);
+        bgfx::destroy(m_brdfLUT);
+        m_brdfLUT = BGFX_INVALID_HANDLE;
+        return;
+    }
+
+    const bgfx::ViewId brdfView = 52;
+    bgfx::setViewFrameBuffer(brdfView, lutFB);
+    bgfx::setViewRect(brdfView, 0, 0, lutSize, lutSize);
+    bgfx::setViewClear(brdfView, BGFX_CLEAR_COLOR, 0x000000ff, 1.0f, 0);
+
+    float identity[16] = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
+    bgfx::setViewTransform(brdfView, identity, identity);
+
+    struct PosVertex2D { float x, y; };
+    static const PosVertex2D kFullscreenTriangle[3] = {
+        { -1.0f, -1.0f },
+        {  3.0f, -1.0f },
+        { -1.0f,  3.0f },
+    };
+
+    bgfx::VertexLayout layout;
+    layout.begin()
+        .add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
+        .end();
+
+    bgfx::TransientVertexBuffer tvb;
+    bgfx::allocTransientVertexBuffer(&tvb, 3, layout);
+
+    if (tvb.data == nullptr) {
+        std::cerr << "[AnitoRenderer] Failed to allocate BRDF LUT fullscreen triangle buffer!" << std::endl;
+        bgfx::destroy(lutFB);
+        bgfx::destroy(brdfLUTProgram);
+        bgfx::destroy(m_brdfLUT);
+        m_brdfLUT = BGFX_INVALID_HANDLE;
+        return;
+    }
+
+    memcpy(tvb.data, kFullscreenTriangle, sizeof(kFullscreenTriangle));
+    bgfx::setVertexBuffer(0, &tvb);
+    bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
+    bgfx::submit(brdfView, brdfLUTProgram);
+
+    bgfx::frame();
+
+    bgfx::destroy(lutFB);
+    bgfx::destroy(brdfLUTProgram);
+
+    std::cout << "[AnitoRenderer] BRDF LUT generation complete!" << std::endl;
+}
+
 void AnitoRenderer::bindIBLTextures(std::shared_ptr<AnitoShader> shader) {
     if (!shader || !shader->isValid()) return;
     if (!isIBLReady()) return;
 
-    // Bind IBL textures to texture units 0, 1, 2
+    // Bind IBL textures to texture units 1, 2, 3
     // These must be bound per-draw-call in bgfx
-
-    // Environment cubemap (unit 0)
-    bgfx::UniformHandle envMapUniform = shader->getUniformHandle("u_envMap");
-    if (bgfx::isValid(envMapUniform) && bgfx::isValid(m_envCubemap)) {
-        bgfx::setTexture(0, envMapUniform, m_envCubemap);
-    }
 
     // Irradiance map for diffuse IBL (unit 1)
     bgfx::UniformHandle irradianceMapUniform = shader->getUniformHandle("u_irradianceMap");
@@ -715,6 +814,12 @@ void AnitoRenderer::bindIBLTextures(std::shared_ptr<AnitoShader> shader) {
     bgfx::UniformHandle prefilterMapUniform = shader->getUniformHandle("u_prefilterMap");
     if (bgfx::isValid(prefilterMapUniform) && bgfx::isValid(m_prefilterMap)) {
         bgfx::setTexture(2, prefilterMapUniform, m_prefilterMap);
+    }
+
+    // BRDF LUT for split-sum specular IBL (unit 3)
+    bgfx::UniformHandle brdfLUTUniform = shader->getUniformHandle("u_brdfLUT");
+    if (bgfx::isValid(brdfLUTUniform) && bgfx::isValid(m_brdfLUT)) {
+        bgfx::setTexture(3, brdfLUTUniform, m_brdfLUT);
     }
 
     // Set IBL enable flag

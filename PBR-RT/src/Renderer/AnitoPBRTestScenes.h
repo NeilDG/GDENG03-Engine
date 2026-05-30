@@ -21,6 +21,7 @@ namespace Anito {
 class AnitoPBRTestScenes {
 public:
     enum class SceneType {
+        BasicLayout,         // Flat plane + 3 cubes at specified transforms (reference mockup)
         SphereGrid,          // N x N grid of spheres with varying roughness/metallic
         CubeGrid,            // N x N grid of rotating cubes with varying properties
         MixedMaterials,      // Mix of different material types
@@ -67,6 +68,7 @@ public:
 
 private:
     void setupSceneConfigs();
+    void createBasicLayoutScene();
     void createSphereGridScene();
     void createCubeGridScene();
     void createMixedMaterialsScene();

@@ -522,6 +522,42 @@ if(SHADERC_EXECUTABLE AND ANITO_COMPILE_SHADERS)
         list(APPEND COMPILED_SHADERS ${fs_gbuffer_OUTPUT})
     endif()
 
+    # Deferred Rendering Shaders - Lighting pass
+    set(DEFERRED_LIGHT_VARYING_DEF "${CMAKE_SOURCE_DIR}/assets/shaders/varying_deferred_light.def.sc")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/vs_deferred_light.sc")
+        add_bgfx_shader(vs_deferred_light VERTEX "${CMAKE_SOURCE_DIR}/assets/shaders/vs_deferred_light.sc" "${DEFERRED_LIGHT_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${vs_deferred_light_OUTPUT})
+    endif()
+
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/fs_deferred_light.sc")
+        add_bgfx_shader(fs_deferred_light FRAGMENT "${CMAKE_SOURCE_DIR}/assets/shaders/fs_deferred_light.sc" "${DEFERRED_LIGHT_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${fs_deferred_light_OUTPUT})
+    endif()
+
+    # Deferred Rendering Shaders - G-Buffer debug visualization
+    set(GBUFFER_DEBUG_VARYING_DEF "${CMAKE_SOURCE_DIR}/assets/shaders/varying_gbuffer_debug.def.sc")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/vs_gbuffer_debug.sc")
+        add_bgfx_shader(vs_gbuffer_debug VERTEX "${CMAKE_SOURCE_DIR}/assets/shaders/vs_gbuffer_debug.sc" "${GBUFFER_DEBUG_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${vs_gbuffer_debug_OUTPUT})
+    endif()
+
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/fs_gbuffer_debug.sc")
+        add_bgfx_shader(fs_gbuffer_debug FRAGMENT "${CMAKE_SOURCE_DIR}/assets/shaders/fs_gbuffer_debug.sc" "${GBUFFER_DEBUG_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${fs_gbuffer_debug_OUTPUT})
+    endif()
+
+    # Phase 6 - BRDF LUT preintegration shaders
+    set(BRDF_LUT_VARYING_DEF "${CMAKE_SOURCE_DIR}/assets/shaders/varying_brdf_lut.def.sc")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/vs_brdf_lut.sc")
+        add_bgfx_shader(vs_brdf_lut VERTEX "${CMAKE_SOURCE_DIR}/assets/shaders/vs_brdf_lut.sc" "${BRDF_LUT_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${vs_brdf_lut_OUTPUT})
+    endif()
+
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/shaders/fs_brdf_lut.sc")
+        add_bgfx_shader(fs_brdf_lut FRAGMENT "${CMAKE_SOURCE_DIR}/assets/shaders/fs_brdf_lut.sc" "${BRDF_LUT_VARYING_DEF}")
+        list(APPEND COMPILED_SHADERS ${fs_brdf_lut_OUTPUT})
+    endif()
+
     # Only create shader compilation target if we have shaders to compile
     if(COMPILED_SHADERS)
         add_custom_target(CompileShaders ALL

@@ -13,3 +13,11 @@
 
 ##Instructions
 I only see the skybox. There are "spheres" that must appear but they are gone after deferred rendering is implemented. Please check the deferred rendering pipeline, as well as the mesh rendering. Use the "x86 Debug" when testing.
+
+
+Please assemble a scene with a flat plane placed in the world origin. Please see reference photo for the mockup. This would be the test scene. There are exactly 3 cubes with the following transforms (no rotation).
+Cube 1: X = 0.0, Y = 0.9, Z = 0.0
+Cube 2: X = -1.5, Y = 2.0, Z = 0.0
+Cube 3: X = -1.5, Y = 3.0, Z = -2.0
+
+Provide an action plan for this first and validate if this would be viewable with the existing renderer.

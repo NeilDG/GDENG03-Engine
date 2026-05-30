@@ -72,17 +72,8 @@ void AnitoInputManager::update() {
     }
     m_wasZPressed = zDown;
 
-    // Handle scene switch (Space key)
-    bool spaceDown = isKeyDown(GLFW_KEY_SPACE);
-    if (spaceDown && !m_wasSpacePressed) {
-        auto* testScenes = AnitoPBRTestScenes::getCurrentInstance();
-        if (testScenes) {
-            testScenes->switchToNextScene();
-        } else {
-            std::cout << "[Input] Space pressed - but no test scenes instance available" << std::endl;
-        }
-    }
-    m_wasSpacePressed = spaceDown;
+    // Note: Scene switching (Space key) is handled by AnitoEngine::update() to avoid double-firing.
+    // The FPS camera still reads GLFW_KEY_SPACE via isKeyDown() independently for vertical movement.
 
     // Note: Previous states are stored in isKeyPressed/isKeyReleased methods
     // This approach ensures we capture state at the moment of query
